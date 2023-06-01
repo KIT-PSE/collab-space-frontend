@@ -1,0 +1,17 @@
+@import "bootstrap/scss/functions";
+
+$primary: #34d1b3;
+
+@import "bootstrap/scss/bootstrap";
+@import "@fortawesome/fontawesome-free/css/all.css";
+
+$animationDuration: 0.5s;
+@import "vue2-animate/src/sass/vue2-animate.scss";
+
+.modal-header {
+  border-bottom: 0;
+}
+
+.modal-footer {
+  border-top: 0;
+}
