@@ -4,6 +4,13 @@ function toFullPath(path: string) {
   return `${import.meta.env.VITE_BACKEND_URL}${path}`;
 }
 
+export class HttpError extends Error {
+  constructor(public readonly response: Response) {
+    const prefix = response.status ? response.status + ' ' : '';
+    super(prefix + response.statusText);
+  }
+}
+
 class Fetch {
   public async getRaw(path: string, headers = {}): Promise<Response> {
     return await fetch(toFullPath(path), {
@@ -21,8 +28,7 @@ class Fetch {
     const response = await this.getRaw(path, headers);
 
     if (!response.ok) {
-      const prefix = response.status ? response.status + ' ' : '';
-      throw new Error(prefix + response.statusText);
+      throw new HttpError(response);
     }
 
     return await response.json();
@@ -53,8 +59,7 @@ class Fetch {
     const response = await this.postRaw(path, body, headers);
 
     if (!response.ok) {
-      const prefix = response.status ? response.status + ' ' : '';
-      throw new Error(prefix + response.statusText);
+      throw new HttpError(response);
     }
 
     return await response.json();

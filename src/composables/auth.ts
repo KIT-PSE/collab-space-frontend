@@ -5,8 +5,10 @@ import type { Timer } from '@/composables/timer';
 import { useTimer } from '@/composables/timer';
 import { useApi } from '@/composables/api';
 import { useSingleton } from '@/composables/utils';
+import { Form, ValidationError } from '@/composables/form';
+import { HttpError } from '@/composables/fetch';
 
-const alert = useAlerts();
+const alerts = useAlerts();
 const api = useApi();
 
 class Auth {
@@ -15,34 +17,42 @@ class Auth {
   public loginTimer: Timer | null = null;
   private loaded = false;
 
-  public async login(email: string, password: string): Promise<void> {
+  public async login(form: Form<any>): Promise<void> {
     try {
-      const { user } = await api.login({ email, password });
+      const { user } = await form.post('/auth/login');
       this.loginUser(user);
 
       await router.push({ name: 'dashboard' });
-    } catch (error) {
-      console.error(error);
-      alert.danger(
-        'Einloggen fehlgeschlagen',
-        'Bitte überprüfe deine E-Mail-Adresse und dein Passwort.',
-      );
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        return;
+      }
+
+      if (err instanceof HttpError && err.response.status === 401) {
+        alerts.danger(
+          'Einloggen fehlgeschlagen',
+          'Bitte überprüfe deine E-Mail Adresse und dein Passwort.',
+        );
+        return;
+      }
+
+      alerts.error('Einloggen fehlgeschlagen', err as Error);
     }
   }
 
   public async logout(): Promise<void> {
     try {
       if (!this.isLoggedIn()) {
-        alert.danger('Ausloggen fehlgeschlagen', 'Du bist nicht eingeloggt.');
+        alerts.danger('Ausloggen fehlgeschlagen', 'Du bist nicht eingeloggt.');
         return;
       }
 
       await api.logout();
       await this.logoutUser();
 
-      alert.success('Erfolgreich ausgeloggt');
+      alerts.success('Erfolgreich ausgeloggt');
     } catch (error) {
-      alert.error('Ausloggen fehlgeschlagen', error as Error);
+      alerts.error('Ausloggen fehlgeschlagen', error as Error);
     }
   }
 
@@ -86,7 +96,7 @@ class Auth {
     this.loginTimer.start();
     this.loginTimer.onFinished(async () => {
       await this.logoutUser();
-      alert.warning(
+      alerts.warning(
         'Du wurdest automatisch ausgeloggt.',
         'Bitte logge dich erneut ein.',
       );

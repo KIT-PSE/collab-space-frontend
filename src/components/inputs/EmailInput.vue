@@ -3,7 +3,7 @@
     :label="label"
     type="email"
     placeholder="name@example.de"
-    :invalid="invalid"
+    :error="error"
   >
     <slot></slot>
   </Input>
@@ -13,6 +13,6 @@
 
   defineProps<{
     label: string;
-    invalid?: boolean;
+    error?: string;
   }>();
 </script>

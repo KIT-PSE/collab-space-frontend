@@ -2,13 +2,13 @@
   <GuestLayout>
     <EmailInput
       label="E-Mail Adresse"
-      v-model="email"
-      :invalid="emailInvalid"
+      v-model="form.email"
+      :error="form.errors.email"
     />
     <PasswordInput
       label="Passwort"
-      v-model="password"
-      :invalid="passwordInvalid"
+      v-model="form.password"
+      :error="form.errors.password"
     />
 
     <button class="btn btn-primary w-100" @click="login">Anmelden</button>
@@ -26,24 +26,17 @@
   import EmailInput from '@/components/inputs/EmailInput.vue';
   import PasswordInput from '@/components/inputs/PasswordInput.vue';
   import GuestLayout from '@/components/GuestLayout.vue';
-  import { ref } from 'vue';
   import { useAuth } from '@/composables/auth';
+  import { useForm } from '@/composables/form';
 
   const auth = useAuth();
 
-  const email = ref('test@example.com');
-  const emailInvalid = ref(false);
-  const password = ref('12345');
-  const passwordInvalid = ref(false);
+  const form = useForm({
+    email: 'test@example.com',
+    password: '12345',
+  });
 
   async function login() {
-    emailInvalid.value = !email.value;
-    passwordInvalid.value = !password.value;
-
-    if (emailInvalid.value || passwordInvalid.value) {
-      return;
-    }
-
-    await auth.login(email.value, password.value);
+    await auth.login(form);
   }
 </script>

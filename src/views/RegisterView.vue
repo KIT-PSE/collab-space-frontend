@@ -1,12 +1,31 @@
 <template>
   <GuestLayout>
-    <Input label="Schule / Universität oder Organisation" />
-    <Input label="Name" />
-    <EmailInput label="E-Mail Adresse" />
-    <PasswordInput label="Passwort" />
-    <PasswordInput label="Passwort wiederholen" />
+    <Input
+      label="Schule / Universität oder Organisation"
+      v-model="form.organization"
+      :error="form.errors.organization"
+    />
 
-    <button class="btn btn-primary w-100">Registrieren</button>
+    <Input label="Name" v-model="form.name" :error="form.errors.name" />
+    <EmailInput
+      label="E-Mail Adresse"
+      v-model="form.email"
+      :error="form.errors.email"
+    />
+
+    <PasswordInput
+      label="Passwort"
+      v-model="form.password"
+      :error="form.errors.password"
+    />
+
+    <PasswordInput
+      label="Passwort wiederholen"
+      v-model="form.confirmPassword"
+      :error="form.errors.confirmPassword"
+    />
+
+    <button class="btn btn-primary w-100" @click="submit">Registrieren</button>
 
     <router-link
       to="/login"
@@ -22,4 +41,17 @@
   import EmailInput from '@/components/inputs/EmailInput.vue';
   import PasswordInput from '@/components/inputs/PasswordInput.vue';
   import GuestLayout from '@/components/GuestLayout.vue';
+  import { useForm } from '@/composables/form';
+
+  const form = useForm({
+    organization: '',
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  async function submit() {
+    await form.post('/auth/register');
+  }
 </script>

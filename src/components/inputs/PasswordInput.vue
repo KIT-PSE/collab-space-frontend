@@ -1,10 +1,5 @@
 <template>
-  <Input
-    :label="label"
-    type="password"
-    placeholder="Passwort"
-    :invalid="invalid"
-  >
+  <Input :label="label" type="password" placeholder="Passwort" :error="error">
     <slot></slot>
   </Input>
 </template>
@@ -13,6 +8,6 @@
 
   defineProps<{
     label: string;
-    invalid?: boolean;
+    error?: string;
   }>();
 </script>

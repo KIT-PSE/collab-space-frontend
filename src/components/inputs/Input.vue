@@ -5,14 +5,14 @@
       <div class="w-100">
         <input
           class="form-control"
-          :class="invalid ? 'is-invalid' : ''"
+          :class="error ? 'is-invalid' : ''"
           :id="id"
           placeholder="Lorem Ipsum"
           v-bind="$attrs"
           :value="modelValue"
           @input="$emit('update:modelValue', $event.target.value)"
         />
-        <div class="invalid-feedback">Bitte gib einen gültigen Wert ein.</div>
+        <div class="invalid-feedback">{{ error }}</div>
       </div>
       <slot></slot>
     </div>
@@ -25,7 +25,7 @@
   defineProps<{
     label: string;
     modelValue?: any;
-    invalid?: boolean;
+    error?: string;
   }>();
 
   defineEmits<{
