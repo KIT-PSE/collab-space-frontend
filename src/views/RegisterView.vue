@@ -7,6 +7,7 @@
     />
 
     <Input label="Name" v-model="form.name" :error="form.errors.name" />
+
     <EmailInput
       label="E-Mail Adresse"
       v-model="form.email"

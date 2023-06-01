@@ -9,6 +9,8 @@ export class ValidationError extends Error {
   }
 }
 
+// inspired by how inertia handles forms: https://inertiajs.com/forms
+
 export type Form<T extends Record<string, any>> = {
   errors: Record<keyof T, string>;
   data(): T;
