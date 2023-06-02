@@ -5,6 +5,7 @@
       v-model="form.email"
       :error="form.errors.email"
     />
+
     <PasswordInput
       label="Passwort"
       v-model="form.password"
@@ -36,7 +37,7 @@
     password: '12345',
   });
 
-  async function login() {
-    await auth.login(form);
+  function login() {
+    form.submit((data) => auth.login(data));
   }
 </script>

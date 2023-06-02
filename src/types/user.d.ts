@@ -5,5 +5,4 @@ interface User {
   organization: string;
   createdAt: Date;
   updatedAt: Date;
-  exp: number;
 }

@@ -1,13 +1,5 @@
 import { reactive } from 'vue';
-import { HttpError, useFetch } from '@/composables/fetch';
-
-const fetch = useFetch();
-
-export class ValidationError extends Error {
-  constructor(public readonly errors: Record<string, string>) {
-    super('Validation failed');
-  }
-}
+import { ValidationError } from '@/composables/fetch';
 
 // inspired by how inertia handles forms: https://inertiajs.com/forms
 
@@ -15,8 +7,8 @@ export type Form<T extends Record<string, any>> = {
   errors: Record<keyof T, string>;
   data(): T;
   clearErrors(): void;
-  setErrors(errors: Record<string, string>): void;
-  post(path: string): Promise<any>;
+  setErrors(error: ValidationError): void;
+  submit<U>(action: (data: T) => Promise<U>): Promise<U | null>;
 } & T;
 
 export function useForm<T extends Record<string, any>>(defaults: T): Form<T> {
@@ -31,7 +23,7 @@ export function useForm<T extends Record<string, any>>(defaults: T): Form<T> {
     data() {
       return Object.fromEntries(
         Object.keys(defaults).map((key) => [key, this[key]]),
-      );
+      ) as T;
     },
 
     clearErrors() {
@@ -40,32 +32,29 @@ export function useForm<T extends Record<string, any>>(defaults: T): Form<T> {
       });
     },
 
-    setErrors(errors: Record<string, string>) {
+    setErrors(error: ValidationError) {
       const emptyErrors = Object.fromEntries(
         Object.keys(defaults).map((key) => [key, '']),
       );
 
       Object.assign(this.errors, {
         ...emptyErrors,
-        ...errors,
+        ...error.errors,
       });
     },
 
-    async post(url: string): Promise<any> {
-      const response = await fetch.postRaw(url, this.data());
+    async submit<U>(action: (data: T) => Promise<U>): Promise<U | null> {
+      try {
+        const result = await action(this.data());
+        this.clearErrors();
+        return result;
+      } catch (err) {
+        if (err instanceof ValidationError) {
+          this.setErrors(err);
+        }
 
-      if (!response.ok && response.status === 422) {
-        const { message: errors } = await response.json();
-        this.setErrors(Object.fromEntries(errors));
-        throw new ValidationError(this.errors);
+        return null;
       }
-
-      this.clearErrors();
-      if (!response.ok) {
-        throw new HttpError(response);
-      }
-
-      return await response.json();
     },
   }) as Form<T>;
 }

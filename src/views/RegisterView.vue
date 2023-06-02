@@ -26,7 +26,9 @@
       :error="form.errors.confirmPassword"
     />
 
-    <button class="btn btn-primary w-100" @click="submit">Registrieren</button>
+    <button class="btn btn-primary w-100" @click="register">
+      Registrieren
+    </button>
 
     <router-link
       to="/login"
@@ -43,6 +45,9 @@
   import PasswordInput from '@/components/inputs/PasswordInput.vue';
   import GuestLayout from '@/components/GuestLayout.vue';
   import { useForm } from '@/composables/form';
+  import { useAuth } from '@/composables/auth';
+
+  const auth = useAuth();
 
   const form = useForm({
     organization: '',
@@ -52,7 +57,7 @@
     confirmPassword: '',
   });
 
-  async function submit() {
-    await form.post('/auth/register');
+  function register() {
+    form.submit((data) => auth.register(data));
   }
 </script>

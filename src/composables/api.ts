@@ -5,6 +5,7 @@ const fetch = useFetch();
 
 export type UserResponse = {
   user: User;
+  exp: number;
 };
 
 export type LoginData = {
@@ -12,7 +13,19 @@ export type LoginData = {
   password: string;
 };
 
+export type RegisterData = {
+  organization: string;
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
 class Api {
+  public async register(data: RegisterData): Promise<UserResponse> {
+    return fetch.postOrFail<UserResponse>('/auth/register', data);
+  }
+
   public async login(data: LoginData): Promise<UserResponse> {
     return fetch.postOrFail<UserResponse>('/auth/login', data);
   }

@@ -3,10 +3,9 @@ import { computed, ComputedRef, type Ref, ref } from 'vue';
 import router from '@/router';
 import type { Timer } from '@/composables/timer';
 import { useTimer } from '@/composables/timer';
-import { useApi } from '@/composables/api';
+import { LoginData, RegisterData, useApi } from '@/composables/api';
 import { useSingleton } from '@/composables/utils';
-import { Form, ValidationError } from '@/composables/form';
-import { HttpError } from '@/composables/fetch';
+import { HttpError, ValidationError } from '@/composables/fetch';
 
 const alerts = useAlerts();
 const api = useApi();
@@ -17,15 +16,16 @@ class Auth {
   public loginTimer: Timer | null = null;
   private loaded = false;
 
-  public async login(form: Form<any>): Promise<void> {
+  /** @throws ValidationError */
+  public async login(credentials: LoginData): Promise<void> {
     try {
-      const { user } = await form.post('/auth/login');
-      this.loginUser(user);
+      const { user, exp } = await api.login(credentials);
+      this.loginUser(user, exp);
 
       await router.push({ name: 'dashboard' });
     } catch (err) {
       if (err instanceof ValidationError) {
-        return;
+        throw err;
       }
 
       if (err instanceof HttpError && err.response.status === 401) {
@@ -37,6 +37,22 @@ class Auth {
       }
 
       alerts.error('Einloggen fehlgeschlagen', err as Error);
+    }
+  }
+
+  /** @throws ValidationError */
+  public async register(data: RegisterData): Promise<void> {
+    try {
+      const { user, exp } = await api.register(data);
+      this.loginUser(user, exp);
+
+      await router.push({ name: 'dashboard' });
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        throw err;
+      }
+
+      alerts.error('Registrieren fehlgeschlagen', err as Error);
     }
   }
 
@@ -62,12 +78,16 @@ class Auth {
     }
 
     try {
-      const { user } = await api.profile();
-      this.loginUser(user);
+      const { user, exp } = await api.profile();
+      this.loginUser(user, exp);
     } catch (e) {
     } finally {
       this.loaded = true;
     }
+  }
+
+  public isLoggedIn(): boolean {
+    return this.loggedIn;
   }
 
   private async logoutUser(): Promise<void> {
@@ -79,16 +99,12 @@ class Auth {
     this.loginTimer = null;
   }
 
-  public isLoggedIn(): boolean {
-    return this.loggedIn;
-  }
-
-  private loginUser(user: User): void {
+  private loginUser(user: User, exp: number): void {
     this.user.value = user;
     this.loggedIn = true;
 
     const startDate = new Date();
-    const endDate = new Date(user.exp * 1000);
+    const endDate = new Date(exp * 1000);
     const amount = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
 
     this.loginTimer?.stop();

@@ -11,6 +11,24 @@ export class HttpError extends Error {
   }
 }
 
+export class ValidationError extends HttpError {
+  constructor(
+    response: Response,
+    public readonly errors: Record<string, string>,
+  ) {
+    super(response);
+  }
+}
+
+async function throwHttpError(response: Response): Promise<never> {
+  if (response.status === 422) {
+    const { message } = await response.json();
+    throw new ValidationError(response, Object.fromEntries(message));
+  }
+
+  throw new HttpError(response);
+}
+
 class Fetch {
   public async getRaw(path: string, headers = {}): Promise<Response> {
     return await fetch(toFullPath(path), {
@@ -28,7 +46,7 @@ class Fetch {
     const response = await this.getRaw(path, headers);
 
     if (!response.ok) {
-      throw new HttpError(response);
+      await throwHttpError(response);
     }
 
     return await response.json();
@@ -59,7 +77,7 @@ class Fetch {
     const response = await this.postRaw(path, body, headers);
 
     if (!response.ok) {
-      throw new HttpError(response);
+      await throwHttpError(response);
     }
 
     return await response.json();
