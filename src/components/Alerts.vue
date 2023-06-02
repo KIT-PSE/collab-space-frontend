@@ -25,7 +25,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   import { useAlerts } from '@/composables/alerts';
 
   const { alerts } = useAlerts();
