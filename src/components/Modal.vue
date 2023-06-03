@@ -24,7 +24,8 @@
           </button>
           <button
             type="button"
-            class="btn btn-primary"
+            class="btn"
+            :class="submitText === 'Löschen' ? 'btn-danger' : 'btn-primary'"
             @click="$emit('submit')"
           >
             {{ submitText || 'Speichern' }}

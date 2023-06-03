@@ -5,7 +5,6 @@ const alerts = useAlerts();
 
 export async function authGuard() {
   const auth = useAuth();
-
   await auth.loadUser();
 
   if (!auth.isLoggedIn()) {

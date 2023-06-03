@@ -82,6 +82,53 @@ class Fetch {
 
     return await response.json();
   }
+
+  public async putRaw(
+    path: string,
+    body: any = {},
+    headers = {},
+  ): Promise<Response> {
+    return await fetch(toFullPath(path), {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...headers,
+      },
+      body: JSON.stringify(body),
+      credentials: 'include',
+    });
+  }
+
+  public async putOrFail<T>(
+    path: string,
+    body: any = {},
+    headers = {},
+  ): Promise<T> {
+    const response = await this.putRaw(path, body, headers);
+
+    if (!response.ok) {
+      await throwHttpError(response);
+    }
+
+    return await response.json();
+  }
+
+  public async delete(path: string, headers = {}): Promise<void> {
+    const response = await fetch(toFullPath(path), {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...headers,
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      await throwHttpError(response);
+    }
+  }
 }
 
 export const useFetch = useSingleton(new Fetch());

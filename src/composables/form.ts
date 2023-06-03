@@ -6,6 +6,7 @@ import { ValidationError } from '@/composables/fetch';
 export type Form<T extends Record<string, any>> = {
   errors: Record<keyof T, string>;
   data(): T;
+  clear(): void;
   clearErrors(): void;
   setErrors(error: ValidationError): void;
   submit<U>(action: (data: T) => Promise<U>): Promise<U | null>;
@@ -24,6 +25,13 @@ export function useForm<T extends Record<string, any>>(defaults: T): Form<T> {
       return Object.fromEntries(
         Object.keys(defaults).map((key) => [key, this[key]]),
       ) as T;
+    },
+
+    clear() {
+      Object.keys(defaults).forEach((key: keyof T) => {
+        // @ts-ignore
+        this[key] = defaults[key];
+      });
     },
 
     clearErrors() {

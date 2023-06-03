@@ -1,7 +1,16 @@
 import { useFetch } from '@/composables/fetch';
-import { useSingleton } from '@/composables/utils';
+import { Moment } from 'moment';
 
 const fetch = useFetch();
+
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+  organization: string;
+  createdAt: Moment;
+  updatedAt: Moment;
+};
 
 export type UserResponse = {
   user: User;
@@ -21,22 +30,20 @@ export type RegisterData = {
   confirmPassword: string;
 };
 
-class Api {
-  public async register(data: RegisterData): Promise<UserResponse> {
+export const auth = {
+  async register(data: RegisterData): Promise<UserResponse> {
     return fetch.postOrFail<UserResponse>('/auth/register', data);
-  }
+  },
 
-  public async login(data: LoginData): Promise<UserResponse> {
+  async login(data: LoginData): Promise<UserResponse> {
     return fetch.postOrFail<UserResponse>('/auth/login', data);
-  }
+  },
 
-  public async logout(): Promise<void> {
+  async logout(): Promise<void> {
     return fetch.postOrFail('/auth/logout');
-  }
+  },
 
-  public async profile(): Promise<UserResponse> {
+  async profile(): Promise<UserResponse> {
     return fetch.getOrFail<UserResponse>('/auth/profile');
-  }
-}
-
-export const useApi = useSingleton(new Api());
+  },
+};

@@ -21,34 +21,36 @@
       </div>
     </div>
 
-    <div class="row">
-      <div
-        v-for="(rooms, category) in categories"
-        :key="category"
-        class="col-lg-9"
-      >
-        <h3>Kategorie {{ category + 1 }}</h3>
-        <div class="row py-4">
-          <div v-for="room in rooms" :key="room" class="col-4">
-            <div class="card my-1">
-              <img
-                src="https://placehold.co/600x400.png?text=Raum+Vorschau"
-                alt=""
-                class="card-img-top"
-              />
-              <div class="card-body py-2">
-                <router-link
-                  to="/room"
-                  class="card-text text-dark text-decoration-none"
-                >
-                  Raum {{ category + 1 }}0{{ room + 1 }}
-                </router-link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!--    <div class="row">-->
+    <!--      <div-->
+    <!--        v-for="(rooms, category) in categories"-->
+    <!--        :key="category"-->
+    <!--        class="col-lg-9"-->
+    <!--      >-->
+    <!--        <h3>Kategorie {{ category + 1 }}</h3>-->
+    <!--        <div class="row py-4">-->
+    <!--          <div v-for="room in rooms" :key="room" class="col-4">-->
+    <!--            <div class="card my-1">-->
+    <!--              <img-->
+    <!--                src="https://placehold.co/600x400.png?text=Raum+Vorschau"-->
+    <!--                alt=""-->
+    <!--                class="card-img-top"-->
+    <!--              />-->
+    <!--              <div class="card-body py-2">-->
+    <!--                <router-link-->
+    <!--                  to="/room"-->
+    <!--                  class="card-text text-dark text-decoration-none"-->
+    <!--                >-->
+    <!--                  Raum {{ category + 1 }}0{{ room + 1 }}-->
+    <!--                </router-link>-->
+    <!--              </div>-->
+    <!--            </div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
+
+    <Categories />
 
     <Modal
       id="create-room-modal"
@@ -59,13 +61,7 @@
       <PasswordInput label="Den Raum mit einem Passwort schützen?" />
     </Modal>
 
-    <Modal
-      id="create-category-modal"
-      title="Neue Kategorie anlegen"
-      submit-text="Hinzufügen"
-    >
-      <Input label="Name der Kategorie" />
-    </Modal>
+    <CreateCategoryModal />
   </Layout>
 </template>
 
@@ -74,11 +70,6 @@
   import Modal from '@/components/Modal.vue';
   import Input from '@/components/inputs/Input.vue';
   import PasswordInput from '@/components/inputs/PasswordInput.vue';
-  import { ref } from 'vue';
-
-  function randomRange(max: number) {
-    return [...Array(Math.floor(Math.random() * (max - 1)) + 1).keys()];
-  }
-
-  const categories = ref(randomRange(4).map(() => randomRange(6)));
+  import CreateCategoryModal from '@/components/CreateCategoryModal.vue';
+  import Categories from '@/components/Categories.vue';
 </script>

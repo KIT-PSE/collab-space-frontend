@@ -1,25 +1,26 @@
 import { useAlerts } from '@/composables/alerts';
-import { computed, ComputedRef, type Ref, ref } from 'vue';
+import { computed, ComputedRef, type Ref, ref, watch } from 'vue';
 import router from '@/router';
 import type { Timer } from '@/composables/timer';
 import { useTimer } from '@/composables/timer';
-import { LoginData, RegisterData, useApi } from '@/composables/api';
 import { useSingleton } from '@/composables/utils';
 import { HttpError, ValidationError } from '@/composables/fetch';
+import { useApi } from '@/api';
+import { LoginData, RegisterData, User } from '@/api/auth.api';
 
 const alerts = useAlerts();
 const api = useApi();
 
 class Auth {
   public user: Ref<User | null> = ref(null);
-  private loggedIn = false;
+  public loggedIn = ref(false);
   public loginTimer: Timer | null = null;
   private loaded = false;
 
   /** @throws ValidationError */
   public async login(credentials: LoginData): Promise<void> {
     try {
-      const { user, exp } = await api.login(credentials);
+      const { user, exp } = await api.auth.login(credentials);
       this.loginUser(user, exp);
 
       await router.push({ name: 'dashboard' });
@@ -43,7 +44,7 @@ class Auth {
   /** @throws ValidationError */
   public async register(data: RegisterData): Promise<void> {
     try {
-      const { user, exp } = await api.register(data);
+      const { user, exp } = await api.auth.register(data);
       this.loginUser(user, exp);
 
       await router.push({ name: 'dashboard' });
@@ -63,7 +64,7 @@ class Auth {
         return;
       }
 
-      await api.logout();
+      await api.auth.logout();
       await this.logoutUser();
 
       alerts.success('Erfolgreich ausgeloggt');
@@ -78,20 +79,31 @@ class Auth {
     }
 
     try {
-      const { user, exp } = await api.profile();
+      const { user, exp } = await api.auth.profile();
       this.loginUser(user, exp);
-    } catch (e) {
+    } catch (err) {
+      if (!(err instanceof HttpError && err.response.status === 401)) {
+        alerts.error('Benutzer konnte nicht geladen werden.', err as Error);
+      }
     } finally {
       this.loaded = true;
     }
   }
 
   public isLoggedIn(): boolean {
-    return this.loggedIn;
+    return this.loggedIn.value;
+  }
+
+  public onLogout(callback: () => void): void {
+    watch(this.loggedIn, (loggedIn) => {
+      if (!loggedIn) {
+        callback();
+      }
+    });
   }
 
   private async logoutUser(): Promise<void> {
-    this.loggedIn = false;
+    this.loggedIn.value = false;
     await router.push({ name: 'login' });
 
     this.user.value = null;
@@ -101,7 +113,7 @@ class Auth {
 
   private loginUser(user: User, exp: number): void {
     this.user.value = user;
-    this.loggedIn = true;
+    this.loggedIn.value = true;
 
     const startDate = new Date();
     const endDate = new Date(exp * 1000);
