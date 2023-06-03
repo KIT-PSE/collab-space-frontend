@@ -1,11 +1,11 @@
-import type { RouteLocationNormalized } from 'vue-router';
 import { useAlerts } from '@/composables/alerts';
 import { useAuth } from '@/composables/auth';
 
-const auth = useAuth();
 const alerts = useAlerts();
 
 export async function authGuard() {
+  const auth = useAuth();
+
   await auth.loadUser();
 
   if (!auth.isLoggedIn()) {
@@ -18,6 +18,7 @@ export async function authGuard() {
 }
 
 export async function guestGuard() {
+  const auth = useAuth();
   await auth.loadUser();
 
   if (auth.isLoggedIn()) {
