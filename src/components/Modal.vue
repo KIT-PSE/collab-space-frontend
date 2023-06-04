@@ -1,5 +1,5 @@
 <template>
-  <div class="modal fade" tabindex="-1">
+  <div class="modal fade" tabindex="-1" v-on="{ 'hidden.bs.modal': onHidden, 'shown.bs.modal': onShow }">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -42,7 +42,17 @@
     submitText?: string;
   }>();
 
-  defineEmits<{
+  const emits = defineEmits<{
     submit: () => void;
+    closed: () => void;
+    open: () => void;
   }>();
+
+  function onHidden() {
+    emits('closed');
+  }
+
+  function onShow() {
+    emits('open');
+  }
 </script>

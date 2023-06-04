@@ -32,6 +32,7 @@ export function useForm<T extends Record<string, any>>(defaults: T): Form<T> {
         // @ts-ignore
         this[key] = defaults[key];
       });
+      this.clearErrors();
     },
 
     clearErrors() {

@@ -4,6 +4,7 @@
     title="Neue Kategorie anlegen"
     submit-text="Hinzufügen"
     @submit="submit"
+    @closed="form.clear()"
   >
     <Input
       label="Name der Kategorie"
@@ -17,17 +18,20 @@
   import Modal from '@/components/Modal.vue';
   import Input from '@/components/inputs/Input.vue';
   import { useForm } from '@/composables/form';
-  import { useCategories } from '@/store/categories';
   import { closeModal } from '@/utils';
+  import { useStore } from '@/composables/store';
 
-  const categories = useCategories();
+  const store = useStore();
 
   const form = useForm({ name: '' });
 
   async function submit() {
-    await form.submit((data) => categories.create(data));
+    const result = await form.submit((data) => store.createCategory(data));
+
+    if (!result) {
+      return;
+    }
 
     closeModal('create-category-modal');
-    setTimeout(() => form.clear(), 500);
   }
 </script>

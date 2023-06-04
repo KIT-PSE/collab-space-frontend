@@ -5,8 +5,8 @@ import type { Timer } from '@/composables/timer';
 import { useTimer } from '@/composables/timer';
 import { useSingleton } from '@/composables/utils';
 import { HttpError, ValidationError } from '@/composables/fetch';
-import { useApi } from '@/api';
 import { LoginData, RegisterData, User } from '@/api/auth.api';
+import { useApi } from '@/composables/api';
 
 const alerts = useAlerts();
 const api = useApi();
@@ -20,7 +20,7 @@ class Auth {
   /** @throws ValidationError */
   public async login(credentials: LoginData): Promise<void> {
     try {
-      const { user, exp } = await api.auth.login(credentials);
+      const { user, exp } = await api.login(credentials);
       this.loginUser(user, exp);
 
       await router.push({ name: 'dashboard' });
@@ -44,7 +44,7 @@ class Auth {
   /** @throws ValidationError */
   public async register(data: RegisterData): Promise<void> {
     try {
-      const { user, exp } = await api.auth.register(data);
+      const { user, exp } = await api.register(data);
       this.loginUser(user, exp);
 
       await router.push({ name: 'dashboard' });
@@ -64,7 +64,7 @@ class Auth {
         return;
       }
 
-      await api.auth.logout();
+      await api.logout();
       await this.logoutUser();
 
       alerts.success('Erfolgreich ausgeloggt');
@@ -79,7 +79,7 @@ class Auth {
     }
 
     try {
-      const { user, exp } = await api.auth.profile();
+      const { user, exp } = await api.profile();
       this.loginUser(user, exp);
     } catch (err) {
       if (!(err instanceof HttpError && err.response.status === 401)) {
