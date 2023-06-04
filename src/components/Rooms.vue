@@ -1,47 +1,66 @@
 <template>
   <div class="row">
-    <div v-for="category in store.categories" :key="category" class="col-lg-9">
-      <div class="d-flex justify-content-between">
-        <h3>{{ category.name }}</h3>
-        <div>
-          <button class="btn text-secondary" @click="editCategory(category)">
-            <i class="fa fa-pen"></i>
-          </button>
-          <button class="btn text-secondary" @click="deleteCategory(category)">
-            <i class="fa fa-trash"></i>
-          </button>
-        </div>
-      </div>
-      <div class="row py-4">
-        <div v-for="room in category.rooms" :key="room.id" class="col-4">
-          <div class="card my-1">
-            <img
-              src="https://placehold.co/600x400.png?text=Raum+Vorschau"
-              alt=""
-              class="card-img-top"
-            />
-            <div class="card-body py-2">
-              <router-link
-                to="/room"
-                class="card-text text-dark text-decoration-none"
-              >
-                <div class="d-flex justify-content-between align-items-center">
-                  {{ room.name }}
-                  <div>
-                    <button class="btn btn-sm text-secondary" @click.prevent="editRoom(room)">
-                      <i class="fa fa-pen"></i>
-                    </button>
-                    <button class="btn btn-sm text-secondary" @click.prevent="deleteRoom(room)">
-                      <i class="fa fa-trash"></i>
-                    </button>
-                  </div>
-                </div>
-              </router-link>
-            </div>
+    <transition-group name="bounce">
+      <div
+        v-for="category in store.categories"
+        :key="category"
+        class="col-lg-9"
+      >
+        <div class="d-flex justify-content-between">
+          <h3>{{ category.name }}</h3>
+          <div>
+            <button class="btn text-secondary" @click="editCategory(category)">
+              <i class="fa fa-pen"></i>
+            </button>
+            <button
+              class="btn text-secondary"
+              @click="deleteCategory(category)"
+            >
+              <i class="fa fa-trash"></i>
+            </button>
           </div>
         </div>
+        <div class="row py-4">
+          <transition-group name="bounce">
+            <div v-for="room in category.rooms" :key="room.id" class="col-4">
+              <div class="card my-1">
+                <img
+                  src="https://placehold.co/600x400.png?text=Raum+Vorschau"
+                  alt=""
+                  class="card-img-top"
+                />
+                <div class="card-body py-2">
+                  <router-link
+                    to="/room"
+                    class="card-text text-dark text-decoration-none"
+                  >
+                    <div
+                      class="d-flex justify-content-between align-items-center"
+                    >
+                      {{ room.name }}
+                      <div>
+                        <button
+                          class="btn btn-sm text-secondary"
+                          @click.prevent="editRoom(room)"
+                        >
+                          <i class="fa fa-pen"></i>
+                        </button>
+                        <button
+                          class="btn btn-sm text-secondary"
+                          @click.prevent="deleteRoom(room)"
+                        >
+                          <i class="fa fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </router-link>
+                </div>
+              </div>
+            </div>
+          </transition-group>
+        </div>
       </div>
-    </div>
+    </transition-group>
   </div>
 
   <EditCategoryModal :category="categoryToEdit" />
@@ -54,9 +73,9 @@
   import { ask } from '@/composables/prompt';
   import { Category } from '@/composables/api';
   import { useStore } from '@/composables/store';
-  import EditCategoryModal from "@/components/EditCategoryModal.vue";
-  import {ref} from "vue";
-  import EditRoomModal from "@/components/EditRoomModal.vue";
+  import EditCategoryModal from '@/components/EditCategoryModal.vue';
+  import { ref } from 'vue';
+  import EditRoomModal from '@/components/EditRoomModal.vue';
 
   const auth = useAuth();
   const store = useStore();

@@ -70,14 +70,12 @@ export const useStore = defineStore('store', () => {
         (c) => c.id === updatedCategory.id,
       );
 
-      updatedCategory.rooms = categories.value[index].rooms;
-
       if (index === -1) {
         alerts.error('Kategorie konnte nicht gefunden werden.', new Error());
         return null;
       }
 
-      categories.value[index] = updatedCategory;
+      categories.value[index].name = updatedCategory.name;
 
       return updatedCategory;
     } catch (err) {
