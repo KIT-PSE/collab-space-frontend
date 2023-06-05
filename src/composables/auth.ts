@@ -93,6 +93,10 @@ class Auth {
     return this.loggedIn.value;
   }
 
+  public isAdmin(): boolean {
+    return this.user.value?.role === 'admin';
+  }
+
   public onLogout(callback: () => void): void {
     watch(this.loggedIn, (loggedIn) => {
       if (!loggedIn) {
