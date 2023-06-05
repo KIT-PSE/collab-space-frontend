@@ -27,7 +27,7 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: () => import('../views/AdminView.vue'),
-      beforeEnter: multiguard([adminGuard]),
+      beforeEnter: multiguard([authGuard, adminGuard]),
     },
     {
       path: '/account',
