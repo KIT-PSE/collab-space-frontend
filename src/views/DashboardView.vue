@@ -21,55 +21,16 @@
       </div>
     </div>
 
-    <!--    <div class="row">-->
-    <!--      <div-->
-    <!--        v-for="(rooms, category) in categories"-->
-    <!--        :key="category"-->
-    <!--        class="col-lg-9"-->
-    <!--      >-->
-    <!--        <h3>Kategorie {{ category + 1 }}</h3>-->
-    <!--        <div class="row py-4">-->
-    <!--          <div v-for="room in rooms" :key="room" class="col-4">-->
-    <!--            <div class="card my-1">-->
-    <!--              <img-->
-    <!--                src="https://placehold.co/600x400.png?text=Raum+Vorschau"-->
-    <!--                alt=""-->
-    <!--                class="card-img-top"-->
-    <!--              />-->
-    <!--              <div class="card-body py-2">-->
-    <!--                <router-link-->
-    <!--                  to="/room"-->
-    <!--                  class="card-text text-dark text-decoration-none"-->
-    <!--                >-->
-    <!--                  Raum {{ category + 1 }}0{{ room + 1 }}-->
-    <!--                </router-link>-->
-    <!--              </div>-->
-    <!--            </div>-->
-    <!--          </div>-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--    </div>-->
+    <Rooms />
 
-    <Categories />
-
-    <Modal
-      id="create-room-modal"
-      title="Neuen Raum erstellen"
-      submit-text="Erstellen"
-    >
-      <Input label="Name des Raums" />
-      <PasswordInput label="Den Raum mit einem Passwort schützen?" />
-    </Modal>
-
+    <CreateRoomModal />
     <CreateCategoryModal />
   </Layout>
 </template>
 
 <script setup lang="ts">
   import Layout from '@/components/Layout.vue';
-  import Modal from '@/components/Modal.vue';
-  import Input from '@/components/inputs/Input.vue';
-  import PasswordInput from '@/components/inputs/PasswordInput.vue';
   import CreateCategoryModal from '@/components/CreateCategoryModal.vue';
-  import Categories from '@/components/Categories.vue';
+  import CreateRoomModal from '@/components/CreateRoomModal.vue';
+  import Rooms from '@/components/Rooms.vue';
 </script>
