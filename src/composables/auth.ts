@@ -73,6 +73,22 @@ class Auth {
     }
   }
 
+  public async delete(): Promise<void> {
+    try {
+      if (!this.isLoggedIn()) {
+        alerts.danger('Löschen des Accounts fehlgeschlagen', 'Du bist nicht eingeloggt.');
+        return;
+      }
+
+      await api.auth.delete();
+      await this.logoutUser();
+
+      alerts.success('Account erfolgreich gelöscht');
+    } catch (error) {
+      alerts.error('Löschen des Accounts fehlgeschlagen', error as Error);
+    }
+  }
+
   public async loadUser(): Promise<void> {
     if (this.loaded) {
       return;

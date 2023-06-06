@@ -46,4 +46,8 @@ export const auth = {
   async profile(): Promise<UserResponse> {
     return fetch.getOrFail<UserResponse>('/auth/profile');
   },
+
+  async delete(): Promise<void> {
+    return fetch.delete('/auth/delete');
+  }
 };
