@@ -1,4 +1,3 @@
-import multiguard from 'vue-router-multiguard';
 import { createRouter, createWebHistory } from 'vue-router';
 import { adminGuard, authGuard, guestGuard } from '@/router/guards';
 
@@ -27,7 +26,7 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: () => import('../views/AdminView.vue'),
-      beforeEnter: multiguard([authGuard, adminGuard]),
+      beforeEnter: [authGuard, adminGuard],
     },
     {
       path: '/account',
