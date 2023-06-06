@@ -24,3 +24,16 @@ export async function guestGuard() {
     return { name: 'dashboard' };
   }
 }
+
+export async function adminGuard() {
+  const auth = useAuth();
+  await auth.loadUser();
+
+  if (!auth.isAdmin()) {
+    alerts.danger(
+      'Du bist nicht berechtigt.',
+      'Du musst Administrator sein um fortzufahren.',
+    );
+    return { name: 'dashboard' };
+  }
+}

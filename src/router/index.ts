@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { authGuard, guestGuard } from '@/router/guards';
+import { adminGuard, authGuard, guestGuard } from '@/router/guards';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +21,12 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
       beforeEnter: guestGuard,
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/AdminView.vue'),
+      beforeEnter: [authGuard, adminGuard],
     },
     {
       path: '/account',
