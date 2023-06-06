@@ -3,7 +3,7 @@
     <div class="row h-100">
       <div class="col-9 p-2 overflow-hidden" style="max-height: 100%">
         <div class="row">
-          <div class="col">
+          <div class="col d-flex align-items-center">
             <router-link to="/dashboard">
               <img
                 src="@/assets/textless-logo.png"
@@ -11,14 +11,9 @@
                 width="100"
               />
             </router-link>
+            <p class="mb-0 ms-5">Channel: {{ channel.id }} Connected: {{ channel.connected }}</p>
           </div>
         </div>
-
-        <!--        <img-->
-        <!--          src="https://placehold.co/1000x800.mp4?text=eingebettete+Webseite"-->
-        <!--          alt=""-->
-        <!--          class="w-100 h-100"-->
-        <!--        />-->
 
         <div class="row">
           <div class="col d-flex justify-content-center mt-3">
@@ -35,8 +30,11 @@
         style="max-height: 100%"
       >
         <div class="row overflow-y-auto mb-2">
-          <h3 class="text-center text-primary mt-2">Raum 101</h3>
-          <div v-for="camera in cameras" class="col-6">
+          <h3 class="text-center text-primary mt-2">
+            {{ channel.room?.name }}: {{ channel.room?.id }}
+          </h3>
+
+          <div v-if="channel.teacher" class="col-6">
             <div class="card my-1">
               <img
                 src="https://placehold.co/600x400.png?text=Kamera+Bild"
@@ -44,12 +42,25 @@
                 class="card-img-top"
               />
               <div class="card-body py-2">
-                <router-link
-                  to="/room"
-                  class="card-text text-dark text-decoration-none"
-                >
-                  Kamera {{ camera + 1 }}
-                </router-link>
+                <div class="card-text text-dark text-decoration-none">
+                  {{ channel.teacher?.name }}
+                  <span class="badge text-bg-primary ms-1">Lehrer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-for="student in channel.students" :key="student.id" class="col-6">
+            <div class="card my-1">
+              <img
+                src="https://placehold.co/600x400.png?text=Kamera+Bild"
+                alt=""
+                class="card-img-top"
+              />
+              <div class="card-body py-2">
+                <div class="card-text text-dark text-decoration-none">
+                  {{ student.name }}
+                </div>
               </div>
             </div>
           </div>
@@ -84,13 +95,15 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useChannel } from '@/composables/channel';
+  import { onBeforeRouteLeave } from 'vue-router';
+
+  const channel = useChannel();
+
+  onBeforeRouteLeave(() => channel.leave());
 
   const video = ref(true);
   const audio = ref(true);
 
-  const cameras = ref(randomRange(20));
-
-  function randomRange(max: number) {
-    return [...Array(Math.floor(Math.random() * (max - 1)) + 1).keys()];
-  }
+  const cameras = ref(20);
 </script>

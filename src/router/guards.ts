@@ -1,5 +1,11 @@
 import { useAlerts } from '@/composables/alerts';
-import { useAuth } from '@/composables/auth';
+import {useAuth, useUser} from '@/composables/auth';
+import {
+  RouteLocationNormalized,
+  RouteLocationNormalizedLoaded,
+} from 'vue-router';
+import { useStore } from '@/composables/store';
+import { useChannel } from '@/composables/channel';
 
 const alerts = useAlerts();
 
@@ -22,5 +28,27 @@ export async function guestGuard() {
 
   if (auth.isLoggedIn()) {
     return { name: 'dashboard' };
+  }
+}
+
+export async function roomGuard(to: RouteLocationNormalized) {
+  const auth = useAuth();
+  await auth.loadUser();
+
+  const channel = useChannel();
+
+  if (channel.connected) {
+    return;
+  }
+
+  try {
+    if (auth.isLoggedIn()) {
+      await channel.joinAsTeacher(useUser().value, to.params.id as string);
+    } else {
+      await channel.joinAsStudent('through link', to.params.id as string);
+    }
+  } catch (err) {
+    alerts.error('Raum beitreten fehlgeschlagen', err as Error);
+    return { name: 'home' };
   }
 }

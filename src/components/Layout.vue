@@ -49,5 +49,6 @@
   }>();
 
   const auth = useAuth();
+
   const { user, loginTimer } = auth;
 </script>
