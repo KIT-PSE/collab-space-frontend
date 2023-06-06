@@ -7,5 +7,5 @@
 <script setup lang="ts">
   import { RouterView } from 'vue-router';
   import Alerts from '@/components/Alerts.vue';
-  import PromptModal from "@/components/PromptModal.vue";
+  import PromptModal from '@/components/PromptModal.vue';
 </script>
