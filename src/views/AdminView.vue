@@ -35,22 +35,14 @@
 
 <script setup lang="ts">
   import Layout from '@/components/Layout.vue';
-  import { useApi, User } from '@/composables/api';
+  import { User } from '@/composables/api';
   import { ref, onMounted } from 'vue';
+  import { useAdmin } from '@/composables/admin';
 
-  const api = useApi();
+  const admin = useAdmin();
   const users = ref<User[]>([]);
-  const error = ref(null);
 
-  async function getUsers() {
-    try {
-      const result = await api.allUsers();
-      users.value = result;
-    } catch (err) {
-      console.error(err);
-      error.value = err;
-    }
-  }
-
-  onMounted(getUsers);
+  onMounted(async () => {
+    users.value = await admin.getUsers;
+  });
 </script>
