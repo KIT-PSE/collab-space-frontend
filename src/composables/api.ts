@@ -79,6 +79,10 @@ const api = {
     return fetch.getOrFail<UserResponse>('/auth/profile');
   },
 
+  async allUsers(): Promise<User[]> {
+    return fetch.getOrFail('/user/findAll');
+  },
+
   async allCategories(): Promise<Category[]> {
     return fetch.getOrFail('/category');
   },
