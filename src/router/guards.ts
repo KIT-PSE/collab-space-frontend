@@ -7,7 +7,7 @@ export async function authGuard() {
   const auth = useAuth();
   await auth.loadUser();
 
-  if (!auth.isLoggedIn()) {
+  if (!auth.isLoggedIn) {
     alerts.danger(
       'Du bist nicht eingeloggt.',
       'Bitte logge dich ein um fortzufahren.',
@@ -20,7 +20,7 @@ export async function guestGuard() {
   const auth = useAuth();
   await auth.loadUser();
 
-  if (auth.isLoggedIn()) {
+  if (auth.isLoggedIn) {
     return { name: 'dashboard' };
   }
 }
@@ -29,7 +29,7 @@ export async function adminGuard() {
   const auth = useAuth();
   await auth.loadUser();
 
-  if (!auth.isAdmin()) {
+  if (!auth.isAdmin) {
     alerts.danger(
       'Du bist nicht berechtigt.',
       'Du musst Administrator sein um fortzufahren.',
