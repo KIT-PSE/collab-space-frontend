@@ -13,7 +13,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in users" :key="user.id">
+            <tr v-for="user in admin.users" :key="user.id">
               <td>{{ user.name }}</td>
               <td>{{ user.email }}</td>
               <td>{{ user.role }}</td>
@@ -35,14 +35,8 @@
 
 <script setup lang="ts">
   import Layout from '@/components/Layout.vue';
-  import { User } from '@/composables/api';
-  import { ref, onMounted } from 'vue';
   import { useAdmin } from '@/composables/admin';
 
   const admin = useAdmin();
-  const users = ref<User[]>([]);
-
-  onMounted(async () => {
-    users.value = await admin.getUsers;
-  });
+  admin.load();
 </script>
