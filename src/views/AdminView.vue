@@ -1,23 +1,23 @@
 <template>
   <Layout title="Admin" :buttons="['back']">
     <div class="row my-5">
-      <div class="col">
+      <div class="col-md-7">
         <h2>Users</h2>
-        <table class="table table-striped">
+        <table class="table">
           <thead>
             <tr>
               <th>Name</th>
               <th>E-Mail</th>
-              <th>Role</th>
-              <th>Actions</th>
+              <th>Organization</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in admin.users" :key="user.id">
-              <td>{{ user.name }}</td>
+            <tr v-for="user in admin.users" :key="user.id" class="align-middle">
+              <td>{{ user.name }} <span v-if="user.role === 'admin'" class="badge text-bg-danger ms-1">Admin</span></td>
               <td>{{ user.email }}</td>
-              <td>{{ user.role }}</td>
-              <td>
+              <td>{{ user.organization }}</td>
+              <td class="d-flex justify-content-end">
                 <button class="btn btn-sm btn-secondary me-2">
                   <i class="fa fa-pen"></i>
                 </button>
