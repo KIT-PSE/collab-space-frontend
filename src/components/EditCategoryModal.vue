@@ -19,8 +19,8 @@
   import Input from '@/components/inputs/Input.vue';
   import { Category } from '@/composables/api';
   import { useStore } from '@/composables/store';
-  import {closeModal} from "@/utils";
-  import {watch} from "vue";
+  import { closeModal } from '@/utils';
+  import { watch } from 'vue';
 
   const store = useStore();
 
@@ -32,9 +32,12 @@
     category: Category | null;
   }>();
 
-  watch(() => props.category, () => {
-    form.name = props.category?.name ?? '';
-  });
+  watch(
+    () => props.category,
+    () => {
+      form.name = props.category?.name ?? '';
+    },
+  );
 
   async function submit() {
     const result = await form.submit((data) =>

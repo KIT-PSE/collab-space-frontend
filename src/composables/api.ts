@@ -11,6 +11,7 @@ export type User = {
   organization: string;
   createdAt: Moment;
   updatedAt: Moment;
+  role: 'user' | 'admin';
 };
 
 export type UserResponse = {

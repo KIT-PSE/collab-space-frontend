@@ -5,7 +5,7 @@ import type { Timer } from '@/composables/timer';
 import { useTimer } from '@/composables/timer';
 import { useSingleton } from '@/composables/utils';
 import { HttpError, ValidationError } from '@/composables/fetch';
-import {LoginData, RegisterData, useApi, User} from '@/composables/api';
+import { LoginData, RegisterData, useApi, User } from '@/composables/api';
 
 const alerts = useAlerts();
 const api = useApi();
@@ -107,6 +107,10 @@ class Auth {
 
   public isLoggedIn(): boolean {
     return this.loggedIn.value;
+  }
+
+  public isAdmin(): boolean {
+    return this.user.value?.role === 'admin';
   }
 
   public onLogout(callback: () => void): void {
