@@ -79,6 +79,10 @@ const api = {
     return fetch.getOrFail<UserResponse>('/auth/profile');
   },
 
+  async deleteAccount(): Promise<void> {
+    return fetch.delete('/auth/delete');
+  },
+
   async allCategories(): Promise<Category[]> {
     return fetch.getOrFail('/category');
   },
