@@ -10,6 +10,14 @@
       <div class="col-auto d-flex align-items-center">
         <slot name="buttons"></slot>
         <router-link
+          v-if="user?.role === 'admin' && buttons?.includes('admin')"
+          to="/admin"
+          class="btn btn-primary mx-1"
+        >
+          <i class="fa fa-gear"></i>
+          Admin Panel
+        </router-link>
+        <router-link
           v-if="buttons?.includes('account')"
           to="/account"
           class="btn btn-primary mx-1"
@@ -50,7 +58,7 @@
 
   defineProps<{
     title: string;
-    buttons?: ('account' | 'back')[];
+    buttons?: ('account' | 'back' | 'admin')[];
   }>();
 
   const auth = useAuth();

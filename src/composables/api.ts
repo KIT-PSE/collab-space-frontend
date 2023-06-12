@@ -36,7 +36,7 @@ export type Room = {
   id: number;
   category: number;
   name: string;
-  channelId?: string,
+  channelId?: string;
   password?: string;
   createdAt: Moment;
   updatedAt: Moment;
@@ -78,6 +78,10 @@ const api = {
 
   async profile(): Promise<UserResponse> {
     return fetch.getOrFail<UserResponse>('/auth/profile');
+  },
+
+  async allUsers(): Promise<User[]> {
+    return fetch.getOrFail('/user/findAll');
   },
 
   async deleteAccount(): Promise<void> {

@@ -1,5 +1,5 @@
 <template>
-  <Layout title="Dashboard" :buttons="['account']">
+  <Layout title="Dashboard" :buttons="['account', 'admin']">
     <div class="row my-5">
       <div class="col">
         <button
