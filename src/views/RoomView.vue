@@ -30,10 +30,10 @@
       >
         <div class="row overflow-y-auto mb-2">
           <h3 class="text-center text-primary mt-2">
-            {{ channel.room?.name }}
+            {{ channel.state.room?.name }}
           </h3>
 
-          <div v-if="channel.teacher" class="col-lg-6">
+          <div v-if="channel.state.teacher" class="col-lg-6">
             <div class="card my-1">
               <img
                 src="https://placehold.co/600x400.png?text=Kamera+Bild"
@@ -42,10 +42,10 @@
               />
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
-                  {{ channel.teacher?.user.name }}
+                  {{ channel.state.teacher?.user.name }}
                   <span class="badge text-bg-primary ms-1">Lehrer</span>
                   <span
-                    v-if="channel.isSelf(channel.teacher)"
+                    v-if="channel.isSelf(channel.state.teacher)"
                     class="badge text-bg-secondary ms-1"
                   >
                     Du
@@ -56,7 +56,7 @@
           </div>
 
           <div
-            v-for="student in channel.students"
+            v-for="student in channel.state.students"
             :key="student.id"
             class="col-lg-6"
           >

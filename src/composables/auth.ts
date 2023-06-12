@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { useAlerts } from '@/composables/alerts';
-import { computed, ComputedRef, ref, watch } from 'vue';
+import { computed, ComputedRef, reactive, watch } from 'vue';
 import router from '@/router';
 import { Timer, useTimer } from '@/composables/timer';
 import { HttpError, ValidationError } from '@/composables/fetch';
@@ -10,13 +10,15 @@ const alerts = useAlerts();
 const api = useApi();
 
 export const useAuth = defineStore('auth', () => {
-  const user = ref<User | null>(null);
-  const loggedIn = ref(false);
-  const loaded = ref(false);
-  const loginTimer = ref<Timer | null>(null);
+  const state = reactive({
+    user: null as User | null,
+    loggedIn: false,
+    loaded: false,
+    loginTimer: null as Timer | null,
+  });
 
-  const isLoggedIn = computed(() => loggedIn.value);
-  const isAdmin = computed(() => user.value?.role === 'admin');
+  const isLoggedIn = computed(() => state.loggedIn);
+  const isAdmin = computed(() => state.user?.role === 'admin');
 
   async function login(credentials: LoginData) {
     try {
@@ -92,7 +94,7 @@ export const useAuth = defineStore('auth', () => {
   }
 
   async function loadUser(): Promise<void> {
-    if (loaded.value) {
+    if (state.loaded) {
       return;
     }
 
@@ -104,31 +106,31 @@ export const useAuth = defineStore('auth', () => {
         alerts.error('Benutzer konnte nicht geladen werden.', err as Error);
       }
     } finally {
-      loaded.value = true;
+      state.loaded = true;
     }
   }
 
   async function logoutUser() {
-    loggedIn.value = false;
+    state.loggedIn = false;
     await router.push({ name: 'login' });
 
-    user.value = null;
-    loginTimer.value?.stop();
-    loginTimer.value = null;
+    state.user = null;
+    state.loginTimer?.stop();
+    state.loginTimer = null;
   }
 
-  function loginUser(_user: User, exp: number) {
-    user.value = _user;
-    loggedIn.value = true;
+  function loginUser(user: User, exp: number) {
+    state.user = user;
+    state.loggedIn = true;
 
     const startDate = new Date();
     const endDate = new Date(exp * 1000);
     const amount = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
 
-    loginTimer.value?.stop();
-    loginTimer.value = useTimer(amount);
-    loginTimer.value.start();
-    loginTimer.value.onFinished(async () => {
+    state.loginTimer?.stop();
+    state.loginTimer = useTimer(amount);
+    state.loginTimer.start();
+    state.loginTimer.onFinished(async () => {
       await logoutUser();
       alerts.warning(
         'Du wurdest automatisch ausgeloggt.',
@@ -138,18 +140,18 @@ export const useAuth = defineStore('auth', () => {
   }
 
   function onLogout(callback: () => void): void {
-    watch(loggedIn, (loggedIn) => {
-      if (!loggedIn) {
-        callback();
-      }
-    });
+    watch(
+      () => state.loggedIn,
+      (loggedIn) => {
+        if (!loggedIn) {
+          callback();
+        }
+      },
+    );
   }
 
   return {
-    user,
-    loggedIn,
-    loginTimer,
-    loaded,
+    state,
     isLoggedIn,
     isAdmin,
     login,
@@ -164,10 +166,10 @@ export const useAuth = defineStore('auth', () => {
 export function useUser(): ComputedRef<User> {
   const store = useAuth();
   return computed(() => {
-    if (store.user === null) {
+    if (store.state.user === null) {
       throw new Error('User not loaded');
     }
 
-    return store.user;
+    return store.state.user;
   });
 }
