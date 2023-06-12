@@ -118,7 +118,7 @@
   const channel = useChannel();
 
   onBeforeRouteLeave(() => {
-    if (auth.isLoggedIn()) {
+    if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
     } else {
       channel.leave();

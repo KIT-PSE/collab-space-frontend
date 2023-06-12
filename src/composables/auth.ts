@@ -1,26 +1,27 @@
+import { defineStore } from 'pinia';
 import { useAlerts } from '@/composables/alerts';
-import { computed, ComputedRef, type Ref, ref, watch } from 'vue';
+import { computed, ComputedRef, ref, watch } from 'vue';
 import router from '@/router';
-import type { Timer } from '@/composables/timer';
-import { useTimer } from '@/composables/timer';
-import { useSingleton } from '@/composables/utils';
+import { Timer, useTimer } from '@/composables/timer';
 import { HttpError, ValidationError } from '@/composables/fetch';
 import { LoginData, RegisterData, useApi, User } from '@/composables/api';
 
 const alerts = useAlerts();
 const api = useApi();
 
-class Auth {
-  public user: Ref<User | null> = ref(null);
-  public loggedIn = ref(false);
-  public loginTimer: Timer | null = null;
-  private loaded = false;
+export const useAuth = defineStore('auth', () => {
+  const user = ref<User | null>(null);
+  const loggedIn = ref(false);
+  const loaded = ref(false);
+  const loginTimer = ref<Timer | null>(null);
 
-  /** @throws ValidationError */
-  public async login(credentials: LoginData): Promise<void> {
+  const isLoggedIn = computed(() => loggedIn.value);
+  const isAdmin = computed(() => user.value?.role === 'admin');
+
+  async function login(credentials: LoginData) {
     try {
       const { user, exp } = await api.login(credentials);
-      this.loginUser(user, exp);
+      loginUser(user, exp);
 
       await router.push({ name: 'dashboard' });
     } catch (err) {
@@ -40,11 +41,10 @@ class Auth {
     }
   }
 
-  /** @throws ValidationError */
-  public async register(data: RegisterData): Promise<void> {
+  async function register(data: RegisterData) {
     try {
       const { user, exp } = await api.register(data);
-      this.loginUser(user, exp);
+      loginUser(user, exp);
 
       await router.push({ name: 'dashboard' });
     } catch (err) {
@@ -56,15 +56,15 @@ class Auth {
     }
   }
 
-  public async logout(): Promise<void> {
+  async function logout() {
     try {
-      if (!this.isLoggedIn()) {
+      if (!isLoggedIn.value) {
         alerts.danger('Ausloggen fehlgeschlagen', 'Du bist nicht eingeloggt.');
         return;
       }
 
       await api.logout();
-      await this.logoutUser();
+      await logoutUser();
 
       alerts.success('Erfolgreich ausgeloggt');
     } catch (error) {
@@ -72,9 +72,9 @@ class Auth {
     }
   }
 
-  public async delete(): Promise<void> {
+  async function deleteFunction(): Promise<void> {
     try {
-      if (!this.isLoggedIn()) {
+      if (!isLoggedIn.value) {
         alerts.danger(
           'Löschen des Accounts fehlgeschlagen',
           'Du bist nicht eingeloggt.',
@@ -83,7 +83,7 @@ class Auth {
       }
 
       await api.deleteAccount();
-      await this.logoutUser();
+      await logoutUser();
 
       alerts.success('Account erfolgreich gelöscht');
     } catch (error) {
@@ -91,79 +91,83 @@ class Auth {
     }
   }
 
-  public async loadUser(): Promise<void> {
-    if (this.loaded) {
+  async function loadUser(): Promise<void> {
+    if (loaded.value) {
       return;
     }
 
     try {
       const { user, exp } = await api.profile();
-      this.loginUser(user, exp);
+      loginUser(user, exp);
     } catch (err) {
       if (!(err instanceof HttpError && err.response.status === 401)) {
         alerts.error('Benutzer konnte nicht geladen werden.', err as Error);
       }
     } finally {
-      this.loaded = true;
+      loaded.value = true;
     }
   }
 
-  public isLoggedIn(): boolean {
-    return this.loggedIn.value;
-  }
-
-  public isAdmin(): boolean {
-    return this.user.value?.role === 'admin';
-  }
-
-  public onLogout(callback: () => void): void {
-    watch(this.loggedIn, (loggedIn) => {
-      if (!loggedIn) {
-        callback();
-      }
-    });
-  }
-
-  private async logoutUser(): Promise<void> {
-    this.loggedIn.value = false;
+  async function logoutUser() {
+    loggedIn.value = false;
     await router.push({ name: 'login' });
 
-    this.user.value = null;
-    this.loginTimer?.stop();
-    this.loginTimer = null;
+    user.value = null;
+    loginTimer.value?.stop();
+    loginTimer.value = null;
   }
 
-  private loginUser(user: User, exp: number): void {
-    this.user.value = user;
-    this.loggedIn.value = true;
+  function loginUser(_user: User, exp: number) {
+    user.value = _user;
+    loggedIn.value = true;
 
     const startDate = new Date();
     const endDate = new Date(exp * 1000);
     const amount = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
 
-    this.loginTimer?.stop();
-    this.loginTimer = useTimer(amount);
-    this.loginTimer.start();
-    this.loginTimer.onFinished(async () => {
-      await this.logoutUser();
+    loginTimer.value?.stop();
+    loginTimer.value = useTimer(amount);
+    loginTimer.value.start();
+    loginTimer.value.onFinished(async () => {
+      await logoutUser();
       alerts.warning(
         'Du wurdest automatisch ausgeloggt.',
         'Bitte logge dich erneut ein.',
       );
     });
   }
-}
 
-export const useAuth = useSingleton(new Auth());
+  function onLogout(callback: () => void): void {
+    watch(loggedIn, (loggedIn) => {
+      if (!loggedIn) {
+        callback();
+      }
+    });
+  }
+
+  return {
+    user,
+    loggedIn,
+    loginTimer,
+    loaded,
+    isLoggedIn,
+    isAdmin,
+    login,
+    register,
+    delete: deleteFunction,
+    logout,
+    loadUser,
+    onLogout,
+  };
+});
 
 export function useUser(): ComputedRef<User> {
+  const store = useAuth();
   return computed(() => {
-    const { user } = useAuth();
-
-    if (user.value === null) {
+    if (store.user === null) {
       throw new Error('User not loaded');
     }
 
-    return user.value;
+    return store.user;
   });
 }

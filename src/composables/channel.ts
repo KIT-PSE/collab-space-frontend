@@ -137,7 +137,7 @@ export const useChannel = defineStore('channel', () => {
       teacher.value = null;
 
       if (router.currentRoute.value.name === 'room') {
-        if (auth.isLoggedIn()) {
+        if (auth.isLoggedIn) {
           await router.push({ name: 'dashboard' });
         } else {
           await router.push({ name: 'home' });

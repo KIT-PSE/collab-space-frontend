@@ -10,7 +10,7 @@
       <div class="col-auto d-flex align-items-center">
         <slot name="buttons"></slot>
         <router-link
-          v-if="user?.role === 'admin' && buttons?.includes('admin')"
+          v-if="auth.isAdmin && buttons?.includes('admin')"
           to="/admin"
           class="btn btn-primary mx-1"
         >
@@ -23,7 +23,7 @@
           class="btn btn-primary mx-1"
         >
           <i class="fa fa-gear"></i>
-          {{ user?.name }}
+          {{ auth.user?.name }}
         </router-link>
         <router-link
           v-if="buttons?.includes('back')"
@@ -39,7 +39,7 @@
         </button>
         <button class="btn btn-secondary mx-1">
           Timer:
-          <span class="font-monospace">{{ loginTimer?.time }}</span>
+          <span class="font-monospace">{{ auth.loginTimer?.state.time }}</span>
         </button>
         <button class="btn btn-secondary mx-1">
           <span v-if="channel.connected">Verbunden</span>
@@ -62,8 +62,5 @@
   }>();
 
   const auth = useAuth();
-
-  const { user, loginTimer } = auth;
-
   const channel = useChannel();
 </script>
