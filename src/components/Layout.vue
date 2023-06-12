@@ -23,7 +23,7 @@
           class="btn btn-primary mx-1"
         >
           <i class="fa fa-gear"></i>
-          {{ auth.user?.name }}
+          {{ auth.state.user?.name }}
         </router-link>
         <router-link
           v-if="buttons?.includes('back')"
@@ -39,10 +39,10 @@
         </button>
         <button class="btn btn-secondary mx-1">
           Timer:
-          <span class="font-monospace">{{ auth.loginTimer?.state.time }}</span>
+          <span class="font-monospace">{{ auth.state.loginTimer?.state.time }}</span>
         </button>
         <button class="btn btn-secondary mx-1">
-          <span v-if="channel.connected">Verbunden</span>
+          <span v-if="channel.state.connected">Verbunden</span>
           <span v-else>Nicht verbunden</span>
         </button>
       </div>

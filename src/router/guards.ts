@@ -33,7 +33,7 @@ export async function roomGuard(to: RouteLocationNormalized) {
 
   const channel = useChannel();
 
-  if (channel.connected) {
+  if (channel.state.connected) {
     return;
   }
 
