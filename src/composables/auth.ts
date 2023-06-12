@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { useAlerts } from '@/composables/alerts';
-import { computed, ComputedRef, ref } from 'vue';
+import { computed, ComputedRef, ref, watch } from 'vue';
 import router from '@/router';
-import { useTimer } from '@/composables/timer';
+import { Timer, useTimer } from '@/composables/timer';
 import { HttpError, ValidationError } from '@/composables/fetch';
 import { LoginData, RegisterData, useApi, User } from '@/composables/api';
 
@@ -13,9 +13,7 @@ export const useAuth = defineStore('auth', () => {
   const user = ref<User | null>(null);
   const loggedIn = ref(false);
   const loaded = ref(false);
-
-  const loginTimer = ref<ReturnType<typeof useTimer>>(useTimer());
-  loginTimer.value.initialise(60 * 60);
+  const loginTimer = ref<Timer | null>(null);
 
   const isLoggedIn = computed(() => loggedIn.value);
   const isAdmin = computed(() => user.value?.role === 'admin');
@@ -96,7 +94,8 @@ export const useAuth = defineStore('auth', () => {
     await router.push({ name: 'login' });
 
     user.value = null;
-    loginTimer.value.stop();
+    loginTimer.value?.stop();
+    loginTimer.value = null;
   }
 
   function loginUser(_user: User, exp: number) {
@@ -107,8 +106,8 @@ export const useAuth = defineStore('auth', () => {
     const endDate = new Date(exp * 1000);
     const amount = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
 
-    loginTimer.value.stop();
-    loginTimer.value.reset();
+    loginTimer.value?.stop();
+    loginTimer.value = useTimer(amount);
     loginTimer.value.start();
     loginTimer.value.onFinished(async () => {
       await logoutUser();
@@ -116,6 +115,14 @@ export const useAuth = defineStore('auth', () => {
         'Du wurdest automatisch ausgeloggt.',
         'Bitte logge dich erneut ein.',
       );
+    });
+  }
+
+  function onLogout(callback: () => void): void {
+    watch(loggedIn, (loggedIn) => {
+      if (!loggedIn) {
+        callback();
+      }
     });
   }
 
@@ -130,6 +137,7 @@ export const useAuth = defineStore('auth', () => {
     register,
     logout,
     loadUser,
+    onLogout,
   };
 });
 

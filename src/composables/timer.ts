@@ -1,66 +1,55 @@
-import { ref, watch } from 'vue';
-import { defineStore } from 'pinia';
+import { reactive, watch } from 'vue';
 
-export const useTimer = defineStore('timer', () => {
-  const time = ref(0);
-  const startValue = ref(0);
-  const enabled = ref(true);
-  const handler = ref<() => void>(() => {});
+export class Timer {
+  private handler = () => {};
 
-  function initialise(amount: number) {
-    startValue.value = amount;
-    time.value = amount;
+  public state = reactive({
+    time: 0,
+    enabled: true,
+  });
+
+  constructor(amount: number) {
+    this.state.time = amount;
 
     watch(
-      () => enabled.value,
+      () => this.state.enabled,
       (enabled) => {
         if (enabled) {
-          decrease();
+          this.decrease();
         }
       },
     );
 
     watch(
-      () => time.value,
+      () => this.state.time,
       (time) => {
         if (time === 0) {
-          handler.value();
+          this.handler();
         }
 
-        if (time > 0 && enabled.value) {
-          decrease();
+        if (time > 0 && this.state.enabled) {
+          this.decrease();
         }
       },
     );
   }
 
-  function start(): void {
-    enabled.value = true;
-    decrease();
+  public start(): void {
+    this.state.enabled = true;
+    this.decrease();
   }
 
-  function stop(): void {
-    enabled.value = false;
+  public stop(): void {
+    this.state.enabled = false;
   }
 
-  function reset(): void {
-    time.value = startValue.value;
+  public decrease(): void {
+    setTimeout(() => this.state.time--, 1000);
   }
 
-  function decrease(): void {
-    setTimeout(() => time.value--, 1000);
+  public onFinished(handler: () => void): void {
+    this.handler = handler;
   }
+}
 
-  function onFinished(_handler: () => void): void {
-    handler.value = _handler;
-  }
-
-  return {
-    initialise,
-    time,
-    start,
-    stop,
-    reset,
-    onFinished,
-  };
-});
+export const useTimer = (amount: number) => new Timer(amount);

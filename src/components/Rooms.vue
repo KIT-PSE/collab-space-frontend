@@ -74,20 +74,14 @@
   import { Category } from '@/composables/api';
   import { useStore } from '@/composables/store';
   import EditCategoryModal from '@/components/EditCategoryModal.vue';
-  import {ref, watch} from 'vue';
+  import { ref } from 'vue';
   import EditRoomModal from '@/components/EditRoomModal.vue';
 
   const auth = useAuth();
   const store = useStore();
 
   store.load();
-  // Konnte nicht testen, ob die neue Lösung korrekt ist
-  // zuvor: auth.onLogout(() => store.unload());
-  auth.$subscribe(loggedIn => {
-    if (!loggedIn) {
-      store.unload();
-    }
-  });
+  auth.onLogout(() => store.unload());
 
   let categoryToEdit = ref(null);
   let roomToEdit = ref(null);

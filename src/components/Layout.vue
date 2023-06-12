@@ -15,7 +15,7 @@
           class="btn btn-primary mx-1"
         >
           <i class="fa fa-gear"></i>
-          {{ user?.name }}
+          {{ auth.user?.name }}
         </router-link>
         <router-link
           v-if="buttons?.includes('back')"
@@ -31,7 +31,7 @@
         </button>
         <button class="btn btn-secondary mx-1">
           Timer:
-          <span class="font-monospace">{{ loginTimer?.time }}</span>
+          <span class="font-monospace">{{ auth.loginTimer?.state.time }}</span>
         </button>
       </div>
     </div>
@@ -49,5 +49,6 @@
   }>();
 
   const auth = useAuth();
-  const { user, loginTimer } = auth;
+
+  console.log(auth.loginTimer);
 </script>
