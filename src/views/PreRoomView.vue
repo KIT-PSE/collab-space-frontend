@@ -2,11 +2,12 @@
   <GuestLayout>
     <div class="d-flex justify-content-center mb-4">
       <div style="width: 400px">
-        <img
-          src="https://placehold.co/400x300.png?text=Kamera+Bild"
-          alt=""
-          class="rounded"
-        />
+<!--        <img-->
+<!--          src="https://placehold.co/400x300.png?text=Kamera+Bild"-->
+<!--          alt=""-->
+<!--          class="rounded"-->
+<!--        />-->
+        <video autoplay ref="video" class="rounded" width="400"></video>
         <div class="btn-group py-1 w-100">
           <button class="btn btn-secondary">
             <i class="fa fa-video me-1"></i>
@@ -36,7 +37,7 @@
   import GuestLayout from '@/components/GuestLayout.vue';
   import Input from '@/components/inputs/Input.vue';
   import { useChannel } from '@/composables/channel';
-  import { computed } from 'vue';
+  import {computed, onMounted, ref} from 'vue';
   import { useForm } from '@/composables/form';
   import { useRouter } from 'vue-router';
 
@@ -53,6 +54,17 @@
 
   const form = useForm({
     name: '',
+  });
+
+  const video = ref<HTMLVideoElement | null>(null);
+
+  onMounted(async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false,
+    });
+
+    video.value!.srcObject = stream;
   });
 
   async function submit() {

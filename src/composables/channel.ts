@@ -2,11 +2,12 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive, ref } from 'vue';
+import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
 import { useStore } from '@/composables/store';
+import Peer from 'peerjs';
 
 const alerts = useAlerts();
 
@@ -40,6 +41,9 @@ export const useChannel = defineStore('channel', () => {
     hasName: false,
   });
 
+  let webcamsLoaded = false;
+  const streams: Record<string, MediaStream> = reactive({});
+
   let socket: Socket | null = null;
 
   async function connect(): Promise<void> {
@@ -47,7 +51,7 @@ export const useChannel = defineStore('channel', () => {
       return;
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       socket = io('http://localhost:3000');
 
       socket.on('connect', () => {
@@ -56,6 +60,53 @@ export const useChannel = defineStore('channel', () => {
         resolve();
       });
     });
+  }
+
+  async function loadWebcams(): Promise<void> {
+    if (webcamsLoaded) {
+      return;
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+    });
+
+    for (const userToConnectTo of otherUsers()) {
+      const peer = new Peer();
+
+      peer.on('open', (id) => {
+        socket?.emit('connect-webcam', {
+          userId: userToConnectTo.id,
+          peerId: id,
+        });
+      });
+
+      peer.on('call', (call) => {
+        call.answer(stream);
+        call.on('stream', (remoteStream) => {
+          streams[userToConnectTo.id] = remoteStream;
+        });
+      });
+    }
+
+    streams[state.clientId] = stream;
+    webcamsLoaded = true;
+  }
+
+  function getWebcamStream(userId: string): MediaStream {
+    return streams[userId] ?? null;
+  }
+
+  function otherUsers(): (Teacher | Student)[] {
+    const users: (Teacher | Student)[] = state.students.filter(
+      (s) => !isSelf(s),
+    );
+
+    if (state.teacher && !isSelf(state.teacher)) {
+      users.push(state.teacher);
+    }
+
+    return users;
   }
 
   async function open(user: User, room: Room) {
@@ -198,6 +249,21 @@ export const useChannel = defineStore('channel', () => {
       const index = state.students.findIndex((s) => s.id === id);
       state.students[index].name = name;
     });
+
+    socket.on(
+      'connect-webcam',
+      ({ userId, peerId }: { userId: string; peerId: string }) => {
+        const peer = new Peer();
+        const stream = getWebcamStream(state.clientId);
+
+        peer.on('open', () => {
+          const call = peer.call(peerId, stream);
+          call.on('stream', (remoteStream) => {
+            streams[userId] = remoteStream;
+          });
+        });
+      },
+    );
   }
 
   return {
@@ -210,5 +276,8 @@ export const useChannel = defineStore('channel', () => {
     leave,
     isSelf,
     changeName,
+    streams,
+    loadWebcams,
+    getWebcamStream,
   };
 });

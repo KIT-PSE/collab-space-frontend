@@ -35,11 +35,12 @@
 
           <div v-if="channel.state.teacher" class="col-lg-6">
             <div class="card my-1">
-              <img
-                src="https://placehold.co/600x400.png?text=Kamera+Bild"
-                alt=""
-                class="card-img-top"
-              />
+              <!--              <img-->
+              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
+              <!--                alt=""-->
+              <!--                class="card-img-top"-->
+              <!--              />-->
+              <Camera :user-id="channel.state.teacher.id" />
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
                   {{ channel.state.teacher?.user.name }}
@@ -61,11 +62,12 @@
             class="col-lg-6"
           >
             <div class="card my-1">
-              <img
-                src="https://placehold.co/600x400.png?text=Kamera+Bild"
-                alt=""
-                class="card-img-top"
-              />
+              <!--              <img-->
+              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
+              <!--                alt=""-->
+              <!--                class="card-img-top"-->
+              <!--              />-->
+              <Camera :user-id="student.id" />
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
@@ -113,6 +115,7 @@
   import { useChannel } from '@/composables/channel';
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
+  import Camera from '@/components/Camera.vue';
 
   const auth = useAuth();
   const channel = useChannel();
@@ -124,6 +127,8 @@
       channel.leave();
     }
   });
+
+  channel.loadWebcams();
 
   const video = ref(true);
   const audio = ref(true);
