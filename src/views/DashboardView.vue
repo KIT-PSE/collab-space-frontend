@@ -33,4 +33,8 @@
   import CreateCategoryModal from '@/components/CreateCategoryModal.vue';
   import CreateRoomModal from '@/components/CreateRoomModal.vue';
   import Rooms from '@/components/Rooms.vue';
+  import { useChannel } from '@/composables/channel';
+
+  const channel = useChannel();
+  channel.connect();
 </script>

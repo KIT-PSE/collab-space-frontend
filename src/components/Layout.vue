@@ -41,6 +41,10 @@
           Timer:
           <span class="font-monospace">{{ loginTimer?.time }}</span>
         </button>
+        <button class="btn btn-secondary mx-1">
+          <span v-if="channel.connected">Verbunden</span>
+          <span v-else>Nicht verbunden</span>
+        </button>
       </div>
     </div>
 
@@ -50,6 +54,7 @@
 
 <script setup lang="ts">
   import { useAuth } from '@/composables/auth';
+  import { useChannel } from '@/composables/channel';
 
   defineProps<{
     title: string;
@@ -57,5 +62,8 @@
   }>();
 
   const auth = useAuth();
+
   const { user, loginTimer } = auth;
+
+  const channel = useChannel();
 </script>
