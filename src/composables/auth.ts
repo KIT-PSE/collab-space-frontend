@@ -75,7 +75,10 @@ class Auth {
   public async delete(): Promise<void> {
     try {
       if (!this.isLoggedIn()) {
-        alerts.danger('Löschen des Accounts fehlgeschlagen', 'Du bist nicht eingeloggt.');
+        alerts.danger(
+          'Löschen des Accounts fehlgeschlagen',
+          'Du bist nicht eingeloggt.',
+        );
         return;
       }
 

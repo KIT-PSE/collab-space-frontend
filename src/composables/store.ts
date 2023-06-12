@@ -8,7 +8,6 @@ import {
   CreateRoom,
   Room,
   UpdateCategory,
-  UpdateRoom,
   useApi,
 } from '@/composables/api';
 

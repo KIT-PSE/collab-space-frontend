@@ -33,7 +33,7 @@
             {{ channel.room?.name }}
           </h3>
 
-          <div v-if="channel.teacher" class="col-6">
+          <div v-if="channel.teacher" class="col-lg-6">
             <div class="card my-1">
               <img
                 src="https://placehold.co/600x400.png?text=Kamera+Bild"
@@ -58,7 +58,7 @@
           <div
             v-for="student in channel.students"
             :key="student.id"
-            class="col-6"
+            class="col-lg-6"
           >
             <div class="card my-1">
               <img
@@ -112,10 +112,18 @@
   import { ref } from 'vue';
   import { useChannel } from '@/composables/channel';
   import { onBeforeRouteLeave } from 'vue-router';
+  import { useAuth } from '@/composables/auth';
 
+  const auth = useAuth();
   const channel = useChannel();
 
-  onBeforeRouteLeave(() => channel.leave());
+  onBeforeRouteLeave(() => {
+    if (auth.isLoggedIn()) {
+      channel.leaveAsTeacher();
+    } else {
+      channel.leave();
+    }
+  });
 
   const video = ref(true);
   const audio = ref(true);

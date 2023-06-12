@@ -36,6 +36,7 @@ export type Room = {
   id: number;
   category: number;
   name: string;
+  channelId?: string,
   password?: string;
   createdAt: Moment;
   updatedAt: Moment;

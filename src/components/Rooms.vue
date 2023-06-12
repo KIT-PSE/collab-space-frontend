@@ -35,7 +35,15 @@
                       class="d-flex justify-content-between align-items-center"
                       @click="openRoom(room)"
                     >
-                      {{ room.name }}
+                      <p>
+                        {{ room.name }}
+                        <span
+                          v-if="room.channelId"
+                          class="badge text-bg-primary"
+                        >
+                          Live
+                        </span>
+                      </p>
                       <div>
                         <button
                           class="btn btn-sm text-secondary"
@@ -75,17 +83,24 @@
   import { ref } from 'vue';
   import EditRoomModal from '@/components/EditRoomModal.vue';
   import { useChannel } from '@/composables/channel';
+  import { useRouter } from 'vue-router';
 
   const user = useUser();
   const auth = useAuth();
   const store = useStore();
+  const router = useRouter();
   const channel = useChannel();
 
   store.load();
   auth.onLogout(() => store.unload());
 
   async function openRoom(room) {
-    console.log('opening room', room);
+    if (room.channelId) {
+      await channel.joinAsTeacher(user.value, room.channelId);
+      await router.push(`/room/${room.channelId}`);
+      return;
+    }
+
     await channel.open(user.value, room);
   }
 
