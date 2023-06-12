@@ -57,21 +57,21 @@ export const useChannel = defineStore('channel', () => {
     });
   }
 
-  async function open(user: User, roomToConnect: Room) {
+  async function open(user: User, room: Room) {
     if (!socket) {
       throw new Error('Socket is not connected');
     }
 
     const payload = {
       userId: user.id,
-      roomId: roomToConnect.id,
+      roomId: room.id,
     };
 
     socket?.emit('open-room', payload, async (result: any) => {
       state.connected = true;
       state.channelId = result.id;
       state.clientId = socket?.id || '';
-      state.room = roomToConnect;
+      state.room = room;
       state.students = [];
       state.teacher = { id: state.clientId, user };
 
@@ -82,7 +82,7 @@ export const useChannel = defineStore('channel', () => {
         },
       });
 
-      roomToConnect.channelId = result.id;
+      room.channelId = result.id;
     });
   }
 
