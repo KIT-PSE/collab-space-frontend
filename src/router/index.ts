@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { adminGuard, authGuard, guestGuard } from '@/router/guards';
+import { adminGuard, authGuard, guestGuard, roomGuard } from '@/router/guards';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/LoginView.vue'),
+      component: () => import('../views/EnterRoomView.vue'),
       beforeEnter: guestGuard,
     },
     {
@@ -41,10 +41,10 @@ const router = createRouter({
       beforeEnter: authGuard,
     },
     {
-      path: '/room',
+      path: '/room/:id',
       name: 'room',
       component: () => import('../views/RoomView.vue'),
-      beforeEnter: authGuard,
+      beforeEnter: roomGuard,
     },
   ],
 });
