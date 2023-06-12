@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia';
 import { useAlerts } from '@/composables/alerts';
-import { computed, ComputedRef, ref, watch } from 'vue';
+import { computed, ComputedRef, ref } from 'vue';
 import router from '@/router';
-import type { Timer } from '@/composables/timer';
 import { useTimer } from '@/composables/timer';
 import { HttpError, ValidationError } from '@/composables/fetch';
 import { LoginData, RegisterData, useApi, User } from '@/composables/api';
@@ -13,8 +12,10 @@ const api = useApi();
 export const useAuth = defineStore('auth', () => {
   const user = ref<User | null>(null);
   const loggedIn = ref(false);
-  const loginTimer = ref<Timer | null>(null);
   const loaded = ref(false);
+
+  const loginTimer = ref<ReturnType<typeof useTimer>>(useTimer());
+  loginTimer.value.initialise(60 * 60);
 
   const isLoggedIn = computed(() => loggedIn.value);
   const isAdmin = computed(() => user.value?.role === 'admin');
@@ -95,8 +96,7 @@ export const useAuth = defineStore('auth', () => {
     await router.push({ name: 'login' });
 
     user.value = null;
-    loginTimer.value?.stop();
-    loginTimer.value = null;
+    loginTimer.value.stop();
   }
 
   function loginUser(_user: User, exp: number) {
@@ -107,12 +107,8 @@ export const useAuth = defineStore('auth', () => {
     const endDate = new Date(exp * 1000);
     const amount = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
 
-    /**
-     * TODO: fix timer
-     */
-    /*
-    loginTimer.value?.stop();
-    loginTimer.value = useTimer(amount);
+    loginTimer.value.stop();
+    loginTimer.value.reset();
     loginTimer.value.start();
     loginTimer.value.onFinished(async () => {
       await logoutUser();
@@ -120,7 +116,7 @@ export const useAuth = defineStore('auth', () => {
         'Du wurdest automatisch ausgeloggt.',
         'Bitte logge dich erneut ein.',
       );
-    });*/
+    });
   }
 
   return {

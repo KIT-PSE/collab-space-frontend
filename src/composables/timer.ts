@@ -1,46 +1,66 @@
 import { ref, watch } from 'vue';
+import { defineStore } from 'pinia';
 
-export class Timer {
-  public time = ref(0);
-  private enabled = ref(true);
-  private handler = () => {};
+export const useTimer = defineStore('timer', () => {
+  const time = ref(0);
+  const startValue = ref(0);
+  const enabled = ref(true);
+  const handler = ref<() => void>(() => {});
 
-  constructor(amount: number) {
-    this.time.value = amount;
+  function initialise(amount: number) {
+    startValue.value = amount;
+    time.value = amount;
 
-    watch(this.enabled, (enabled) => {
-      if (enabled) {
-        this.decrease();
-      }
-    });
+    watch(
+      () => enabled.value,
+      (enabled) => {
+        if (enabled) {
+          decrease();
+        }
+      },
+    );
 
-    watch(this.time, (time) => {
-      if (time === 0) {
-        this.handler();
-      }
+    watch(
+      () => time.value,
+      (time) => {
+        if (time === 0) {
+          handler.value();
+        }
 
-      if (time > 0 && this.enabled.value) {
-        this.decrease();
-      }
-    });
+        if (time > 0 && enabled.value) {
+          decrease();
+        }
+      },
+    );
   }
 
-  public start(): void {
-    this.enabled.value = true;
-    this.decrease();
+  function start(): void {
+    enabled.value = true;
+    decrease();
   }
 
-  public stop(): void {
-    this.enabled.value = false;
+  function stop(): void {
+    enabled.value = false;
   }
 
-  public decrease(): void {
-    setTimeout(() => this.time.value--, 1000);
+  function reset(): void {
+    time.value = startValue.value;
   }
 
-  public onFinished(handler: () => void): void {
-    this.handler = handler;
+  function decrease(): void {
+    setTimeout(() => time.value--, 1000);
   }
-}
 
-export const useTimer = (amount: number) => new Timer(amount);
+  function onFinished(_handler: () => void): void {
+    handler.value = _handler;
+  }
+
+  return {
+    initialise,
+    time,
+    start,
+    stop,
+    reset,
+    onFinished,
+  };
+});
