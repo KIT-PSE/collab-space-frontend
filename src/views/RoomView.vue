@@ -11,7 +11,6 @@
                 width="100"
               />
             </router-link>
-            <p class="mb-0 ms-5">Channel: {{ channel.id }} Connected: {{ channel.connected }}</p>
           </div>
         </div>
 
@@ -31,7 +30,7 @@
       >
         <div class="row overflow-y-auto mb-2">
           <h3 class="text-center text-primary mt-2">
-            {{ channel.room?.name }}: {{ channel.room?.id }}
+            {{ channel.room?.name }}
           </h3>
 
           <div v-if="channel.teacher" class="col-6">
@@ -43,14 +42,24 @@
               />
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
-                  {{ channel.teacher?.name }}
+                  {{ channel.teacher?.user.name }}
                   <span class="badge text-bg-primary ms-1">Lehrer</span>
+                  <span
+                    v-if="channel.isSelf(channel.teacher)"
+                    class="badge text-bg-secondary ms-1"
+                  >
+                    Du
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div v-for="student in channel.students" :key="student.id" class="col-6">
+          <div
+            v-for="student in channel.students"
+            :key="student.id"
+            class="col-6"
+          >
             <div class="card my-1">
               <img
                 src="https://placehold.co/600x400.png?text=Kamera+Bild"
@@ -60,6 +69,12 @@
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
+                  <span
+                    v-if="channel.isSelf(student)"
+                    class="badge text-bg-secondary ms-1"
+                  >
+                    Du
+                  </span>
                 </div>
               </div>
             </div>
@@ -104,6 +119,4 @@
 
   const video = ref(true);
   const audio = ref(true);
-
-  const cameras = ref(20);
 </script>

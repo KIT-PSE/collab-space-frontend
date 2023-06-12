@@ -5,17 +5,24 @@ import { useAlerts } from '@/composables/alerts';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
+import { useAuth } from '@/composables/auth';
 
 const alerts = useAlerts();
+const auth = useAuth();
 
 export interface Student {
   id: string;
   name: string;
 }
 
+export interface Teacher {
+  id: string;
+  user: User;
+}
+
 export interface JoinRoomResult {
   room: Room;
-  teacher: User;
+  teacher: Teacher;
   students: Student[];
 }
 
@@ -24,8 +31,9 @@ export const useChannel = defineStore('channel', () => {
 
   const connected = ref(false);
   const channelId = ref('');
+  const clientId = ref('');
   const room = ref<Room | null>(null);
-  const teacher = ref<User | null>(null);
+  const teacher = ref<Teacher | null>(null);
   const students = ref<Student[]>([]);
 
   let socket: Socket | null = null;
@@ -42,9 +50,10 @@ export const useChannel = defineStore('channel', () => {
       socket?.emit('open-room', payload, (result: any) => {
         connected.value = true;
         channelId.value = result.id;
+        clientId.value = socket?.id || '';
         room.value = roomToConnect;
         students.value = [];
-        teacher.value = user;
+        teacher.value = { id: clientId.value, user };
 
         router.push({
           name: 'room',
@@ -81,6 +90,7 @@ export const useChannel = defineStore('channel', () => {
 
           connected.value = true;
           channelId.value = id;
+          clientId.value = socket?.id || '';
           students.value = data.students;
           teacher.value = data.teacher;
           room.value = data.room;
@@ -96,15 +106,25 @@ export const useChannel = defineStore('channel', () => {
     socket?.close();
   }
 
+  function isSelf(user: Teacher | Student) {
+    return user.id === clientId.value;
+  }
+
   function handleConnection(socket: Socket) {
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
       connected.value = false;
       channelId.value = '';
       room.value = null;
       students.value = [];
       teacher.value = null;
 
-      console.log('disconnected');
+      if (router.currentRoute.value.name === 'room') {
+        if (auth.isLoggedIn()) {
+          await router.push({ name: 'dashboard' });
+        } else {
+          await router.push({ name: 'home' });
+        }
+      }
     });
 
     socket.on('exception', (exception: { message: string }) => {
@@ -123,7 +143,7 @@ export const useChannel = defineStore('channel', () => {
       students.value.splice(index, 1);
     });
 
-    socket.on('teacher-joined', (user: User) => {
+    socket.on('teacher-joined', (user: Teacher) => {
       teacher.value = user;
     });
 
@@ -136,6 +156,7 @@ export const useChannel = defineStore('channel', () => {
     connected,
     channelId,
     id: channelId,
+    clientId,
     room,
     teacher,
     students,
@@ -143,5 +164,6 @@ export const useChannel = defineStore('channel', () => {
     joinAsTeacher,
     joinAsStudent,
     leave,
+    isSelf,
   };
 });
