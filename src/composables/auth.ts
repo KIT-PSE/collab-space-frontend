@@ -72,7 +72,26 @@ export const useAuth = defineStore('auth', () => {
     }
   }
 
-  async function loadUser() {
+  async function deleteFunction(): Promise<void> {
+    try {
+      if (!isLoggedIn.value) {
+        alerts.danger(
+          'Löschen des Accounts fehlgeschlagen',
+          'Du bist nicht eingeloggt.',
+        );
+        return;
+      }
+
+      await api.deleteAccount();
+      await logoutUser();
+
+      alerts.success('Account erfolgreich gelöscht');
+    } catch (error) {
+      alerts.error('Löschen des Accounts fehlgeschlagen', error as Error);
+    }
+  }
+
+  async function loadUser(): Promise<void> {
     if (loaded.value) {
       return;
     }
@@ -135,6 +154,7 @@ export const useAuth = defineStore('auth', () => {
     isAdmin,
     login,
     register,
+    delete: deleteFunction,
     logout,
     loadUser,
     onLogout,

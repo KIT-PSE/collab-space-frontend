@@ -1,5 +1,5 @@
 <template>
-  <Layout title="Dashboard" :buttons="['account']">
+  <Layout title="Dashboard" :buttons="['account', 'admin']">
     <div class="row my-5">
       <div class="col">
         <button
@@ -33,4 +33,8 @@
   import CreateCategoryModal from '@/components/CreateCategoryModal.vue';
   import CreateRoomModal from '@/components/CreateRoomModal.vue';
   import Rooms from '@/components/Rooms.vue';
+  import { useChannel } from '@/composables/channel';
+
+  const channel = useChannel();
+  channel.connect();
 </script>

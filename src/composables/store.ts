@@ -8,7 +8,6 @@ import {
   CreateRoom,
   Room,
   UpdateCategory,
-  UpdateRoom,
   useApi,
 } from '@/composables/api';
 
@@ -28,7 +27,7 @@ export const useStore = defineStore('store', () => {
       categories.value = await api.allCategories();
       loaded.value = true;
     } catch (err) {
-      alerts.error('Kategorien konnten nicht geladen werden.', err as Error);
+      alerts.error('Daten konnten nicht geladen werden.', err as Error);
     }
   }
 
@@ -120,6 +119,17 @@ export const useStore = defineStore('store', () => {
     return null;
   }
 
+  function findRoom(id: number): Room | null {
+    for (const category of categories.value) {
+      const room = category.rooms.find((r) => r.id === id);
+      if (room) {
+        return room;
+      }
+    }
+
+    return null;
+  }
+
   async function updateRoom(
     room: Room,
     data: { name: string },
@@ -168,6 +178,7 @@ export const useStore = defineStore('store', () => {
     updateCategory,
     deleteCategory,
     createRoom,
+    findRoom,
     updateRoom,
     deleteRoom,
   };

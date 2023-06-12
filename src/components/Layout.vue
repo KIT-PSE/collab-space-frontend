@@ -10,6 +10,14 @@
       <div class="col-auto d-flex align-items-center">
         <slot name="buttons"></slot>
         <router-link
+          v-if="auth.isAdmin && buttons?.includes('admin')"
+          to="/admin"
+          class="btn btn-primary mx-1"
+        >
+          <i class="fa fa-gear"></i>
+          Admin Panel
+        </router-link>
+        <router-link
           v-if="buttons?.includes('account')"
           to="/account"
           class="btn btn-primary mx-1"
@@ -33,6 +41,10 @@
           Timer:
           <span class="font-monospace">{{ auth.loginTimer?.state.time }}</span>
         </button>
+        <button class="btn btn-secondary mx-1">
+          <span v-if="channel.connected">Verbunden</span>
+          <span v-else>Nicht verbunden</span>
+        </button>
       </div>
     </div>
 
@@ -42,13 +54,13 @@
 
 <script setup lang="ts">
   import { useAuth } from '@/composables/auth';
+  import { useChannel } from '@/composables/channel';
 
   defineProps<{
     title: string;
-    buttons?: ('account' | 'back')[];
+    buttons?: ('account' | 'back' | 'admin')[];
   }>();
 
   const auth = useAuth();
-
-  console.log(auth.loginTimer);
+  const channel = useChannel();
 </script>
