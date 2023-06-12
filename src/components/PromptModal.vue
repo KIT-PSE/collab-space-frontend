@@ -13,7 +13,7 @@
 <script setup lang="ts">
   import Modal from '@/components/Modal.vue';
   import { State, usePrompt } from '@/composables/prompt';
-  import {closeModal} from "@/utils";
+  import { closeModal } from '@/utils';
 
   const prompt = usePrompt();
 

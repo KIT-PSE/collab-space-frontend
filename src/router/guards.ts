@@ -1,10 +1,6 @@
 import { useAlerts } from '@/composables/alerts';
-import {useAuth, useUser} from '@/composables/auth';
-import {
-  RouteLocationNormalized,
-  RouteLocationNormalizedLoaded,
-} from 'vue-router';
-import { useStore } from '@/composables/store';
+import { useAuth, useUser } from '@/composables/auth';
+import { RouteLocationNormalized } from 'vue-router';
 import { useChannel } from '@/composables/channel';
 
 const alerts = useAlerts();
@@ -50,5 +46,18 @@ export async function roomGuard(to: RouteLocationNormalized) {
   } catch (err) {
     alerts.error('Raum beitreten fehlgeschlagen', err as Error);
     return { name: 'home' };
+  }
+}
+
+export async function adminGuard() {
+  const auth = useAuth();
+  await auth.loadUser();
+
+  if (!auth.isAdmin()) {
+    alerts.danger(
+      'Du bist nicht berechtigt.',
+      'Du musst Administrator sein um fortzufahren.',
+    );
+    return { name: 'dashboard' };
   }
 }

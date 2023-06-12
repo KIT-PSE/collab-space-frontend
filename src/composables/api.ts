@@ -11,6 +11,7 @@ export type User = {
   organization: string;
   createdAt: Moment;
   updatedAt: Moment;
+  role: 'user' | 'admin';
 };
 
 export type UserResponse = {
@@ -76,6 +77,10 @@ const api = {
 
   async profile(): Promise<UserResponse> {
     return fetch.getOrFail<UserResponse>('/auth/profile');
+  },
+
+  async deleteAccount(): Promise<void> {
+    return fetch.delete('/auth/delete');
   },
 
   async allCategories(): Promise<Category[]> {
