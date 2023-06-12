@@ -42,12 +42,7 @@
     try {
       await channel.joinAsStudent('through code', form.code);
       form.clearErrors();
-      await router.push({
-        name: 'room',
-        params: {
-          id: form.code,
-        },
-      });
+      await router.push(`/room/${form.code}/connecting`);
     } catch (err) {
       form.errors.code = err;
     }

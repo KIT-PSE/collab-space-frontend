@@ -37,6 +37,7 @@ export const useChannel = defineStore('channel', () => {
     room: null as Room | null,
     teacher: null as Teacher | null,
     students: [] as Student[],
+    hasName: false,
   });
 
   let socket: Socket | null = null;
@@ -74,6 +75,7 @@ export const useChannel = defineStore('channel', () => {
       state.room = room;
       state.students = [];
       state.teacher = { id: state.clientId, user };
+      state.hasName = true;
 
       await router.push({
         name: 'room',
@@ -92,6 +94,7 @@ export const useChannel = defineStore('channel', () => {
   }
 
   async function joinAsStudent(name: string, id: string): Promise<void> {
+    name = 'Verbinden...';
     await connect();
     return join(id, 'join-room-as-student', { name, channelId: id });
   }
@@ -112,6 +115,7 @@ export const useChannel = defineStore('channel', () => {
         state.students = data.students;
         state.teacher = data.teacher;
         state.room = data.room;
+        state.hasName = false;
         resolve();
       });
     });
@@ -119,6 +123,15 @@ export const useChannel = defineStore('channel', () => {
 
   function leaveAsTeacher() {
     socket?.emit('leave-room');
+  }
+
+  function changeName(name: string): Promise<void> {
+    return new Promise((resolve) => {
+      socket?.emit('change-name', { name }, () => {
+        state.hasName = true;
+        resolve();
+      });
+    });
   }
 
   function leave() {
@@ -137,6 +150,7 @@ export const useChannel = defineStore('channel', () => {
       state.room = null;
       state.students = [];
       state.teacher = null;
+      state.hasName = false;
 
       if (router.currentRoute.value.name === 'room') {
         if (auth.isLoggedIn) {
@@ -179,6 +193,11 @@ export const useChannel = defineStore('channel', () => {
         room.channelId = '';
       }
     });
+
+    socket.on('change-name', ({ id, name }: { id: string; name: string }) => {
+      const index = state.students.findIndex((s) => s.id === id);
+      state.students[index].name = name;
+    });
   }
 
   return {
@@ -190,5 +209,6 @@ export const useChannel = defineStore('channel', () => {
     leaveAsTeacher,
     leave,
     isSelf,
+    changeName,
   };
 });

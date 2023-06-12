@@ -46,6 +46,12 @@ const router = createRouter({
       component: () => import('../views/RoomView.vue'),
       beforeEnter: roomGuard,
     },
+    {
+      path: '/room/:id/connecting',
+      name: 'connecting',
+      component: () => import('../views/PreRoomView.vue'),
+      beforeEnter: roomGuard,
+    },
   ],
 });
 

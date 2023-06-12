@@ -42,6 +42,10 @@ export async function roomGuard(to: RouteLocationNormalized) {
       await channel.joinAsTeacher(useUser().value, to.params.id as string);
     } else {
       await channel.joinAsStudent('through link', to.params.id as string);
+
+      if (!channel.state.hasName && to.name === 'room') {
+        return { name: 'connecting', params: { id: to.params.id } };
+      }
     }
   } catch (err) {
     alerts.error('Raum beitreten fehlgeschlagen', err as Error);
