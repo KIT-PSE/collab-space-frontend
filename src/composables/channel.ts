@@ -170,7 +170,6 @@ export const useChannel = defineStore('channel', () => {
     });
 
     socket.on('room-closed', (id: number) => {
-      console.log('room-closed', id);
       const room = useStore().findRoom(id);
 
       if (room) {

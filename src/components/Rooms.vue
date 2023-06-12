@@ -23,7 +23,7 @@
         <div class="row py-4">
           <transition-group name="bounce">
             <div v-for="room in category.rooms" :key="room.id" class="col-4">
-              <div class="card my-1">
+              <div class="card my-1" style="cursor: pointer;" @click="openRoom(room)">
                 <img
                   src="https://placehold.co/600x400.png?text=Raum+Vorschau"
                   alt=""
@@ -33,7 +33,6 @@
                   <div class="card-text text-dark text-decoration-none">
                     <div
                       class="d-flex justify-content-between align-items-center"
-                      @click="openRoom(room)"
                     >
                       <p>
                         {{ room.name }}
