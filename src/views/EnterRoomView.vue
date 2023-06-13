@@ -44,7 +44,7 @@
       form.clearErrors();
       await router.push(`/room/${form.code}/connecting`);
     } catch (err) {
-      form.errors.code = err;
+      form.errors.code = err as string;
     }
   }
 </script>

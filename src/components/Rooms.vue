@@ -3,7 +3,7 @@
     <transition-group name="bounce">
       <div
         v-for="category in store.categories"
-        :key="category"
+        :key="category.id"
         class="col-lg-9"
       >
         <div class="d-flex justify-content-between">
@@ -76,7 +76,7 @@
   import { useAuth, useUser } from '@/composables/auth';
   import { openModal } from '@/utils';
   import { ask } from '@/composables/prompt';
-  import { Category } from '@/composables/api';
+  import {Category, Room} from '@/composables/api';
   import { useStore } from '@/composables/store';
   import EditCategoryModal from '@/components/EditCategoryModal.vue';
   import { ref } from 'vue';
@@ -93,7 +93,7 @@
   store.load();
   auth.onLogout(() => store.unload());
 
-  async function openRoom(room) {
+  async function openRoom(room: Room) {
     if (room.channelId) {
       await channel.joinAsTeacher(user.value, room.channelId);
       await router.push(`/room/${room.channelId}`);
@@ -103,15 +103,15 @@
     await channel.open(user.value, room);
   }
 
-  let categoryToEdit = ref(null);
-  let roomToEdit = ref(null);
+  let categoryToEdit = ref<Category | null>(null);
+  let roomToEdit = ref<Room | null>(null);
 
-  function editCategory(category) {
+  function editCategory(category: Category) {
     categoryToEdit.value = category;
     openModal('edit-category-modal');
   }
 
-  function editRoom(room) {
+  function editRoom(room: Room) {
     roomToEdit.value = room;
     openModal('edit-room-modal');
   }
@@ -130,7 +130,7 @@
     await store.deleteCategory(category);
   }
 
-  async function deleteRoom(room) {
+  async function deleteRoom(room: Room) {
     const shouldDestroy = await ask(
       'Raum löschen',
       `Soll der Raum <b>${room.name}</b> wirklich gelöscht werden?`,

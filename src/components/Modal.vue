@@ -47,9 +47,9 @@
   }>();
 
   const emits = defineEmits<{
-    submit: () => void;
-    closed: () => void;
-    open: () => void;
+    submit: []
+    closed: []
+    open: []
   }>();
 
   function onHidden() {

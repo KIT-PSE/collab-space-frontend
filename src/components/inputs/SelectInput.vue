@@ -6,7 +6,7 @@
       :class="error ? 'is-invalid' : ''"
       :id="id"
       :value="modelValue"
-      @change="$emit('update:modelValue', $event.target.value)"
+      @change="change"
       v-bind="$attrs"
     >
       <option value="" disabled selected hidden>
@@ -35,9 +35,13 @@
     error?: string;
   }>();
 
-  defineEmits<{
-    'update:modelValue': (value: any) => void;
+  const emits = defineEmits<{
+    'update:modelValue': [value: any];
   }>();
+
+  function change(event: Event) {
+    emits('update:modelValue', (event.target as HTMLInputElement).value);
+  }
 
   defineOptions({
     inheritAttrs: false,
