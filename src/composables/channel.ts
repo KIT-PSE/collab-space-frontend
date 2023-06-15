@@ -52,7 +52,7 @@ export const useChannel = defineStore('channel', () => {
     }
 
     return new Promise((resolve) => {
-      socket = io('http://localhost:3000');
+      socket = io(import.meta.env.VITE_BACKEND_URL);
 
       socket.on('connect', () => {
         state.connected = true;

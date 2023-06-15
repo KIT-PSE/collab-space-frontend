@@ -10,7 +10,7 @@
           placeholder="Lorem Ipsum"
           v-bind="$attrs"
           :value="modelValue"
-          @input="$emit('update:modelValue', $event.target.value)"
+          @input="input"
         />
         <div class="invalid-feedback">{{ error }}</div>
       </div>
@@ -28,9 +28,13 @@
     error?: string;
   }>();
 
-  defineEmits<{
-    'update:modelValue': (value: any) => void;
+  const emits = defineEmits<{
+    'update:modelValue': [value: any];
   }>();
+
+  function input(event: Event) {
+    emits('update:modelValue', (event.target as HTMLInputElement).value);
+  }
 
   defineOptions({
     inheritAttrs: false,

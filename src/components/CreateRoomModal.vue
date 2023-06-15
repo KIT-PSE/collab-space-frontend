@@ -40,8 +40,8 @@
 
   const store = useStore();
 
-  const categoryOptions = computed(() =>
-    store.categories.map((category) => [category.id, category.name]),
+  const categoryOptions = computed<[string, string][]>(() =>
+    store.categories.map((category) => [category.id.toString(), category.name]),
   );
 
   const form = useForm<CreateRoom>({
