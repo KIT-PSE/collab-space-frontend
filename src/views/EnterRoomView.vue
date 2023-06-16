@@ -40,7 +40,7 @@
 
   async function submit() {
     try {
-      await channel.joinAsStudent('through code', form.code);
+      await channel.joinAsStudent(form.code);
       form.clearErrors();
       await router.push(`/room/${form.code}/connecting`);
     } catch (err) {

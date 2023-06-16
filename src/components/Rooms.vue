@@ -95,7 +95,7 @@
 
   async function openRoom(room: Room) {
     if (room.channelId) {
-      await channel.joinAsTeacher(user.value, room.channelId);
+      await channel.joinAsTeacher(room.channelId, user.value);
       await router.push(`/room/${room.channelId}`);
       return;
     }
