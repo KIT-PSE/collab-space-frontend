@@ -33,8 +33,8 @@
   const auth = useAuth();
 
   const form = useForm({
-    email: 'test@example.com',
-    password: '12345',
+    email: import.meta.env.DEV ? 'test@example.com' : '',
+    password: import.meta.env.DEV ? '12345' : '',
   });
 
   function login() {

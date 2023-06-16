@@ -35,11 +35,12 @@
 
           <div v-if="channel.state.teacher" class="col-lg-6">
             <div class="card my-1">
-              <img
-                src="https://placehold.co/600x400.png?text=Kamera+Bild"
-                alt=""
-                class="card-img-top"
-              />
+              <!--              <img-->
+              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
+              <!--                alt=""-->
+              <!--                class="card-img-top"-->
+              <!--              />-->
+              <Camera :user-id="channel.state.teacher.id" />
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
                   {{ channel.state.teacher?.user.name }}
@@ -49,6 +50,12 @@
                     class="badge text-bg-secondary ms-1"
                   >
                     Du
+                  </span>
+                  <span
+                    v-if="!channel.state.teacher.audio"
+                    class="badge text-bg-secondary ms-1"
+                  >
+                    Muted
                   </span>
                 </div>
               </div>
@@ -61,11 +68,12 @@
             class="col-lg-6"
           >
             <div class="card my-1">
-              <img
-                src="https://placehold.co/600x400.png?text=Kamera+Bild"
-                alt=""
-                class="card-img-top"
-              />
+              <!--              <img-->
+              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
+              <!--                alt=""-->
+              <!--                class="card-img-top"-->
+              <!--              />-->
+              <Camera :user-id="student.id" />
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
@@ -74,6 +82,12 @@
                     class="badge text-bg-secondary ms-1"
                   >
                     Du
+                  </span>
+                  <span
+                    v-if="!student.audio"
+                    class="badge text-bg-secondary ms-1"
+                  >
+                    Muted
                   </span>
                 </div>
               </div>
@@ -88,17 +102,20 @@
             <button
               type="button"
               class="btn text-primary mx-2"
-              @click="audio = !audio"
+              @click="toggleAudio()"
             >
-              <i v-if="audio" class="fa fa-microphone"></i>
+              <i
+                v-if="channel.currentUser().audio"
+                class="fa fa-microphone"
+              ></i>
               <i v-else class="fa fa-microphone-slash"></i>
             </button>
             <button
               type="button"
               class="btn text-primary mx-2"
-              @click="video = !video"
+              @click="toggleVideo()"
             >
-              <i v-if="video" class="fa fa-video"></i>
+              <i v-if="channel.currentUser().video" class="fa fa-video"></i>
               <i v-else class="fa fa-video-slash"></i>
             </button>
           </div>
@@ -109,15 +126,16 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { useChannel } from '@/composables/channel';
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
+  import Camera from '@/components/Camera.vue';
 
   const auth = useAuth();
   const channel = useChannel();
 
   onBeforeRouteLeave(() => {
+    channel.stopWebcam();
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
     } else {
@@ -125,6 +143,13 @@
     }
   });
 
-  const video = ref(true);
-  const audio = ref(true);
+  channel.loadWebcams();
+
+  function toggleVideo() {
+    channel.toggleVideo();
+  }
+
+  function toggleAudio() {
+    channel.toggleAudio();
+  }
 </script>
