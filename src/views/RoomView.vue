@@ -11,6 +11,19 @@
                 width="100"
               />
             </router-link>
+            <div class="d-flex align-items-center ms-3">
+              <label for="website">Webseite</label>
+              <input
+                id="website"
+                label="test"
+                class="ms-2 form-control"
+                placeholder="https://google.com"
+                v-model="website"
+              />
+              <button class="btn btn-secondary ms-2" @click="openWebsite()">
+                öffnen
+              </button>
+            </div>
           </div>
         </div>
 
@@ -19,6 +32,7 @@
             <video
               src="https://placehold.co/1000x800.mp4?text=eingebettete+Webseite"
               autoplay
+              ref="browserVideo"
               style="max-width: 100%; max-height: 100%"
             ></video>
           </div>
@@ -35,11 +49,6 @@
 
           <div v-if="channel.state.teacher" class="col-lg-6">
             <div class="card my-1">
-              <!--              <img-->
-              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
-              <!--                alt=""-->
-              <!--                class="card-img-top"-->
-              <!--              />-->
               <Camera :user-id="channel.state.teacher.id" />
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
@@ -130,6 +139,7 @@
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
+  import { ref, watch } from 'vue';
 
   const auth = useAuth();
   const channel = useChannel();
@@ -152,4 +162,30 @@
   function toggleAudio() {
     channel.toggleAudio();
   }
+
+  const website = ref('https://google.com');
+  const browserVideo = ref<HTMLVideoElement | null>(null);
+
+  function openWebsite() {
+    channel.openWebsite(website.value);
+  }
+
+  watch(channel.browserStream, (stream) => {
+    if (stream) {
+      browserVideo.value!.srcObject = stream;
+    }
+  });
+
+  // watch(channel.streams, () => {
+  //   if (loaded) {
+  //     return;
+  //   }
+  //
+  //   const stream = channel.getWebcamStream(props.userId);
+  //
+  //   if (stream) {
+  //     video.value!.srcObject = stream;
+  //     loaded = true;
+  //   }
+  // });
 </script>

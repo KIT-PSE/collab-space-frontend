@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive } from 'vue';
+import {reactive, ref, Ref} from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
@@ -48,6 +48,8 @@ export const useChannel = defineStore('channel', () => {
   let webcamsLoaded = false;
   const streams: Record<string, MediaStream> = reactive({});
 
+  const browserStream: Ref<MediaStream | null> = ref(null);
+
   let socket: Socket | null = null;
 
   async function connect(): Promise<void> {
@@ -72,6 +74,12 @@ export const useChannel = defineStore('channel', () => {
     }
 
     const user = currentUser();
+
+    if (import.meta.env.DEV) {
+      // deactivate audio in dev mode as it can get annoying
+      user.audio = false;
+    }
+
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
@@ -265,6 +273,10 @@ export const useChannel = defineStore('channel', () => {
     return user.id === state.clientId;
   }
 
+  function openWebsite(url: string) {
+    socket?.emit('open-website', { url });
+  }
+
   function handleConnection(socket: Socket) {
     socket.on('disconnect', async () => {
       state.connected = false;
@@ -346,6 +358,22 @@ export const useChannel = defineStore('channel', () => {
         }
       },
     );
+
+    socket.on('open-website', (peerId: string) => {
+      const peer = new Peer();
+
+      peer.connect(peerId);
+
+      peer.on('call', (call) => {
+        console.log('calling');
+        call.answer();
+
+        call.on('stream', (stream) => {
+          console.log('streaming');
+          browserStream.value = stream;
+        });
+      });
+    });
   }
 
   return {
@@ -366,5 +394,7 @@ export const useChannel = defineStore('channel', () => {
     toggleVideo,
     toggleAudio,
     stopWebcam,
+    browserStream,
+    openWebsite,
   };
 });
