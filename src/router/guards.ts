@@ -39,9 +39,9 @@ export async function roomGuard(to: RouteLocationNormalized) {
 
   try {
     if (auth.isLoggedIn) {
-      await channel.joinAsTeacher(useUser().value, to.params.id as string);
+      await channel.joinAsTeacher(to.params.id as string, useUser().value);
     } else {
-      await channel.joinAsStudent('through link', to.params.id as string);
+      await channel.joinAsStudent(to.params.id as string);
 
       if (!channel.state.hasName && to.name === 'room') {
         return { name: 'connecting', params: { id: to.params.id } };

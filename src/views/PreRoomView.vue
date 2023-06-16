@@ -2,19 +2,21 @@
   <GuestLayout>
     <div class="d-flex justify-content-center mb-4">
       <div style="width: 400px">
-<!--        <img-->
-<!--          src="https://placehold.co/400x300.png?text=Kamera+Bild"-->
-<!--          alt=""-->
-<!--          class="rounded"-->
-<!--        />-->
-        <video autoplay ref="video" class="rounded" width="400"></video>
+        <!--        <img-->
+        <!--          src="https://placehold.co/400x300.png?text=Kamera+Bild"-->
+        <!--          alt=""-->
+        <!--          class="rounded"-->
+        <!--        />-->
+        <video autoplay ref="videoElement" class="rounded" width="400"></video>
         <div class="btn-group py-1 w-100">
-          <button class="btn btn-secondary">
-            <i class="fa fa-video me-1"></i>
+          <button class="btn btn-secondary" @click="toggleVideo()">
+            <i v-if="video" class="fa fa-video me-1"></i>
+            <i v-else class="fa fa-video-slash me-1"></i>
             Kamera
           </button>
-          <button class="btn btn-secondary">
-            <i class="fa fa-microphone me-1"></i>
+          <button class="btn btn-secondary" @click="toggleAudio()">
+            <i v-if="audio" class="fa fa-microphone me-1"></i>
+            <i v-else class="fa fa-microphone-slash me-1"></i>
             Mikrofon
           </button>
         </div>
@@ -37,7 +39,7 @@
   import GuestLayout from '@/components/GuestLayout.vue';
   import Input from '@/components/inputs/Input.vue';
   import { useChannel } from '@/composables/channel';
-  import {computed, onMounted, ref} from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useForm } from '@/composables/form';
   import { useRouter } from 'vue-router';
 
@@ -56,16 +58,32 @@
     name: '',
   });
 
-  const video = ref<HTMLVideoElement | null>(null);
+  const videoElement = ref<HTMLVideoElement | null>(null);
+  let stream: MediaStream | undefined;
 
   onMounted(async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({
+    stream = await navigator.mediaDevices.getUserMedia({
       video: true,
-      audio: false,
+      audio: true,
     });
 
-    video.value!.srcObject = stream;
+    videoElement.value!.srcObject = stream;
   });
+
+  const video = ref(true);
+  const audio = ref(true);
+
+  function toggleVideo() {
+    video.value = !video.value;
+    channel.toggleVideo();
+    stream!.getVideoTracks().forEach((track) => (track.enabled = video.value));
+  }
+
+  function toggleAudio() {
+    audio.value = !audio.value;
+    channel.toggleAudio();
+    stream!.getAudioTracks().forEach((track) => (track.enabled = audio.value));
+  }
 
   async function submit() {
     if (!form.name) {

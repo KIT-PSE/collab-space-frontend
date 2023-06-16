@@ -1,5 +1,5 @@
 <template>
-  <video autoplay ref="video" class="rounded"></video>
+  <video autoplay ref="video" class="rounded" :muted="channel.isSelf(userId)"></video>
 </template>
 
 <script setup lang="ts">
@@ -20,7 +20,6 @@
       return;
     }
 
-    console.log('streams changed');
     const stream = channel.getWebcamStream(props.userId);
 
     if (stream) {
