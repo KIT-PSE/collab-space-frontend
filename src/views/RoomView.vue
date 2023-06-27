@@ -29,9 +29,21 @@
         style="max-height: 100%"
       >
         <div class="row overflow-y-auto mb-2">
-          <h3 class="text-center text-primary mt-2">
-            {{ channel.state.room?.name }}
-          </h3>
+          <div class="d-flex justify-content-between px-4 py-2">
+            <h3 class="text-center text-primary mt-2">
+              {{ channel.state.room?.name }}
+            </h3>
+
+            <div class="d-flex justify-content-center">
+              <button
+                class="btn btn-outline-primary"
+                @click="createShareLink(channel.state.room)"
+              >
+                <i class="fa fa-link"></i>
+                Link teilen
+              </button>
+            </div>
+          </div>
 
           <div v-if="channel.state.teacher" class="col-lg-6">
             <div class="card my-1">
@@ -130,9 +142,11 @@
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
+  import { useAlerts } from '@/composables/alerts';
 
   const auth = useAuth();
   const channel = useChannel();
+  const alerts = useAlerts();
 
   onBeforeRouteLeave(() => {
     channel.stopWebcam();
@@ -151,5 +165,11 @@
 
   function toggleAudio() {
     channel.toggleAudio();
+  }
+
+  function createShareLink() {
+    const url = `${window.location.origin}/room/${channel.state.room?.channelId}`;
+    navigator.clipboard.writeText(url);
+    alerts.info('Link in Zwischenablage kopiert');
   }
 </script>
