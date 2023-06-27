@@ -37,7 +37,7 @@
             <div class="d-flex justify-content-center">
               <button
                 class="btn btn-outline-primary"
-                @click="createShareLink(channel.state.room)"
+                @click="createShareLink()"
               >
                 <i class="fa fa-link"></i>
                 Link teilen
