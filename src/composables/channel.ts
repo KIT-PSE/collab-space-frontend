@@ -55,15 +55,12 @@ export const useChannel = defineStore('channel', () => {
       return;
     }
 
-    // JWT is currently only accessible as a cookie
-    // maybe change this in the future (e.g. return it in the login response)
     const jwt =
       `; ${document.cookie}`.split('; jwt=').pop()?.split(';').shift() ?? '';
 
     return new Promise((resolve) => {
       // Maybe change to only set Authorization header for teacher
-      socket = io({
-        path: import.meta.env.VITE_BACKEND_URL,
+      socket = io(import.meta.env.VITE_BACKEND_URL, {
         transportOptions: {
           polling: {
             extraHeaders: {
