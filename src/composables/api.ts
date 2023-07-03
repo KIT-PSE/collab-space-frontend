@@ -77,6 +77,11 @@ const api = {
   },
 
   async profile(): Promise<UserResponse> {
+    // Check if access_token cookie is set
+    if (!document.cookie.includes('access_token')) {
+      return Promise.reject('No access_token cookie set');
+    }
+
     return fetch.getOrFail<UserResponse>('/auth/profile');
   },
 

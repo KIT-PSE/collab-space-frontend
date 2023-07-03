@@ -22,8 +22,8 @@ export const useAuth = defineStore('auth', () => {
 
   async function login(credentials: LoginData) {
     try {
-      const { user, exp } = await api.login(credentials);
-      loginUser(user, exp);
+      const { user } = await api.login(credentials);
+      loginUser(user);
 
       await router.push({ name: 'dashboard' });
     } catch (err) {
@@ -45,8 +45,8 @@ export const useAuth = defineStore('auth', () => {
 
   async function register(data: RegisterData) {
     try {
-      const { user, exp } = await api.register(data);
-      loginUser(user, exp);
+      const { user } = await api.register(data);
+      loginUser(user);
 
       await router.push({ name: 'dashboard' });
     } catch (err) {
@@ -99,8 +99,8 @@ export const useAuth = defineStore('auth', () => {
     }
 
     try {
-      const { user, exp } = await api.profile();
-      loginUser(user, exp);
+      const { user } = await api.profile();
+      loginUser(user);
     } catch (err) {
       if (!(err instanceof HttpError && err.response.status === 401)) {
         alerts.error('Benutzer konnte nicht geladen werden.', err as Error);
@@ -119,11 +119,11 @@ export const useAuth = defineStore('auth', () => {
     state.loginTimer = null;
   }
 
-  function loginUser(user: User, exp: number) {
+  function loginUser(user: User) {
     state.user = user;
     state.loggedIn = true;
 
-    const startDate = new Date();
+    /*const startDate = new Date();
     const endDate = new Date(exp * 1000);
     const amount = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
 
@@ -136,7 +136,7 @@ export const useAuth = defineStore('auth', () => {
         'Du wurdest automatisch ausgeloggt.',
         'Bitte logge dich erneut ein.',
       );
-    });
+    });*/
   }
 
   function onLogout(callback: () => void): void {

@@ -1,7 +1,9 @@
 import { useSingleton } from '@/composables/utils';
 
 function toFullPath(path: string) {
-  return `${import.meta.env.VITE_BACKEND_URL}${import.meta.env.VITE_API_PATH}${path}`;
+  return `${import.meta.env.VITE_BACKEND_URL}${
+    import.meta.env.VITE_API_PATH
+  }${path}`;
 }
 
 export class HttpError extends Error {
@@ -30,16 +32,63 @@ async function throwHttpError(response: Response): Promise<never> {
 }
 
 class Fetch {
-  public async getRaw(path: string, headers = {}): Promise<Response> {
-    return await fetch(toFullPath(path), {
+  private async refreshToken(): Promise<void> {
+    const refreshTokenResponse = await fetch(toFullPath('/auth/refresh'), {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    // Check if response is ok
+    if (!refreshTokenResponse.ok) {
+      throw new Error('Failed to refresh token');
+      // Log user out
+    }
+  }
+
+  private async performRequest(
+    method: string,
+    path: string,
+    body: any = {},
+    headers = {},
+    refreshed = false,
+  ): Promise<Response> {
+    const requestOptions: RequestInit = {
+      method,
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
         ...headers,
       },
       credentials: 'include',
-    });
+    };
+
+    if (method !== 'GET' && method !== 'HEAD') {
+      requestOptions.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(toFullPath(path), requestOptions);
+
+    if (response.status === 401 && !refreshed) {
+      // Token expired, initiate token refresh
+      await this.refreshToken();
+      // Retry the original request
+      return await this.performRequest(method, path, body, headers, true);
+    }
+
+    if (refreshed && response.status === 401) {
+      // Token refresh failed
+      throw new Error('Failed to refresh token');
+    }
+
+    return response;
+  }
+
+  public async getRaw(path: string, headers = {}): Promise<Response> {
+    return this.performRequest('GET', path, undefined, headers);
   }
 
   public async getOrFail<T>(path: string, headers = {}): Promise<T> {
@@ -57,16 +106,7 @@ class Fetch {
     body: any = {},
     headers = {},
   ): Promise<Response> {
-    return await fetch(toFullPath(path), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...headers,
-      },
-      body: JSON.stringify(body),
-      credentials: 'include',
-    });
+    return this.performRequest('POST', path, body, headers);
   }
 
   public async postOrFail<T>(
@@ -88,16 +128,7 @@ class Fetch {
     body: any = {},
     headers = {},
   ): Promise<Response> {
-    return await fetch(toFullPath(path), {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...headers,
-      },
-      body: JSON.stringify(body),
-      credentials: 'include',
-    });
+    return this.performRequest('PUT', path, body, headers);
   }
 
   public async putOrFail<T>(
@@ -115,15 +146,12 @@ class Fetch {
   }
 
   public async delete(path: string, headers = {}): Promise<void> {
-    const response = await fetch(toFullPath(path), {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...headers,
-      },
-      credentials: 'include',
-    });
+    const response = await this.performRequest(
+      'DELETE',
+      path,
+      undefined,
+      headers,
+    );
 
     if (!response.ok) {
       await throwHttpError(response);
