@@ -145,7 +145,6 @@
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
-  import { useAlerts } from '@/composables/alerts';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
 
   const auth = useAuth();
