@@ -37,7 +37,8 @@
             <div class="d-flex justify-content-center">
               <button
                 class="btn btn-outline-primary"
-                @click="createShareLink()"
+                data-bs-toggle="modal"
+                data-bs-target="#share-link-modal"
               >
                 <i class="fa fa-link"></i>
                 Link teilen
@@ -135,6 +136,8 @@
       </div>
     </div>
   </main>
+
+  <ShareLinkModal :channel="channel.state" />
 </template>
 
 <script setup lang="ts">
@@ -143,10 +146,10 @@
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
   import { useAlerts } from '@/composables/alerts';
+  import ShareLinkModal from '@/components/ShareLinkModal.vue';
 
   const auth = useAuth();
   const channel = useChannel();
-  const alerts = useAlerts();
 
   onBeforeRouteLeave(() => {
     channel.stopWebcam();
@@ -165,11 +168,5 @@
 
   function toggleAudio() {
     channel.toggleAudio();
-  }
-
-  function createShareLink() {
-    const url = `${window.location.origin}/room/${channel.state.room?.channelId}`;
-    navigator.clipboard.writeText(url);
-    alerts.info('Link in Zwischenablage kopiert');
   }
 </script>
