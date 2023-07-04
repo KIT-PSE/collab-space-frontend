@@ -210,10 +210,13 @@ export const useChannel = defineStore('channel', () => {
   }
 
   async function joinAsStudent(id: string): Promise<void> {
+    const sessionId = localStorage.getItem(`session-id-${id}`);
+
     await connect();
     return join(id, 'join-room-as-student', {
       channelId: id,
       name: 'Verbinden...',
+      sessionId,
     });
   }
 
@@ -344,6 +347,16 @@ export const useChannel = defineStore('channel', () => {
           user.video = payload.video;
           user.audio = payload.audio;
         }
+      },
+    );
+
+    socket.on(
+      'session-id',
+      (payload: { sessionId: string; channelId: string }) => {
+        localStorage.setItem(
+          `session-id-${payload.channelId}`,
+          payload.sessionId,
+        );
       },
     );
   }
