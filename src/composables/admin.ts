@@ -23,9 +23,24 @@ export const useAdmin = defineStore('admin', () => {
     }
   }
 
+  async function makeAdmin(id: number) {
+    try {
+      const user = await api.makeAdmin({ id });
+      const index = users.value.findIndex((u) => u.id === user.id);
+      users.value[index] = user;
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        throw err;
+      }
+
+      alerts.error('Adminrechte vergeben fehlgeschlagen', err as Error);
+    }
+  }
+
   return {
     users,
     load,
+    makeAdmin,
     loaded,
   };
 });

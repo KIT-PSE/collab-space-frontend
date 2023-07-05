@@ -14,12 +14,24 @@
           </thead>
           <tbody>
             <tr v-for="user in admin.users" :key="user.id" class="align-middle">
-              <td>{{ user.name }} <span v-if="user.role === 'admin'" class="badge text-bg-danger ms-1">Admin</span></td>
+              <td>
+                {{ user.name }}
+                <span
+                  v-if="user.role === 'admin'"
+                  class="badge text-bg-danger ms-1"
+                >
+                  Admin
+                </span>
+              </td>
               <td>{{ user.email }}</td>
               <td>{{ user.organization }}</td>
               <td class="d-flex justify-content-end">
-                <button class="btn btn-sm btn-secondary me-2">
-                  <i class="fa fa-pen"></i>
+                <button
+                  v-if="user.role !== 'admin'"
+                  @click="makeUserAdmin(user.id)"
+                  class="btn btn-sm btn-secondary me-2"
+                >
+                  <i class="fa fa-shield-alt"></i>
                 </button>
                 <button class="btn btn-sm btn-secondary">
                   <i class="fa fa-trash"></i>
@@ -39,4 +51,8 @@
 
   const admin = useAdmin();
   admin.load();
+
+  function makeUserAdmin(id: number) {
+    admin.makeAdmin(id);
+  }
 </script>

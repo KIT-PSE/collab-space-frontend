@@ -84,6 +84,10 @@ const api = {
     return fetch.getOrFail('/user/findAll');
   },
 
+  async makeAdmin(data: { id: number }): Promise<User> {
+    return fetch.postOrFail<User>('/user/makeAdmin', data);
+  },
+
   async deleteAccount(): Promise<void> {
     return fetch.delete('/auth/delete');
   },
