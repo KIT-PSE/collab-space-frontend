@@ -230,13 +230,16 @@ export const useChannel = defineStore('channel', () => {
 
         const data = convertDates(result) as JoinRoomResult;
 
+        const ownStudent = data.students.find((s) => s.id === socket?.id);
+        const hasName = ownStudent?.name !== 'Verbinden...';
+
         state.connected = true;
         state.channelId = id;
         state.clientId = socket?.id || '';
         state.students = data.students;
         state.teacher = data.teacher;
         state.room = data.room;
-        state.hasName = false;
+        state.hasName = hasName;
         resolve();
       });
     });
@@ -319,6 +322,7 @@ export const useChannel = defineStore('channel', () => {
     });
 
     socket.on('change-name', ({ id, name }: { id: string; name: string }) => {
+      console.log('change-name', id, name);
       const index = state.students.findIndex((s) => s.id === id);
       state.students[index].name = name;
     });
