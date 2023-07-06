@@ -27,7 +27,7 @@
               <td>{{ user.organization }}</td>
               <td class="d-flex justify-content-end">
                 <button
-                  @click="changeUserRole(user.id)"
+                  @click="changeUserRole(user)"
                   class="btn btn-sm btn-secondary me-2"
                   :disabled="user.id === auth.state.user?.id"
                 >
@@ -58,12 +58,28 @@
   import Layout from '@/components/Layout.vue';
   import { useAdmin } from '@/composables/admin';
   import { useAuth } from '@/composables/auth';
+  import { ask } from '@/composables/prompt';
+  import { User } from '@/composables/api';
 
   const auth = useAuth();
   const admin = useAdmin();
   admin.load();
 
-  function changeUserRole(id: number) {
-    admin.changeUserRole(id);
+  async function changeUserRole(user: User) {
+    const shouldChange = await ask(
+      'Rolle ändern',
+      `Soll die Rolle des Benutzers <b>${
+        user.name
+      }</b> wirklich geändert zu <b>${
+        user.role === 'admin' ? 'Nutzer' : 'Admin'
+      }</b> werden?`,
+      'Ändern',
+    );
+
+    if (!shouldChange) {
+      return;
+    }
+
+    await admin.changeUserRole(user.id);
   }
 </script>
