@@ -240,16 +240,13 @@ export const useChannel = defineStore('channel', () => {
 
         const data = convertDates(result) as JoinRoomResult;
 
-        const ownStudent = data.students.find((s) => s.id === socket?.id);
-        const hasName = ownStudent?.name !== 'Verbinden...';
-
         state.connected = true;
         state.channelId = id;
         state.clientId = socket?.id || '';
         state.students = data.students;
         state.teacher = data.teacher;
         state.room = data.room;
-        state.hasName = hasName;
+        state.hasName = false;
         resolve();
       });
     });
@@ -260,6 +257,8 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function changeName(name: string): Promise<void> {
+    localStorage.setItem(`session-name`, name);
+
     return new Promise((resolve) => {
       socket?.emit('change-name', { name }, () => {
         state.hasName = true;
@@ -361,16 +360,6 @@ export const useChannel = defineStore('channel', () => {
           user.video = payload.video;
           user.audio = payload.audio;
         }
-      },
-    );
-
-    socket.on(
-      'session-id',
-      (payload: { sessionId: string; channelId: string }) => {
-        localStorage.setItem(
-          `session-id-${payload.channelId}`,
-          payload.sessionId,
-        );
       },
     );
   }
