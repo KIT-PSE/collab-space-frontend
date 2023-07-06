@@ -31,11 +31,21 @@ export interface JoinRoomResult {
   students: Student[];
 }
 
+export interface ChannelState {
+  connected: boolean;
+  channelId: string;
+  clientId: string;
+  room: Room | null;
+  teacher: Teacher | null;
+  students: Student[];
+  hasName: boolean;
+}
+
 export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
 
-  const state = reactive({
+  const state: ChannelState = reactive({
     connected: false,
     channelId: '',
     clientId: '',
