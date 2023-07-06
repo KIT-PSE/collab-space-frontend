@@ -27,13 +27,22 @@
               <td>{{ user.organization }}</td>
               <td class="d-flex justify-content-end">
                 <button
-                  v-if="user.role !== 'admin'"
-                  @click="makeUserAdmin(user.id)"
+                  @click="changeUserRole(user.id)"
                   class="btn btn-sm btn-secondary me-2"
+                  :disabled="user.id === auth.state.user?.id"
                 >
-                  <i class="fa fa-shield-alt"></i>
+                  <i
+                    class="fa"
+                    :class="{
+                      'fa-user-shield': user.role === 'admin',
+                      'fa-shield': user.role !== 'admin',
+                    }"
+                  ></i>
                 </button>
-                <button class="btn btn-sm btn-secondary">
+                <button
+                  class="btn btn-sm btn-secondary"
+                  :disabled="user.id === auth.state.user?.id"
+                >
                   <i class="fa fa-trash"></i>
                 </button>
               </td>
@@ -48,11 +57,13 @@
 <script setup lang="ts">
   import Layout from '@/components/Layout.vue';
   import { useAdmin } from '@/composables/admin';
+  import { useAuth } from '@/composables/auth';
 
+  const auth = useAuth();
   const admin = useAdmin();
   admin.load();
 
-  function makeUserAdmin(id: number) {
-    admin.makeAdmin(id);
+  function changeUserRole(id: number) {
+    admin.changeUserRole(id);
   }
 </script>

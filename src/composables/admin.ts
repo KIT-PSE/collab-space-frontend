@@ -23,9 +23,9 @@ export const useAdmin = defineStore('admin', () => {
     }
   }
 
-  async function makeAdmin(id: number) {
+  async function changeUserRole(id: number) {
     try {
-      const user = await api.makeAdmin({ id });
+      const user = await api.changeUserRole({ id });
       const index = users.value.findIndex((u) => u.id === user.id);
       users.value[index] = user;
     } catch (err) {
@@ -33,14 +33,14 @@ export const useAdmin = defineStore('admin', () => {
         throw err;
       }
 
-      alerts.error('Adminrechte vergeben fehlgeschlagen', err as Error);
+      alerts.error('Ändern der Nutzerrechte fehlgeschlagen', err as Error);
     }
   }
 
   return {
     users,
     load,
-    makeAdmin,
+    changeUserRole,
     loaded,
   };
 });
