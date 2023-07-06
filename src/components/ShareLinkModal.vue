@@ -30,6 +30,9 @@
 
   function createShareText() {
     // TODO: Add Password if needed
-    return `Trete dem CollabSpace Raum bei:\n\nLink: ${window.location.origin}/room/${props.channel.room?.channelId}\nCode: ${props.channel.room?.channelId}`;
+    return `Trete dem CollabSpace Raum bei:
+
+    Link: ${window.location.origin}/room/${props.channel.room?.channelId}
+    Code: ${props.channel.room?.channelId}`;
   }
 </script>
