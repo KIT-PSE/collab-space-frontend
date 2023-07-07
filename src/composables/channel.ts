@@ -15,12 +15,12 @@ export interface ChannelUser {
   id: string;
   video: boolean;
   audio: boolean;
-  handSignal: boolean;
   permission: boolean;
 }
 
 export interface Student extends ChannelUser {
   name: string;
+  handSignal: boolean;
 }
 
 export interface Teacher extends ChannelUser {
@@ -132,10 +132,10 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function toggleHandSignal(): void {
-    const user = currentUser();
+    const student = currentUser() as Student;
 
-    user.handSignal = !user.handSignal;
-    socket?.emit('update-handSignal', { handSignal: user.handSignal });
+    student.handSignal = !student.handSignal;
+    socket?.emit('update-handSignal', { handSignal: student.handSignal });
   }
 
   function stopWebcam(): void {
@@ -158,6 +158,19 @@ export const useChannel = defineStore('channel', () => {
     }
 
     return state.students.find((s) => s.id === id);
+  }
+
+  function studentById(id: string): Student {
+    const student =state.students.find((s) => s.id === id)
+    if (!student) {
+      throw new Error('IllegalState: Student not found');
+    }
+    return student
+
+  }
+
+  function getStudentIds(channelStudents: Student[]): String[] {
+    return channelStudents.map((student) => student.id);
   }
 
   function currentUser(): ChannelUser {
@@ -196,7 +209,7 @@ export const useChannel = defineStore('channel', () => {
       state.clientId = socket?.id || '';
       state.room = room;
       state.students = [];
-      state.teacher = { id: state.clientId, user, video: true, audio: true, handSignal: false, permission: true };
+      state.teacher = { id: state.clientId, user, video: true, audio: true, permission: true };
       state.hasName = true;
 
       await router.push({
@@ -273,6 +286,7 @@ export const useChannel = defineStore('channel', () => {
 
     return user.id === state.clientId;
   }
+
 
   function handleConnection(socket: Socket) {
     socket.on('disconnect', async () => {
@@ -359,10 +373,10 @@ export const useChannel = defineStore('channel', () => {
     socket.on(
         'update-handSignal',
         (payload: { id: string; handSignal: boolean }) => {
-          const user = userById(payload.id);
+          const student = userById(payload.id) as Student;
 
-          if (user) {
-            user.handSignal = payload.handSignal;
+          if (student) {
+            student.handSignal = payload.handSignal;
           }
         },
     );
@@ -377,6 +391,8 @@ export const useChannel = defineStore('channel', () => {
     leaveAsTeacher,
     leave,
     isSelf,
+    getStudentIds,
+    studentById,
     userById,
     currentUser,
     changeName,
