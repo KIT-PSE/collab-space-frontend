@@ -57,6 +57,12 @@
                   >
                     Muted
                   </span>
+                  <span
+                      v-if="channel.state.teacher.handSignal"
+                      class="badge text-bg-secondary ms-1"
+                  >
+                    <i class="fas fa-hand-paper"></i>
+                  </span>
                 </div>
               </div>
             </div>
@@ -89,6 +95,12 @@
                   >
                     Muted
                   </span>
+                  <span
+                      v-if="student.handSignal"
+                      class="badge text-bg-secondary ms-1"
+                  >
+                    <i class="fas fa-hand-paper"></i>
+                  </span>
                 </div>
               </div>
             </div>
@@ -96,8 +108,13 @@
         </div>
         <div class="row">
           <div class="col d-flex justify-content-center">
-            <button type="button" class="btn text-primary mx-2">
-              <i class="fa fa-hand"></i>
+            <button
+                type="button"
+                class="btn text-primary mx-2"
+                @click="toggleHandSignal()"
+            >
+              <i v-if="channel.currentUser().handSignal" class="fa fa-hand-paper"></i>
+              <i v-else class="fa fa-hand-rock"></i>
             </button>
             <button
               type="button"
@@ -152,4 +169,9 @@
   function toggleAudio() {
     channel.toggleAudio();
   }
+
+  function toggleHandSignal() {
+    channel.toggleHandSignal();
+  }
+
 </script>
