@@ -220,13 +220,10 @@ export const useChannel = defineStore('channel', () => {
   }
 
   async function joinAsStudent(id: string): Promise<void> {
-    const sessionId = localStorage.getItem(`session-id-${id}`);
-
     await connect();
     return join(id, 'join-room-as-student', {
       channelId: id,
       name: 'Verbinden...',
-      sessionId,
     });
   }
 
@@ -331,7 +328,6 @@ export const useChannel = defineStore('channel', () => {
     });
 
     socket.on('change-name', ({ id, name }: { id: string; name: string }) => {
-      console.log('change-name', id, name);
       const index = state.students.findIndex((s) => s.id === id);
       state.students[index].name = name;
     });
