@@ -115,17 +115,28 @@
         </div>
         <div class="row">
           <div class="col d-flex justify-content-center">
-            <button
-              type="button"
-              class="btn text-primary mx-2"
-              @click="toggleHandSignal()"
+            <span
+              v-if="
+                channel
+                  .getStudentIds(channel.state.students)
+                  .includes(channel.currentUser().id)
+              "
             >
-              <i
-                v-if="channel.currentUser().handSignal"
-                class="fa fa-hand-paper"
-              ></i>
-              <i v-else class="fa fa-hand-rock"></i>
-            </button>
+              <button
+                type="button"
+                class="btn text-primary mx-2"
+                @click="toggleHandSignal()"
+              >
+                <i
+                  v-if="
+                    channel.studentById(channel.currentUser().id).handSignal
+                  "
+                  class="fa fa-hand-paper"
+                ></i>
+                <i v-else class="fa fa-hand-rock"></i>
+              </button>
+            </span>
+
             <button
               type="button"
               class="btn text-primary mx-2"
