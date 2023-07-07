@@ -12,7 +12,7 @@
 
         <Input label="Name"
                v-model="user.name"
-               :disabledName="disabled"
+               :disabled="disabledName"
         >
           <button class="btn btn-secondary ms-2" @click="editName()">{{settingName}}</button>
         </Input>
@@ -20,7 +20,7 @@
         <EmailInput
             label="E-Mail Adresse"
             v-model="user.email"
-            :disabledEMail="disabled"
+            :disabled="disabledEMail"
         >
           <button class="btn btn-secondary ms-2" @click="editEMail()">{{settingEMail}}</button>
         </EmailInput>
@@ -70,11 +70,11 @@
   function edit() {
       if(setting.value === "Ändern") {
         setting.value = "Speichern";
-        disabledOrganization.value = false;
+        disabled.value = false;
       }
       else{
         setting.value = "Ändern";
-        disabledOrganization.value = true;
+        disabled.value = true;
       }
   }
 
