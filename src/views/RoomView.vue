@@ -70,12 +70,6 @@
                   >
                     Muted
                   </span>
-                  <span
-                    v-if="channel.state.teacher.handSignal"
-                    class="badge text-bg-secondary ms-1"
-                  >
-                    <i class="fas fa-hand-paper"></i>
-                  </span>
                 </div>
               </div>
             </div>

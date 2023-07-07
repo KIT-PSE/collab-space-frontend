@@ -374,6 +374,17 @@ export const useChannel = defineStore('channel', () => {
         }
       },
     );
+
+    socket.on(
+      'update-handSignal',
+      (payload: { id: string; handSignal: boolean }) => {
+        const user = userById(payload.id);
+
+        if (user) {
+          user.handSignal = payload.handSignal;
+        }
+      },
+    );
   }
 
   return {
