@@ -15,6 +15,8 @@ export interface ChannelUser {
   id: string;
   video: boolean;
   audio: boolean;
+  handSignal: boolean;
+  permission: boolean;
 }
 
 export interface Student extends ChannelUser {
@@ -139,6 +141,13 @@ export const useChannel = defineStore('channel', () => {
     socket?.emit('update-webcam', { video: user.video, audio: user.audio });
   }
 
+  function toggleHandSignal(): void {
+    const user = currentUser();
+
+    user.handSignal = !user.handSignal;
+    socket?.emit('update-handSignal', { handSignal: user.handSignal });
+  }
+
   function stopWebcam(): void {
     const stream = streams[state.clientId];
 
@@ -197,7 +206,14 @@ export const useChannel = defineStore('channel', () => {
       state.clientId = socket?.id || '';
       state.room = room;
       state.students = [];
-      state.teacher = { id: state.clientId, user, video: true, audio: true };
+      state.teacher = {
+        id: state.clientId,
+        user,
+        video: true,
+        audio: true,
+        handSignal: false,
+        permission: true,
+      };
       state.hasName = true;
 
       await router.push({
@@ -377,6 +393,7 @@ export const useChannel = defineStore('channel', () => {
     getWebcamStream,
     toggleVideo,
     toggleAudio,
+    toggleHandSignal,
     stopWebcam,
   };
 });
