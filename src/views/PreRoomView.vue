@@ -42,7 +42,7 @@
     </div>
 
     <button class="btn btn-primary w-100" @click="submit">
-      Raum {{ channelName }} Beitreten
+      Raum "{{ channel.state.room?.name }}" beitreten
     </button>
   </GuestLayout>
 </template>
@@ -58,7 +58,6 @@
   const router = useRouter();
   const channel = useChannel();
 
-  const channelName = '#' + channel.state.channelId;
   const savedUserName = ref(localStorage.getItem('session-name') || '');
 
   const form = useForm({
