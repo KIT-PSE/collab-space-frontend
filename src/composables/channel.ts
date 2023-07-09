@@ -254,6 +254,8 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function changeName(name: string): Promise<void> {
+    localStorage.setItem(`session-name`, name);
+
     return new Promise((resolve) => {
       socket?.emit('change-name', { name }, () => {
         state.hasName = true;
