@@ -15,7 +15,6 @@ export interface ChannelUser {
   id: string;
   video: boolean;
   audio: boolean;
-  permission: boolean;
 }
 
 export interface Student extends ChannelUser {
@@ -160,17 +159,8 @@ export const useChannel = defineStore('channel', () => {
     return state.students.find((s) => s.id === id);
   }
 
-  function studentById(id: string): Student {
-    const student =state.students.find((s) => s.id === id)
-    if (!student) {
-      throw new Error('IllegalState: Student not found');
-    }
-    return student
-
-  }
-
-  function getStudentIds(channelStudents: Student[]): String[] {
-    return channelStudents.map((student) => student.id);
+  function isStudent(user: ChannelUser): user is Student {
+    return user.id !== state.teacher?.id;
   }
 
   function currentUser(): ChannelUser {
@@ -209,7 +199,12 @@ export const useChannel = defineStore('channel', () => {
       state.clientId = socket?.id || '';
       state.room = room;
       state.students = [];
-      state.teacher = { id: state.clientId, user, video: true, audio: true, permission: true };
+      state.teacher = {
+        id: state.clientId,
+        user,
+        video: true,
+        audio: true,
+      };
       state.hasName = true;
 
       await router.push({
@@ -286,7 +281,6 @@ export const useChannel = defineStore('channel', () => {
 
     return user.id === state.clientId;
   }
-
 
   function handleConnection(socket: Socket) {
     socket.on('disconnect', async () => {
@@ -371,14 +365,14 @@ export const useChannel = defineStore('channel', () => {
     );
 
     socket.on(
-        'update-handSignal',
-        (payload: { id: string; handSignal: boolean }) => {
-          const student = userById(payload.id) as Student;
+      'update-handSignal',
+      (payload: { id: string; handSignal: boolean }) => {
+        const student = userById(payload.id) as Student;
 
-          if (student) {
-            student.handSignal = payload.handSignal;
-          }
-        },
+        if (student) {
+          student.handSignal = payload.handSignal;
+        }
+      },
     );
   }
 
@@ -391,8 +385,7 @@ export const useChannel = defineStore('channel', () => {
     leaveAsTeacher,
     leave,
     isSelf,
-    getStudentIds,
-    studentById,
+    isStudent,
     userById,
     currentUser,
     changeName,

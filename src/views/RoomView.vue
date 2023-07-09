@@ -90,8 +90,8 @@
                     Muted
                   </span>
                   <span
-                      v-if="student.handSignal"
-                      class="badge text-bg-secondary ms-1"
+                    v-if="student.handSignal"
+                    class="badge text-bg-secondary ms-1"
                   >
                     <i class="fas fa-hand-paper"></i>
                   </span>
@@ -102,34 +102,37 @@
         </div>
         <div class="row">
           <div class="col d-flex justify-content-center">
-              <span
-                  v-if="channel.getStudentIds(channel.state.students).includes(channel.currentUser().id)"
-              >
-                <button
-                    type="button"
-                    class="btn text-primary mx-2"
-                    @click="toggleHandSignal()"
-                >
-                    <i v-if="channel.studentById(channel.currentUser().id).handSignal" class="fa fa-hand-paper"></i>
-                    <i v-else class="fa fa-hand-rock"></i>
-                </button>
-              </span>
-
-            <button
+            <span v-if="channel.isStudent(channel.currentUser())">
+              <button
                 type="button"
                 class="btn text-primary mx-2"
-                @click="toggleAudio()"
+                @click="toggleHandSignal()"
+              >
+                <i
+                  v-if="
+                    (channel.currentUser() as Student).handSignal
+                  "
+                  class="fa fa-hand-rock"
+                ></i>
+                <i v-else class="fa fa-hand-paper"></i>
+              </button>
+            </span>
+
+            <button
+              type="button"
+              class="btn text-primary mx-2"
+              @click="toggleAudio()"
             >
               <i
-                  v-if="channel.currentUser().audio"
-                  class="fa fa-microphone"
+                v-if="channel.currentUser().audio"
+                class="fa fa-microphone"
               ></i>
               <i v-else class="fa fa-microphone-slash"></i>
             </button>
             <button
-                type="button"
-                class="btn text-primary mx-2"
-                @click="toggleVideo()"
+              type="button"
+              class="btn text-primary mx-2"
+              @click="toggleVideo()"
             >
               <i v-if="channel.currentUser().video" class="fa fa-video"></i>
               <i v-else class="fa fa-video-slash"></i>
@@ -142,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useChannel } from '@/composables/channel';
+  import { Student, useChannel } from '@/composables/channel';
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
@@ -172,5 +175,4 @@
   function toggleHandSignal() {
     channel.toggleHandSignal();
   }
-
 </script>
