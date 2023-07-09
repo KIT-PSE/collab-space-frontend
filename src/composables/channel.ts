@@ -15,7 +15,6 @@ export interface ChannelUser {
   id: string;
   video: boolean;
   audio: boolean;
-  permission: boolean;
 }
 
 export interface Student extends ChannelUser {
@@ -170,16 +169,8 @@ export const useChannel = defineStore('channel', () => {
     return state.students.find((s) => s.id === id);
   }
 
-  function studentById(id: string): Student {
-    const student = state.students.find((s) => s.id === id);
-    if (!student) {
-      throw new Error('IllegalState: Student not found');
-    }
-    return student;
-  }
-
-  function getStudentIds(channelStudents: Student[]): String[] {
-    return channelStudents.map((student) => student.id);
+  function isStudent(user: ChannelUser): user is Student {
+    return user.id !== state.teacher?.id;
   }
 
   function currentUser(): ChannelUser {
@@ -223,7 +214,6 @@ export const useChannel = defineStore('channel', () => {
         user,
         video: true,
         audio: true,
-        permission: true,
       };
       state.hasName = true;
 
@@ -407,8 +397,7 @@ export const useChannel = defineStore('channel', () => {
     leaveAsTeacher,
     leave,
     isSelf,
-    getStudentIds,
-    studentById,
+    isStudent,
     userById,
     currentUser,
     changeName,

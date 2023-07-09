@@ -115,13 +115,7 @@
         </div>
         <div class="row">
           <div class="col d-flex justify-content-center">
-            <span
-              v-if="
-                channel
-                  .getStudentIds(channel.state.students)
-                  .includes(channel.currentUser().id)
-              "
-            >
+            <span v-if="channel.isStudent(channel.currentUser())">
               <button
                 type="button"
                 class="btn text-primary mx-2"
@@ -129,11 +123,11 @@
               >
                 <i
                   v-if="
-                    channel.studentById(channel.currentUser().id).handSignal
+                    (channel.currentUser() as Student).handSignal
                   "
-                  class="fa fa-hand-paper"
+                  class="fa fa-hand-rock"
                 ></i>
-                <i v-else class="fa fa-hand-rock"></i>
+                <i v-else class="fa fa-hand-paper"></i>
               </button>
             </span>
 
@@ -166,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useChannel } from '@/composables/channel';
+  import { Student, useChannel } from '@/composables/channel';
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
