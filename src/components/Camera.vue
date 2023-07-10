@@ -1,9 +1,14 @@
 <template>
-  <video autoplay ref="video" class="rounded" :muted="channel.isSelf(userId)"></video>
+  <video
+    autoplay
+    ref="video"
+    class="rounded"
+    :muted="channel.isSelf(userId)"
+  ></video>
 </template>
 
 <script setup lang="ts">
-  import { useChannel } from '@/composables/channel';
+  import { useChannel } from '@/composables/channel/channel';
   import { ref, watch } from 'vue';
 
   const props = defineProps<{

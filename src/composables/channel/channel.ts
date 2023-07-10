@@ -8,6 +8,8 @@ import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
 import { useStore } from '@/composables/store';
 import Peer from 'peerjs';
+import { Notes } from '@/composables/channel/notes';
+import { Whiteboard } from '@/composables/channel/whiteboard';
 
 const alerts = useAlerts();
 
@@ -39,6 +41,8 @@ export interface ChannelState {
   teacher: Teacher | null;
   students: Student[];
   hasName: boolean;
+  notes: Notes | null;
+  whiteboard: Whiteboard | null;
 }
 
 export const useChannel = defineStore('channel', () => {
@@ -53,6 +57,8 @@ export const useChannel = defineStore('channel', () => {
     teacher: null as Teacher | null,
     students: [] as Student[],
     hasName: false,
+    notes: null,
+    whiteboard: null,
   });
 
   let webcamsLoaded = false;
@@ -74,6 +80,27 @@ export const useChannel = defineStore('channel', () => {
         resolve();
       });
     });
+  }
+
+  function loadNotes() {
+    if (state.notes) {
+      return state.notes;
+    }
+
+    const notes = new Notes(socket!);
+    state.notes = notes;
+
+    return notes;
+  }
+
+  async function loadWhiteboard(): Promise<Whiteboard> {
+    if (state.whiteboard) {
+      return state.whiteboard;
+    }
+
+    const whiteboard = new Whiteboard(socket!);
+
+    return whiteboard;
   }
 
   async function loadWebcams(): Promise<void> {
@@ -374,6 +401,8 @@ export const useChannel = defineStore('channel', () => {
     changeName,
     streams,
     loadWebcams,
+    loadNotes,
+    loadWhiteboard,
     getWebcamStream,
     toggleVideo,
     toggleAudio,

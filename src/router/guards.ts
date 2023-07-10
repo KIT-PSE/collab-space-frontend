@@ -1,7 +1,7 @@
 import { useAlerts } from '@/composables/alerts';
 import { useAuth, useUser } from '@/composables/auth';
 import { RouteLocationNormalized } from 'vue-router';
-import { useChannel } from '@/composables/channel';
+import { useChannel } from '@/composables/channel/channel';
 
 const alerts = useAlerts();
 
