@@ -16,7 +16,16 @@
 </template>
 
 <script setup lang="ts">
+  import { onMounted } from 'vue';
+  import '@/assets/sketchable.min.js';
+
   const emit = defineEmits(['close', 'expand']);
+
+  onMounted(() => {
+    setTimeout(() => {
+      const sketchable = new Sketchable('#whiteboard');
+    }, 1000);
+  });
 
   function close() {
     emit('close');
