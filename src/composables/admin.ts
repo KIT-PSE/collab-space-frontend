@@ -23,24 +23,9 @@ export const useAdmin = defineStore('admin', () => {
     }
   }
 
-  async function changeUserRole(id: number) {
-    try {
-      const user = await api.changeUserRole({ id });
-      const index = users.value.findIndex((u) => u.id === user.id);
-      users.value[index] = user;
-    } catch (err) {
-      if (err instanceof ValidationError) {
-        throw err;
-      }
-
-      alerts.error('Ändern der Nutzerrechte fehlgeschlagen', err as Error);
-    }
-  }
-
   return {
     users,
     load,
-    changeUserRole,
     loaded,
   };
 });

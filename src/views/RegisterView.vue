@@ -46,6 +46,7 @@
   import GuestLayout from '@/components/GuestLayout.vue';
   import { useForm } from '@/composables/form';
   import { useAuth } from '@/composables/auth';
+  import TestComponent from "@/components/TestComponent.vue";
 
   const auth = useAuth();
 

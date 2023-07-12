@@ -84,10 +84,6 @@ const api = {
     return fetch.getOrFail('/user/findAll');
   },
 
-  async changeUserRole(data: { id: number }): Promise<User> {
-    return fetch.postOrFail<User>('/user/changeRole', data);
-  },
-
   async deleteAccount(): Promise<void> {
     return fetch.delete('/auth/delete');
   },

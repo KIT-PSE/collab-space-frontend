@@ -1,12 +1,12 @@
 <template>
   <Modal
     id="edit-room-modal"
-    title="Raum bearbeiten"
+    title="Kategorie bearbeiten"
     @submit="submit"
     @closed="onClose"
   >
     <Input
-      label="Name des Raums"
+      label="Name der Kategorie"
       v-model="form.name"
       :error="form.errors.name"
     />

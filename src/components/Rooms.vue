@@ -23,11 +23,7 @@
         <div class="row py-4">
           <transition-group name="bounce">
             <div v-for="room in category.rooms" :key="room.id" class="col-4">
-              <div
-                class="card my-1"
-                style="cursor: pointer"
-                @click="openRoom(room)"
-              >
+              <div class="card my-1" style="cursor: pointer;" @click="openRoom(room)">
                 <img
                   src="https://placehold.co/600x400.png?text=Raum+Vorschau"
                   alt=""
@@ -50,13 +46,13 @@
                       <div>
                         <button
                           class="btn btn-sm text-secondary"
-                          @click.stop="editRoom(room)"
+                          @click.prevent="editRoom(room)"
                         >
                           <i class="fa fa-pen"></i>
                         </button>
                         <button
                           class="btn btn-sm text-secondary"
-                          @click.stop="deleteRoom(room)"
+                          @click.prevent="deleteRoom(room)"
                         >
                           <i class="fa fa-trash"></i>
                         </button>
@@ -80,7 +76,7 @@
   import { useAuth, useUser } from '@/composables/auth';
   import { openModal } from '@/utils';
   import { ask } from '@/composables/prompt';
-  import { Category, Room } from '@/composables/api';
+  import {Category, Room} from '@/composables/api';
   import { useStore } from '@/composables/store';
   import EditCategoryModal from '@/components/EditCategoryModal.vue';
   import { ref } from 'vue';
