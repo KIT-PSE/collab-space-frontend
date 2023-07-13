@@ -31,6 +31,8 @@
           <Whiteboard
             @close="toggleWhiteboard"
             @expand="toggleExpandWhiteboard"
+            :width="width"
+            :height="height"
           />
         </div>
         <div id="notes-wrapper" :class="{ hide: !showNotes }">
@@ -160,7 +162,7 @@
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
   import Whiteboard from '@/components/Whiteboard.vue';
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
   import Notes from '@/components/Notes.vue';
 
   const auth = useAuth();
@@ -170,6 +172,13 @@
   const expandWhiteboard = ref(false);
 
   const showNotes = ref(false);
+
+  const width = ref(0);
+  const height = ref(0);
+
+  onMounted(() => {
+    window.addEventListener('resize', updateWhiteboardSize);
+  });
 
   onBeforeRouteLeave(() => {
     channel.stopWebcam();
@@ -182,6 +191,11 @@
 
   channel.loadWebcams();
 
+  function updateWhiteboardSize() {
+    width.value = document.getElementById('whiteboard-wrapper').clientWidth;
+    height.value = document.getElementById('whiteboard-wrapper').clientHeight;
+  }
+
   function toggleVideo() {
     channel.toggleVideo();
   }
@@ -193,10 +207,16 @@
   function toggleWhiteboard() {
     if (showNotes.value) toggleNotes();
     showWhiteboard.value = !showWhiteboard.value;
+    setTimeout(() => {
+      updateWhiteboardSize();
+    }, 50);
   }
 
   function toggleExpandWhiteboard() {
     expandWhiteboard.value = !expandWhiteboard.value;
+    setTimeout(() => {
+      updateWhiteboardSize();
+    }, 50);
   }
 
   function toggleNotes() {
@@ -228,6 +248,7 @@
     transform: translateX(-50%);
     height: 30%;
     min-height: 250px;
+    overflow: hidden;
 
     &.hide {
       visibility: hidden;
