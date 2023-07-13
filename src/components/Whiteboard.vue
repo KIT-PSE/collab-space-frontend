@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref, watch } from 'vue';
+  import { onMounted, watch } from 'vue';
   import { fabric } from 'fabric';
 
   const props = defineProps<{
