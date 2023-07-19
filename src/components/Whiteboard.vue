@@ -62,6 +62,13 @@
   const minZoomLevel = 0.5;
   const maxZoomLevel = 2;
 
+  /**
+   * Constants for the viewportTransform array of the canvas.
+   * See http://fabricjs.com/docs/fabric.Canvas.html#viewportTransform
+   */
+  const VIEWPORT_TRANSFORM_WIDTH_INDEX = 4;
+  const VIEWPORT_TRANSFORM_HEIGHT_INDEX = 5;
+
   onMounted(() => {
     canvas.value = new fabric.Canvas('whiteboard', {
       isDrawingMode: true,
@@ -72,6 +79,10 @@
       console.log(e);
     });
 
+    /**
+     * Zooms the canvas in or out, keeping the specified point in the center of the viewport.
+     * For implementation details, see http://fabricjs.com/fabric-intro-part-5
+     */
     canvas.value.on('mouse:wheel', function (opt) {
       const delta = opt.e.deltaY;
       let zoom = this.getZoom();
@@ -79,57 +90,84 @@
       zoomCanvas(zoom, { x: opt.e.offsetX, y: opt.e.offsetY });
       opt.e.preventDefault();
       opt.e.stopPropagation();
-      let vpt = this.viewportTransform;
+      let viewportTransform = this.viewportTransform;
       if (zoom < 0.4) {
-        vpt![4] = 200 - (maxCanvasWidth * zoom) / 2;
-        vpt![5] = 200 - (maxCanvasHeight * zoom) / 2;
+        viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] =
+          200 - (maxCanvasWidth * zoom) / 2;
+        viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] =
+          200 - (maxCanvasHeight * zoom) / 2;
       } else {
-        if (vpt![4] >= 0) {
-          vpt![4] = 0;
-        } else if (vpt![4] < this.getWidth() - maxCanvasWidth * zoom) {
-          vpt![4] = this.getWidth() - maxCanvasWidth * zoom;
+        if (viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] >= 0) {
+          viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] = 0;
+        } else if (
+          viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] <
+          this.getWidth() - maxCanvasWidth * zoom
+        ) {
+          viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] =
+            this.getWidth() - maxCanvasWidth * zoom;
         }
-        if (vpt![5] >= 0) {
-          vpt![5] = 0;
-        } else if (vpt![5] < this.getHeight() - maxCanvasHeight * zoom) {
-          vpt![5] = this.getHeight() - maxCanvasHeight * zoom;
+        if (viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] >= 0) {
+          viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] = 0;
+        } else if (
+          viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] <
+          this.getHeight() - maxCanvasHeight * zoom
+        ) {
+          viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] =
+            this.getHeight() - maxCanvasHeight * zoom;
         }
       }
     });
+
+    /**
+     * Pans the canvas when the user drags the mouse if pan tool selected.
+     * For implementation details, see http://fabricjs.com/fabric-intro-part-5
+     */
     canvas.value.on('mouse:down', function (opt) {
-      const evt = opt.e;
-      if (evt.altKey && !this.isDrawingMode) {
+      const event = opt.e;
+      if (!this.isDrawingMode) {
         this.isDragging = true;
         this.selection = false;
-        this.lastPosX = evt.clientX;
-        this.lastPosY = evt.clientY;
+        this.lastPosX = event.clientX;
+        this.lastPosY = event.clientY;
       }
     });
     canvas.value.on('mouse:move', function (opt) {
       if (this.isDragging) {
-        const e = opt.e;
+        const event = opt.e;
         const zoom = this.getZoom();
-        let vpt = this.viewportTransform;
+        let viewportTransform = this.viewportTransform;
         if (zoom < 0.4) {
-          vpt![4] = 200 - (maxCanvasWidth * zoom) / 2;
-          vpt![5] = 200 - (maxCanvasHeight * zoom) / 2;
+          viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] =
+            200 - (maxCanvasWidth * zoom) / 2;
+          viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] =
+            200 - (maxCanvasHeight * zoom) / 2;
         } else {
-          vpt![4] += e.clientX - this.lastPosX;
-          vpt![5] += e.clientY - this.lastPosY;
-          if (vpt![4] >= 0) {
-            vpt![4] = 0;
-          } else if (vpt![4] < this.getWidth() - maxCanvasWidth * zoom) {
-            vpt![4] = this.getWidth() - maxCanvasWidth * zoom;
+          viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] +=
+            event.clientX - this.lastPosX;
+          viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] +=
+            event.clientY - this.lastPosY;
+          if (viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] >= 0) {
+            viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] = 0;
+          } else if (
+            viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] <
+            this.getWidth() - maxCanvasWidth * zoom
+          ) {
+            viewportTransform![VIEWPORT_TRANSFORM_WIDTH_INDEX] =
+              this.getWidth() - maxCanvasWidth * zoom;
           }
-          if (vpt![5] >= 0) {
-            vpt![5] = 0;
-          } else if (vpt![5] < this.getHeight() - maxCanvasHeight * zoom) {
-            vpt![5] = this.getHeight() - maxCanvasHeight * zoom;
+          if (viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] >= 0) {
+            viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] = 0;
+          } else if (
+            viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] <
+            this.getHeight() - maxCanvasHeight * zoom
+          ) {
+            viewportTransform![VIEWPORT_TRANSFORM_HEIGHT_INDEX] =
+              this.getHeight() - maxCanvasHeight * zoom;
           }
         }
         this.requestRenderAll();
-        this.lastPosX = e.clientX;
-        this.lastPosY = e.clientY;
+        this.lastPosX = event.clientX;
+        this.lastPosY = event.clientY;
       }
     });
     canvas.value.on('mouse:up', function (opt) {
@@ -160,17 +198,14 @@
   }
 
   function zoomCanvas(zoomValue: number, point?: fabric.IPoint) {
-    if (canvas.value != null) {
-      if (zoomValue > maxZoomLevel) zoomValue = maxZoomLevel;
-      if (zoomValue < minZoomLevel) zoomValue = minZoomLevel;
-      canvas.value?.zoomToPoint(
-        point ?? {
-          x: canvas.value?.getWidth() / 2,
-          y: canvas.value?.getHeight() / 2,
-        },
-        zoomValue,
-      );
-    }
+    zoomValue = Math.max(Math.min(zoomValue, maxZoomLevel), minZoomLevel);
+    canvas.value?.zoomToPoint(
+      point ?? {
+        x: canvas.value?.getWidth() / 2,
+        y: canvas.value?.getHeight() / 2,
+      },
+      zoomValue,
+    );
   }
 
   function updateDimensions() {

@@ -205,8 +205,11 @@
   }
 
   function toggleWhiteboard() {
-    if (showNotes.value) toggleNotes();
+    if (showNotes.value) {
+      toggleNotes();
+    }
     showWhiteboard.value = !showWhiteboard.value;
+
     setTimeout(() => {
       updateWhiteboardSize();
     }, 50);
@@ -214,6 +217,7 @@
 
   function toggleExpandWhiteboard() {
     expandWhiteboard.value = !expandWhiteboard.value;
+
     setTimeout(() => {
       updateWhiteboardSize();
     }, 50);
