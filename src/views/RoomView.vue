@@ -224,7 +224,9 @@
   }
 
   function toggleNotes() {
-    if (showWhiteboard.value) toggleWhiteboard();
+    if (showWhiteboard.value) {
+      toggleWhiteboard();
+    }
     showNotes.value = !showNotes.value;
   }
 </script>
