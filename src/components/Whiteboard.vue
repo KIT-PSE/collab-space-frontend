@@ -78,7 +78,6 @@
     });
 
     canvas.value.on('path:created', (e) => {
-      console.log(e);
       // @ts-ignore
       props.whiteboard.change(e.path);
     });
