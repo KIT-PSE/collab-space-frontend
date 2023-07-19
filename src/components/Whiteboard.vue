@@ -170,7 +170,7 @@
         this.lastPosY = event.clientY;
       }
     });
-    canvas.value.on('mouse:up', function (opt) {
+    canvas.value.on('mouse:up', function () {
       this.setViewportTransform(this.viewportTransform);
       this.isDragging = false;
       this.selection = true;
