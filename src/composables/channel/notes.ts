@@ -2,7 +2,7 @@ import { Socket } from 'socket.io-client';
 import { reactive } from 'vue';
 
 export interface Note {
-  id: string;
+  id: number;
   name: string;
   content: string;
 }
@@ -16,9 +16,15 @@ export class Notes {
     });
 
     this.notes.push({
-      id: '1',
-      name: 'Test',
-      content: 'Test',
+      id: 1,
+      name: 'Test Name sehr lang mal schauen wie es aussieht',
+      content: 'Test Inhalt',
+    });
+
+    this.notes.push({
+      id: 2,
+      name: 'Test Name 2',
+      content: 'Test Inhalt 2',
     });
   }
 
@@ -26,8 +32,14 @@ export class Notes {
     return this.notes;
   }
 
-  public addNote(name: string, content: string) {
-    //this.socket.emit('addNote', { name, content });
+  public getNoteById(noteId: number) {
+    return this.notes.find((note) => note.id === noteId);
+  }
+
+  public addNote(name: string): number {
+    this.socket.emit('addNote', { name });
+
+    return 0;
   }
 
   public updateNote(noteId: string, content: string) {

@@ -270,8 +270,8 @@
     height: calc(100% - 2rem);
     width: 30%;
     transform: translateY(-50%);
-    max-width: 350px;
-    min-width: 250px;
+    max-width: 400px;
+    min-width: 300px;
 
     &.hide {
       visibility: hidden;

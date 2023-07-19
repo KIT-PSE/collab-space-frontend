@@ -3,7 +3,7 @@
     class="w-100 h-100 rounded bg-white shadow border-1 border border-opacity-50 border-black"
   >
     <!-- create a boostrap layout with one header row with title and close button and below some space for the notes -->
-    <div class="col p-3">
+    <div class="d-flex flex-column h-100 p-3">
       <div class="row">
         <div class="col-8">
           <h3>Notizen</h3>
@@ -17,17 +17,63 @@
         </div>
       </div>
 
-      <div>
+      <div class="mt-2" v-if="selectedNote === 0">
         <!-- display the notes in a list -->
         <ul class="list-group">
           <li
             v-for="note in notes.getNotes()"
             :key="note.id"
             class="list-group-item list-group-item-action"
+            @click="setSelectedNote(note.id)"
           >
-            {{ note.content }}
+            {{ note.name }}
           </li>
         </ul>
+        <ul class="list-group mt-2">
+          <li
+            class="list-group-item list-group-item-action"
+            @click="setSelectedNote(-1)"
+          >
+            Eine neue Notiz erstellen
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-2" v-if="selectedNote === -1">
+        <div class="d-flex align-items-center">
+          <button
+            class="btn btn-sm text-secondary me-1"
+            @click="setSelectedNote(0)"
+          >
+            <i class="fa fa-arrow-left"></i>
+          </button>
+          Neue Notiz erstellen
+        </div>
+        <input
+          class="form-control mt-3"
+          placeholder="Name der Notiz"
+          v-model="newNoteName"
+        />
+        <button class="btn btn-primary mt-2 w-100" @click="createNote">
+          Notiz erstellen
+        </button>
+      </div>
+
+      <div class="mt-2 flex-fill d-flex flex-column" v-if="selectedNote > 0">
+        <div class="d-flex align-items-center">
+          <button
+            class="btn btn-sm text-secondary me-1"
+            @click="setSelectedNote(0)"
+          >
+            <i class="fa fa-arrow-left"></i>
+          </button>
+          {{ notes.getNoteById(selectedNote).name }}
+        </div>
+        <textarea
+          class="form-control mt-2 h-100"
+          rows="10"
+          v-model="notes.getNoteById(selectedNote).content"
+        ></textarea>
       </div>
     </div>
   </div>
@@ -35,12 +81,31 @@
 
 <script setup lang="ts">
   import { useChannel } from '@/composables/channel/channel';
+  import { ref } from 'vue';
 
   const emit = defineEmits(['close']);
+  // SelectedNote: -1 is new Note; 0 is no Note selected
+  const selectedNote = ref(0);
+  const newNoteName = ref('');
 
   const channel = useChannel();
 
   const notes = channel.loadNotes();
+
+  function setSelectedNote(id: number) {
+    selectedNote.value = id;
+  }
+
+  function createNote() {
+    const name = newNoteName.value.trim();
+    if (name.length === 0) {
+      // TODO: Fehlerbehandlung
+      return;
+    }
+    const id = notes.addNote(name);
+
+    setSelectedNote(id);
+  }
 
   function close() {
     emit('close');
