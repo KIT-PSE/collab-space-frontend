@@ -93,12 +93,13 @@ export const useChannel = defineStore('channel', () => {
     return notes;
   }
 
-  async function loadWhiteboard(): Promise<Whiteboard> {
+  function loadWhiteboard(): Whiteboard {
     if (state.whiteboard) {
       return state.whiteboard;
     }
 
     const whiteboard = new Whiteboard(socket!);
+    state.whiteboard = whiteboard;
 
     return whiteboard;
   }

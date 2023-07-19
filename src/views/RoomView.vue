@@ -33,6 +33,7 @@
             @expand="toggleExpandWhiteboard"
             :width="width"
             :height="height"
+            :whiteboard="channel.loadWhiteboard()"
           />
         </div>
         <div id="notes-wrapper" :class="{ hide: !showNotes }">

@@ -46,10 +46,12 @@
 <script setup lang="ts">
   import { onMounted, ref, watch } from 'vue';
   import { fabric } from 'fabric';
+  import { Whiteboard } from '@/composables/channel/whiteboard';
 
   const props = defineProps<{
     width: number;
     height: number;
+    whiteboard: Whiteboard;
   }>();
   const emit = defineEmits(['close', 'expand']);
 
@@ -77,6 +79,15 @@
 
     canvas.value.on('path:created', (e) => {
       console.log(e);
+      // @ts-ignore
+      props.whiteboard.change(e.path);
+    });
+
+    props.whiteboard.onChanges((path) => {
+      const newPath = new fabric.Path(path.path, {
+        ...path,
+      });
+      canvas.value?.add(newPath);
     });
 
     /**
