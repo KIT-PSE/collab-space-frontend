@@ -1,6 +1,7 @@
 import { convertDates, useSingleton } from '@/composables/utils';
 import { useFetch } from '@/composables/fetch';
 import { Moment } from 'moment';
+import { Note } from '@/composables/channel/notes';
 
 const fetch = useFetch();
 
@@ -34,7 +35,7 @@ export type RegisterData = {
 
 export type Room = {
   id: number;
-  category: number;
+  category: Category;
   name: string;
   channelId?: string;
   password?: string;
@@ -125,6 +126,10 @@ const api = {
 
   async deleteRoom(id: number, categoryId: number): Promise<void> {
     return fetch.delete(`/category/${categoryId}/room/${id}`);
+  },
+
+  async getNotes(roomId: number, categoryId: number): Promise<Note[]> {
+    return fetch.getOrFail(`/category/${categoryId}/room/${roomId}/notes`);
   },
 };
 

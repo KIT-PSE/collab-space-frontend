@@ -87,7 +87,7 @@ export const useChannel = defineStore('channel', () => {
       return state.notes;
     }
 
-    const notes = new Notes(socket!);
+    const notes = new Notes(socket!, state.room!.id, state.room!.category.id);
     state.notes = notes;
 
     return notes;
@@ -99,6 +99,7 @@ export const useChannel = defineStore('channel', () => {
     }
 
     const whiteboard = new Whiteboard(socket!);
+    state.whiteboard = whiteboard;
 
     return whiteboard;
   }
@@ -220,9 +221,9 @@ export const useChannel = defineStore('channel', () => {
 
     socket?.emit('open-room', payload, async (result: any) => {
       state.connected = true;
-      state.channelId = result.id;
+      state.channelId = result.room.channelId;
       state.clientId = socket?.id || '';
-      state.room = room;
+      state.room = result.room;
       state.students = [];
       state.teacher = { id: state.clientId, user, video: true, audio: true };
       state.hasName = true;
@@ -230,7 +231,7 @@ export const useChannel = defineStore('channel', () => {
       await router.push({
         name: 'room',
         params: {
-          id: result.id,
+          id: result.room.channelId,
         },
       });
 

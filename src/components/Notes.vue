@@ -21,7 +21,7 @@
         <!-- display the notes in a list -->
         <ul class="list-group">
           <li
-            v-for="note in notes.getNotes()"
+            v-for="note in notes.notesList"
             :key="note.id"
             class="list-group-item list-group-item-action"
             @click="setSelectedNote(note.id)"
@@ -31,9 +31,11 @@
         </ul>
         <ul class="list-group mt-2">
           <li
+            role="button"
             class="list-group-item list-group-item-action"
             @click="setSelectedNote(-1)"
           >
+            <i class="fa fa-plus me-2"></i>
             Eine neue Notiz erstellen
           </li>
         </ul>
@@ -73,6 +75,7 @@
           class="form-control mt-2 h-100"
           rows="10"
           v-model="notes.getNoteById(selectedNote).content"
+          @keyup="updateNote"
         ></textarea>
       </div>
     </div>
@@ -89,22 +92,28 @@
   const newNoteName = ref('');
 
   const channel = useChannel();
-
   const notes = channel.loadNotes();
 
   function setSelectedNote(id: number) {
     selectedNote.value = id;
   }
 
-  function createNote() {
+  async function createNote() {
     const name = newNoteName.value.trim();
     if (name.length === 0) {
       // TODO: Fehlerbehandlung
       return;
     }
-    const id = notes.addNote(name);
+    const id = await notes.addNote(name);
 
     setSelectedNote(id);
+  }
+
+  function updateNote(event: InputEvent) {
+    notes.updateNote(
+      selectedNote.value,
+      (event.target as HTMLTextAreaElement).value,
+    );
   }
 
   function close() {

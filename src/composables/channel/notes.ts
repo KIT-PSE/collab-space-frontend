@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io-client';
 import { reactive } from 'vue';
+import { useApi } from '@/composables/api';
 
 export interface Note {
   id: number;
@@ -8,41 +9,55 @@ export interface Note {
 }
 
 export class Notes {
-  private notes = reactive([] as Note[]);
+  public notesList = reactive([] as Note[]);
 
-  constructor(private readonly socket: Socket) {
-    this.socket.on('notes', (notes: Note[]) => {
-      // TODO
+  constructor(
+    private readonly socket: Socket,
+    private readonly roomId: number,
+    private readonly categoryId: number,
+  ) {
+    this.loadNotes(roomId, categoryId);
+
+    socket.on('note-added', (note: Note) => {
+      this.notesList.push(note);
     });
 
-    this.notes.push({
-      id: 1,
-      name: 'Test Name sehr lang mal schauen wie es aussieht',
-      content: 'Test Inhalt',
-    });
-
-    this.notes.push({
-      id: 2,
-      name: 'Test Name 2',
-      content: 'Test Inhalt 2',
-    });
+    socket.on(
+      'note-updated',
+      ({ noteId, content }: { noteId: number; content: string }) => {
+        const note = this.getNoteById(noteId);
+        if (note) {
+          note.content = content;
+        }
+      },
+    );
   }
 
-  public getNotes() {
-    return this.notes;
+  async loadNotes(roomId: number, categoryId: number) {
+    const api = useApi();
+    const notesResult = await api.getNotes(roomId, categoryId);
+    this.notesList.push(...notesResult);
   }
 
   public getNoteById(noteId: number) {
-    return this.notes.find((note) => note.id === noteId);
+    return this.notesList.find((note) => note.id === noteId);
   }
 
-  public addNote(name: string): number {
-    this.socket.emit('addNote', { name });
+  public addNote(name: string): Promise<number> {
+    return new Promise((resolve) => {
+      this.socket.emit('add-note', { name }, (response: { id: number }) => {
+        this.notesList.push({
+          id: response.id,
+          name,
+          content: '',
+        });
 
-    return 0;
+        resolve(response.id);
+      });
+    });
   }
 
-  public updateNote(noteId: string, content: string) {
-    //this.socket.emit('updateNote', { noteId, content });
+  public updateNote(noteId: number, content: string) {
+    this.socket.emit('update-note', { noteId, content });
   }
 }
