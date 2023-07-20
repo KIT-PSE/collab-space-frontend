@@ -34,7 +34,7 @@ export type RegisterData = {
 
 export type Room = {
   id: number;
-  category: number;
+  category: Category;
   name: string;
   channelId?: string;
   password?: string;
@@ -125,6 +125,13 @@ const api = {
 
   async deleteRoom(id: number, categoryId: number): Promise<void> {
     return fetch.delete(`/category/${categoryId}/room/${id}`);
+  },
+
+  async getWhiteboardCanvas(
+    id: number,
+    categoryId: number,
+  ): Promise<{ whiteboard: string }> {
+    return fetch.getOrFail(`/category/${categoryId}/room/${id}/whiteboard`);
   },
 };
 

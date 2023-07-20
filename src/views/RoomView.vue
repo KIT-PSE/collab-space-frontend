@@ -153,11 +153,11 @@
     </div>
   </main>
 
-  <ShareLinkModal :channel="channel.state" />
+  <ShareLinkModal :channel="channel.state as ChannelState" />
 </template>
 
 <script setup lang="ts">
-  import { useChannel } from '@/composables/channel/channel';
+  import { ChannelState, useChannel } from '@/composables/channel/channel';
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
@@ -193,8 +193,10 @@
   channel.loadWebcams();
 
   function updateWhiteboardSize() {
-    width.value = document.getElementById('whiteboard-wrapper').clientWidth;
-    height.value = document.getElementById('whiteboard-wrapper').clientHeight;
+    width.value =
+      document.getElementById('whiteboard-wrapper')?.clientWidth || 0;
+    height.value =
+      document.getElementById('whiteboard-wrapper')?.clientHeight || 0;
   }
 
   function toggleVideo() {

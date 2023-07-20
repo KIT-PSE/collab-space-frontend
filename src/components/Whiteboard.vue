@@ -71,11 +71,18 @@
   const VIEWPORT_TRANSFORM_WIDTH_INDEX = 4;
   const VIEWPORT_TRANSFORM_HEIGHT_INDEX = 5;
 
-  onMounted(() => {
+  onMounted(async () => {
     canvas.value = new fabric.Canvas('whiteboard', {
       isDrawingMode: true,
       selection: false,
     });
+
+    const savedCanvas = await props.whiteboard.loadCanvas();
+    if (savedCanvas) {
+      canvas.value?.loadFromJSON(JSON.parse(savedCanvas), () => {
+        console.info('Loaded canvas as JSON from Server');
+      });
+    }
 
     canvas.value.on('path:created', (e) => {
       // @ts-ignore
@@ -93,7 +100,7 @@
      * Zooms the canvas in or out, keeping the specified point in the center of the viewport.
      * For implementation details, see http://fabricjs.com/fabric-intro-part-5
      */
-    canvas.value.on('mouse:wheel', function (opt) {
+    canvas.value.on('mouse:wheel', function (this: any, opt: any) {
       const delta = opt.e.deltaY;
       let zoom = this.getZoom();
       zoom *= 0.999 ** delta;
@@ -132,7 +139,7 @@
      * Pans the canvas when the user drags the mouse if pan tool selected.
      * For implementation details, see http://fabricjs.com/fabric-intro-part-5
      */
-    canvas.value.on('mouse:down', function (opt) {
+    canvas.value.on('mouse:down', function (this: any, opt: any) {
       const event = opt.e;
       if (!this.isDrawingMode) {
         this.isDragging = true;
@@ -141,7 +148,7 @@
         this.lastPosY = event.clientY;
       }
     });
-    canvas.value.on('mouse:move', function (opt) {
+    canvas.value.on('mouse:move', function (this: any, opt: any) {
       if (this.isDragging) {
         const event = opt.e;
         const zoom = this.getZoom();
@@ -180,7 +187,7 @@
         this.lastPosY = event.clientY;
       }
     });
-    canvas.value.on('mouse:up', function () {
+    canvas.value.on('mouse:up', function (this: any) {
       this.setViewportTransform(this.viewportTransform);
       this.isDragging = false;
       this.selection = true;
@@ -198,12 +205,12 @@
   }
 
   function zoomIn() {
-    let zoom = canvas.value?.getZoom() * 1.25;
+    let zoom = canvas.value!.getZoom() * 1.25 || 1;
     zoomCanvas(zoom);
   }
 
   function zoomOut() {
-    let zoom = canvas.value?.getZoom() / 1.25;
+    let zoom = canvas.value!.getZoom() / 1.25 || 1;
     zoomCanvas(zoom);
   }
 

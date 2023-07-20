@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive } from 'vue';
+import { reactive, UnwrapNestedRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
@@ -49,7 +49,7 @@ export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
 
-  const state: ChannelState = reactive({
+  const state: UnwrapNestedRefs<ChannelState> = reactive({
     connected: false,
     channelId: '',
     clientId: '',
@@ -59,7 +59,7 @@ export const useChannel = defineStore('channel', () => {
     hasName: false,
     notes: null,
     whiteboard: null,
-  });
+  } as ChannelState);
 
   let webcamsLoaded = false;
   const streams: Record<string, MediaStream> = reactive({});
@@ -95,10 +95,14 @@ export const useChannel = defineStore('channel', () => {
 
   function loadWhiteboard(): Whiteboard {
     if (state.whiteboard) {
-      return state.whiteboard;
+      return state.whiteboard as Whiteboard;
     }
 
-    const whiteboard = new Whiteboard(socket!);
+    const whiteboard = new Whiteboard(
+      socket!,
+      state.room!.id,
+      state.room!.category.id,
+    );
     state.whiteboard = whiteboard;
 
     return whiteboard;
@@ -221,9 +225,9 @@ export const useChannel = defineStore('channel', () => {
 
     socket?.emit('open-room', payload, async (result: any) => {
       state.connected = true;
-      state.channelId = result.id;
+      state.channelId = result.room.channelId;
       state.clientId = socket?.id || '';
-      state.room = room;
+      state.room = result.room;
       state.students = [];
       state.teacher = { id: state.clientId, user, video: true, audio: true };
       state.hasName = true;
@@ -231,7 +235,7 @@ export const useChannel = defineStore('channel', () => {
       await router.push({
         name: 'room',
         params: {
-          id: result.id,
+          id: result.room.channelId,
         },
       });
 
