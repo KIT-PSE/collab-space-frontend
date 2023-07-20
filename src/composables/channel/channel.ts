@@ -50,7 +50,7 @@ export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
 
-  const state: ChannelState = reactive({
+  const state = reactive({
     connected: false,
     channelId: '',
     clientId: '',
@@ -60,7 +60,7 @@ export const useChannel = defineStore('channel', () => {
     hasName: false,
     notes: null,
     whiteboard: null,
-  });
+  } as ChannelState);
 
   let webcamsLoaded = false;
   const streams: Record<string, MediaStream> = reactive({});
@@ -96,7 +96,7 @@ export const useChannel = defineStore('channel', () => {
 
   async function loadWhiteboard(): Promise<Whiteboard> {
     if (state.whiteboard) {
-      return state.whiteboard;
+      return state.whiteboard as Whiteboard;
     }
 
     const whiteboard = new Whiteboard(socket!);
