@@ -76,10 +76,11 @@ function edit(index) {
   if (settings[index].value === "Ändern") {
     settings[index].value = "Speichern";
     disabledInputs[index].value = false;
-  } else {
+  }
+  else {
     settings[index].value = "Ändern";
     disabledInputs[index].value = true;
+    auth.changeAccountData();
   }
 }
-
 </script>

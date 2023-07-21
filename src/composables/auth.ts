@@ -150,6 +150,10 @@ export const useAuth = defineStore('auth', () => {
     );
   }
 
+  function changeAccountData() {
+    api.changeAccountData(state.user);
+  }
+
   return {
     state,
     isLoggedIn,
@@ -160,6 +164,7 @@ export const useAuth = defineStore('auth', () => {
     logout,
     loadUser,
     onLogout,
+    changeAccountData,
   };
 });
 
