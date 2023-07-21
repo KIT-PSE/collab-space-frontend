@@ -3,7 +3,7 @@
   <Modal
     id="change-password-modal"
     title="Passwort ändern"
-    submit-text="Speichern"
+    submit-text="Passwort speichern"
     @submit="changePassword"
     @closed="resetForm"
   >
@@ -32,10 +32,8 @@ import PasswordInput from '@/components/inputs/PasswordInput.vue';
 import Modal from '@/components/Modal.vue';
 import { useForm } from '@/composables/form';
 import { closeModal } from '@/utils';
-import {useAuth, useUser} from "@/composables/auth";
+import {useApi} from "@/composables/api";
 
-
-const auth = useAuth();
 
 const { form, resetForm, errors } = useForm({
   currentPassword: '',
@@ -43,20 +41,27 @@ const { form, resetForm, errors } = useForm({
   confirmPassword: '',
 });
 
+const api = useApi();
+
 async function changePassword() {
   if (newPassword !== confirmPassword) {
     errors.confirmPassword = 'Die Passwörter stimmen nicht überein.';
     return;
   }
 
-  // TODO: Backend-Logik zur Passwortänderung implementieren
-  // Hier musst du die Passwortänderung im Backend durchführen
-  // und auf die Rückmeldung warten, ob die Änderung erfolgreich war
+  try {
+    await api.updatePassword({
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    });
 
-  // Erfolgsmeldung anzeigen oder auf Fehler reagieren
+    console.log('Passwort erfolgreich geändert.');
 
-  // Passwortänderung erfolgreich, schließe das Modal
-  closeModal('change-password-modal');
+    closeModal('change-password-modal');
+  } catch (error) {
+    console.error('Fehler bei der Passwortänderung:', error.message);
+  }
+
 }
 
 

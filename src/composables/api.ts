@@ -126,6 +126,13 @@ const api = {
   async deleteRoom(id: number, categoryId: number): Promise<void> {
     return fetch.delete(`/category/${categoryId}/room/${id}`);
   },
+
+  async updatePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<void> {
+    return fetch.postOrFail('/user/changePassword', data);
+  }
 };
 
 export const useApi = useSingleton(decorateApi(api));
