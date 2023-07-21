@@ -80,13 +80,26 @@
             :key="student.id"
             class="col-lg-6"
           >
-            <div class="card my-1">
-              <!--              <img-->
-              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
-              <!--                alt=""-->
-              <!--                class="card-img-top"-->
-              <!--              />-->
-              <Camera :user-id="student.id" />
+            <div class="card my-1 d-flex flex-column">
+              <div class="position-relative flex-grow-1">
+                <!-- Die Kamera des Schülers -->
+                <div class="ratio ratio-4x3">
+                  <Camera :user-id="student.id" class="w-100 h-100" />
+                </div>
+
+                <span v-if="channel.isTeacher(channel.currentUser())">
+                  <!-- Der Button oben rechts -->
+                <button class="btn btn-primary position-absolute top-0 end-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#dropdown-modal"
+                >
+                  <i class="fa fa-ellipsis-v"></i>
+                </button>
+                <DropdownModal :student-id ="student.id" :channel="channel"/>
+                </span>
+
+              </div>
+
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
@@ -131,6 +144,8 @@
               </button>
             </span>
 
+
+
             <button
               type="button"
               class="btn text-primary mx-2"
@@ -165,6 +180,7 @@
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
+  import DropdownModal from "@/components/DropdownModal.vue";
 
   const auth = useAuth();
   const channel = useChannel();
@@ -191,4 +207,9 @@
   function toggleHandSignal() {
     channel.toggleHandSignal();
   }
+
+  function givePermission(student: Student) {
+    channel.givePermission(student);
+  }
+
 </script>
