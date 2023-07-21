@@ -35,7 +35,6 @@ import { closeModal } from '@/utils';
 import {useAuth, useUser} from "@/composables/auth";
 
 
-const user = useUser();
 const auth = useAuth();
 
 const { form, resetForm, errors } = useForm({
@@ -45,8 +44,6 @@ const { form, resetForm, errors } = useForm({
 });
 
 async function changePassword() {
-  // Backend-Validierung und Passwortänderung hier durchführen
-  // Beispiel-Validierung (Hier sollte die Backend-Validierung stattfinden)
   if (newPassword !== confirmPassword) {
     errors.confirmPassword = 'Die Passwörter stimmen nicht überein.';
     return;
