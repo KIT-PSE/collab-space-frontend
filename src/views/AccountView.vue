@@ -3,9 +3,9 @@
     <div class="row mt-5">
       <div class="col-md-6">
         <Input
-          label="Schule / Universität oder Organisation"
-          :model-value="user.organization ?? '-'"
-          disabled
+            label="Schule / Universität oder Organisation"
+            :model-value="user.organization ?? '-'"
+            disabled
         >
           <button class="btn btn-secondary ms-2">Ändern</button>
         </Input>
@@ -18,36 +18,52 @@
           <button class="btn btn-secondary ms-2">Ändern</button>
         </EmailInput>
 
-        <PasswordInput label="Passwort" model-value="12345678" disabled>
-          <button class="btn btn-secondary ms-2">Ändern</button>
+        <PasswordInput
+            label="Passwort"
+            :model-value="password"
+            disabled
+        >
+          <button
+              class="btn btn-outline-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#change-password-modal"
+          >
+            Ändern
+          </button>
         </PasswordInput>
 
         <button class="btn btn-danger mt-3" @click="deleteAccount">Account löschen</button>
       </div>
     </div>
+    <ChangePasswordModal/>
   </Layout>
 </template>
 
 <script setup lang="ts">
-  import Layout from '@/components/Layout.vue';
-  import Input from '@/components/inputs/Input.vue';
-  import EmailInput from '@/components/inputs/EmailInput.vue';
-  import PasswordInput from '@/components/inputs/PasswordInput.vue';
-  import {useAuth, useUser} from '@/composables/auth';
-  import { ask } from "@/composables/prompt";
+import Layout from '@/components/Layout.vue';
+import Input from '@/components/inputs/Input.vue';
+import EmailInput from '@/components/inputs/EmailInput.vue';
+import PasswordInput from '@/components/inputs/PasswordInput.vue';
+import Modal from '@/components/Modal.vue';
+import { useForm } from '@/composables/form';
+import { closeModal } from '@/utils';
+import { useAuth, useUser } from '@/composables/auth';
+import { ask } from "@/composables/prompt";
+import ChangePasswordModal from "@/components/inputs/ChangePasswordModal.vue";
 
-  const user = useUser();
-  const auth = useAuth();
+const user = useUser();
+const auth = useAuth();
 
-  async function deleteAccount() {
-    const shouldDelete = await ask(
-        'Account löschen',
-        `Bist du sicher, dass du deinen Account löschen möchtest? Diese Aktion kann <b>nicht rückgängig</b> gemacht werden.`,
-        'Löschen',
-    );
 
-    if (!shouldDelete) return;
+async function deleteAccount() {
+  const shouldDelete = await ask(
+      'Account löschen',
+      `Bist du sicher, dass du deinen Account löschen möchtest? Diese Aktion kann <b>nicht rückgängig</b> gemacht werden.`,
+      'Löschen',
+  );
 
-    await auth.delete();
-  }
+  if (!shouldDelete) return;
+
+  await auth.delete();
+}
 </script>
