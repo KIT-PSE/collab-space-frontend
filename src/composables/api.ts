@@ -123,7 +123,7 @@ const api = {
     return fetch.delete(`/category/${categoryId}/room/${id}`);
   },
 
-  async changeAccountData(user: User): Promise<User> {
+  async changeAccountData(user: User): Promise<boolean> {
     return fetch.putOrFail('/user/changeOrg', {
         id: user.id,
         organization: user.organization,

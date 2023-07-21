@@ -44,9 +44,11 @@ import PasswordInput from '@/components/inputs/PasswordInput.vue';
 import { useAuth, useUser } from '@/composables/auth';
 import { ask } from "@/composables/prompt";
 import { ref } from "vue";
+import { useAlerts } from '@/composables/alerts';
 
 const user = useUser();
 const auth = useAuth();
+const alerts = useAlerts();
 
 const disabledInputs = [
   ref(true),
@@ -72,7 +74,7 @@ async function deleteAccount() {
   await auth.delete();
 }
 
-function edit(index) {
+async function edit(index) {
   if (settings[index].value === "Ändern") {
     settings[index].value = "Speichern";
     disabledInputs[index].value = false;
@@ -80,7 +82,14 @@ function edit(index) {
   else {
     settings[index].value = "Ändern";
     disabledInputs[index].value = true;
-    auth.changeAccountData();
+    const result = await auth.changeAccountData();
+
+    if (result) {
+      alerts.success('Eintrag wurde erfolgreich geändert');
+    }
+    else {
+      alerts.error('Eintrag konnte nicht geändert werden');
+    }
   }
 }
 </script>

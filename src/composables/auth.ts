@@ -150,8 +150,8 @@ export const useAuth = defineStore('auth', () => {
     );
   }
 
-  function changeAccountData() {
-    api.changeAccountData(state.user);
+  async function changeAccountData() : Promise<boolean>{
+    return api.changeAccountData(state.user);
   }
 
   return {
