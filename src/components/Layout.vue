@@ -39,7 +39,9 @@
         </button>
         <button class="btn btn-secondary mx-1">
           Timer:
-          <span class="font-monospace">{{ auth.state.loginTimer?.state.time }}</span>
+          <span class="font-monospace">
+            {{ auth.state.loginTimer?.state.time }}
+          </span>
         </button>
         <button class="btn btn-secondary mx-1">
           <span v-if="channel.state.connected">Verbunden</span>
