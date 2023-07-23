@@ -30,7 +30,9 @@
           <button class="btn btn-secondary ms-2" @click="editPassword()">Ändern</button>
         </PasswordInput>
 
-        <button class="btn btn-danger mt-3" @click="deleteAccount">Account löschen</button>
+        <button class="btn btn-danger mt-3" @click="deleteAccount">
+          Account löschen
+        </button>
       </div>
     </div>
   </Layout>

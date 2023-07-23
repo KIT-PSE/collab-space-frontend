@@ -19,6 +19,7 @@ export interface ChannelUser {
 
 export interface Student extends ChannelUser {
   name: string;
+  handSignal: boolean;
 }
 
 export interface Teacher extends ChannelUser {
@@ -31,11 +32,21 @@ export interface JoinRoomResult {
   students: Student[];
 }
 
+export interface ChannelState {
+  connected: boolean;
+  channelId: string;
+  clientId: string;
+  room: Room | null;
+  teacher: Teacher | null;
+  students: Student[];
+  hasName: boolean;
+}
+
 export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
 
-  const state = reactive({
+  const state: ChannelState = reactive({
     connected: false,
     channelId: '',
     clientId: '',
@@ -129,6 +140,13 @@ export const useChannel = defineStore('channel', () => {
     socket?.emit('update-webcam', { video: user.video, audio: user.audio });
   }
 
+  function toggleHandSignal(): void {
+    const student = currentUser() as Student;
+
+    student.handSignal = !student.handSignal;
+    socket?.emit('update-handSignal', { handSignal: student.handSignal });
+  }
+
   function stopWebcam(): void {
     const stream = streams[state.clientId];
 
@@ -149,6 +167,10 @@ export const useChannel = defineStore('channel', () => {
     }
 
     return state.students.find((s) => s.id === id);
+  }
+
+  function isStudent(user: ChannelUser): user is Student {
+    return user.id !== state.teacher?.id;
   }
 
   function currentUser(): ChannelUser {
@@ -187,7 +209,12 @@ export const useChannel = defineStore('channel', () => {
       state.clientId = socket?.id || '';
       state.room = room;
       state.students = [];
-      state.teacher = { id: state.clientId, user, video: true, audio: true };
+      state.teacher = {
+        id: state.clientId,
+        user,
+        video: true,
+        audio: true,
+      };
       state.hasName = true;
 
       await router.push({
@@ -244,6 +271,8 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function changeName(name: string): Promise<void> {
+    localStorage.setItem(`session-name`, name);
+
     return new Promise((resolve) => {
       socket?.emit('change-name', { name }, () => {
         state.hasName = true;
@@ -346,6 +375,17 @@ export const useChannel = defineStore('channel', () => {
         }
       },
     );
+
+    socket.on(
+      'update-handSignal',
+      (payload: { id: string; handSignal: boolean }) => {
+        const student = userById(payload.id) as Student;
+
+        if (student) {
+          student.handSignal = payload.handSignal;
+        }
+      },
+    );
   }
 
   return {
@@ -357,6 +397,7 @@ export const useChannel = defineStore('channel', () => {
     leaveAsTeacher,
     leave,
     isSelf,
+    isStudent,
     userById,
     currentUser,
     changeName,
@@ -365,6 +406,7 @@ export const useChannel = defineStore('channel', () => {
     getWebcamStream,
     toggleVideo,
     toggleAudio,
+    toggleHandSignal,
     stopWebcam,
   };
 });
