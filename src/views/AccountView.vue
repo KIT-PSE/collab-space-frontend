@@ -48,7 +48,9 @@
       'Löschen',
     );
 
-    if (!shouldDelete) return;
+    if (!shouldDelete) {
+      return;
+    }
 
     await auth.delete();
   }
