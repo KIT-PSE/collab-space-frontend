@@ -23,14 +23,26 @@
       </div>
     </div>
 
-    <Input
-      label="Gib deinen Namen ein"
-      v-model="form.name"
-      :error="form.errors.name"
-    />
+    <div class="d-flex align-items-center">
+      <div class="flex-grow-1">
+        <Input
+          label="Gib deinen Namen ein"
+          v-model="form.name"
+          :error="form.errors.name"
+          :disabled="savedUserName !== ''"
+        />
+      </div>
+      <button
+        v-if="savedUserName !== ''"
+        class="btn btn-outline-primary ms-2 mt-3"
+        @click="resetName"
+      >
+        Nicht du?
+      </button>
+    </div>
 
     <button class="btn btn-primary w-100" @click="submit">
-      Raum {{ name }} Beitreten
+      Raum "{{ channel.state.room?.name }}" beitreten
     </button>
   </GuestLayout>
 </template>
@@ -39,23 +51,17 @@
   import GuestLayout from '@/components/GuestLayout.vue';
   import Input from '@/components/inputs/Input.vue';
   import { useChannel } from '@/composables/channel';
-  import { computed, onMounted, ref } from 'vue';
+  import { onMounted, ref } from 'vue';
   import { useForm } from '@/composables/form';
   import { useRouter } from 'vue-router';
 
   const router = useRouter();
   const channel = useChannel();
 
-  const name = computed(() => {
-    if (channel.state.channelId) {
-      return channel.state.channelId.substring(0, 6) + '...';
-    }
-
-    return '';
-  });
+  const savedUserName = ref(localStorage.getItem('session-name') || '');
 
   const form = useForm({
-    name: '',
+    name: savedUserName.value,
   });
 
   const videoElement = ref<HTMLVideoElement | null>(null);
@@ -94,5 +100,11 @@
     form.clearErrors();
     await channel.changeName(form.name);
     await router.push(`/room/${channel.state.channelId}`);
+  }
+
+  function resetName() {
+    localStorage.removeItem('session-name');
+    savedUserName.value = '';
+    form.name = '';
   }
 </script>
