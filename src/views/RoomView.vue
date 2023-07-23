@@ -205,11 +205,14 @@
     channel.openWebsite(website.value);
   }
 
-  watch(() => channel.browserStream, (stream) => {
-    if (stream) {
-      browserVideo.value!.srcObject = stream;
-    }
-  });
+  watch(
+    () => channel.browserStream,
+    (stream) => {
+      if (stream) {
+        browserVideo.value!.srcObject = stream;
+      }
+    },
+  );
 
   // watch(channel.streams, () => {
   //   if (loaded) {
