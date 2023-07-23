@@ -22,9 +22,7 @@
           <button class="btn btn-secondary ms-2">Ändern</button>
         </PasswordInput>
 
-        <button class="btn btn-danger mt-3" @click="deleteAccount">
-          Account löschen
-        </button>
+        <button class="btn btn-danger mt-3" @click="deleteAccount">Account löschen</button>
       </div>
     </div>
   </Layout>
@@ -35,22 +33,20 @@
   import Input from '@/components/inputs/Input.vue';
   import EmailInput from '@/components/inputs/EmailInput.vue';
   import PasswordInput from '@/components/inputs/PasswordInput.vue';
-  import { useAuth, useUser } from '@/composables/auth';
-  import { ask } from '@/composables/prompt';
+  import {useAuth, useUser} from '@/composables/auth';
+  import { ask } from "@/composables/prompt";
 
   const user = useUser();
   const auth = useAuth();
 
   async function deleteAccount() {
     const shouldDelete = await ask(
-      'Account löschen',
-      `Bist du sicher, dass du deinen Account löschen möchtest? Diese Aktion kann <b>nicht rückgängig</b> gemacht werden.`,
-      'Löschen',
+        'Account löschen',
+        `Bist du sicher, dass du deinen Account löschen möchtest? Diese Aktion kann <b>nicht rückgängig</b> gemacht werden.`,
+        'Löschen',
     );
 
-    if (!shouldDelete) {
-      return;
-    }
+    if (!shouldDelete) return;
 
     await auth.delete();
   }
