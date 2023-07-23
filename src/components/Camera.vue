@@ -1,5 +1,10 @@
 <template>
-  <video autoplay ref="video" class="rounded" :muted="channel.isSelf(userId)"></video>
+  <video
+    autoplay
+    ref="video"
+    class="rounded"
+    :muted="channel.isSelf(userId)"
+  ></video>
 </template>
 
 <script setup lang="ts">
