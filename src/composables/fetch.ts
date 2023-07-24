@@ -1,7 +1,9 @@
 import { useSingleton } from '@/composables/utils';
 
 function toFullPath(path: string) {
-  return `${import.meta.env.VITE_BACKEND_URL}${import.meta.env.VITE_API_PATH}${path}`;
+  return `${import.meta.env.VITE_BACKEND_URL}${
+    import.meta.env.VITE_API_PATH
+  }${path}`;
 }
 
 export class HttpError extends Error {
