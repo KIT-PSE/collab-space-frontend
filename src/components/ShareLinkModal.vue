@@ -17,7 +17,7 @@
 <script setup lang="ts">
   import Modal from '@/components/Modal.vue';
   import { closeModal } from '@/utils';
-  import { ChannelState } from '@/composables/channel';
+  import { ChannelState } from '@/composables/channel/channel';
 
   const props = defineProps<{
     channel: ChannelState;

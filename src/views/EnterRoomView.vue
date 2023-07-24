@@ -27,7 +27,7 @@
 <script setup lang="ts">
   import GuestLayout from '@/components/GuestLayout.vue';
   import Input from '@/components/inputs/Input.vue';
-  import { useChannel } from '@/composables/channel';
+  import { useChannel } from '@/composables/channel/channel';
   import { useForm } from '@/composables/form';
   import { useRouter } from 'vue-router';
 
