@@ -260,7 +260,7 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   #open-whiteboard {
     position: absolute;
     bottom: 1rem;
