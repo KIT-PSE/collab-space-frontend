@@ -59,7 +59,10 @@
         </button>
       </div>
 
-      <div class="mt-2 flex-fill d-flex flex-column" v-if="selectedNote > 0">
+      <div
+        class="mt-2 flex-fill d-flex flex-column"
+        v-if="selectedNote > 0 && notes.getNoteById(selectedNote)"
+      >
         <div class="d-flex align-items-center">
           <button
             class="btn btn-sm text-secondary me-1"
@@ -107,10 +110,10 @@
     setSelectedNote(id);
   }
 
-  function updateNote(event: InputEvent) {
+  function updateNote(payload: KeyboardEvent) {
     notes.updateNote(
       selectedNote.value,
-      (event.target as HTMLTextAreaElement).value,
+      (payload.target as HTMLTextAreaElement).value,
     );
   }
 
