@@ -74,7 +74,7 @@
   watch(() => props.width, updateDimensions);
   watch(() => props.height, updateDimensions);
 
-  const canvas = ref<fabric.Canvas | null>(null);
+  const canvas = ref<fabric.Canvas>();
   const maxCanvasWidth = 2500;
   const maxCanvasHeight = 2500;
   const minZoomLevel = 0.5;
@@ -93,25 +93,13 @@
       selection: false,
     });
 
-    const savedCanvas = await props.whiteboard.loadCanvas();
-    if (savedCanvas) {
-      console.log(savedCanvas);
-      canvas.value?.loadFromJSON(JSON.parse(savedCanvas), () => {
-        console.info('Loaded canvas as JSON from Server');
-      });
-    }
-
-    canvas.value.on('path:created', (e) => {
-      console.log(e);
-      // @ts-ignore
-      props.whiteboard.change(e.path);
+    canvas.value.on('path:created', () => {
+      const canvasJSON = canvas.value?.toJSON();
+      props.whiteboard.change(JSON.stringify(canvasJSON));
     });
 
-    props.whiteboard.onChanges((path) => {
-      const newPath = new fabric.Path(path.path, {
-        ...path,
-      });
-      canvas.value?.add(newPath);
+    props.whiteboard.onChanges((canvasJson) => {
+      canvas.value?.loadFromJSON(JSON.parse(canvasJson), () => {});
     });
 
     /**

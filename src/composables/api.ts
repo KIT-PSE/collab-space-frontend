@@ -40,6 +40,7 @@ export type Room = {
   password?: string;
   createdAt: Moment;
   updatedAt: Moment;
+  whiteboardCanvas: string;
 };
 
 export type CreateRoom = {
@@ -125,13 +126,6 @@ const api = {
 
   async deleteRoom(id: number, categoryId: number): Promise<void> {
     return fetch.delete(`/category/${categoryId}/room/${id}`);
-  },
-
-  async getWhiteboardCanvas(
-    id: number,
-    categoryId: number,
-  ): Promise<{ whiteboard: string }> {
-    return fetch.getOrFail(`/category/${categoryId}/room/${id}/whiteboard`);
   },
 };
 

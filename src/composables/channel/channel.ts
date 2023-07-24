@@ -94,21 +94,6 @@ export const useChannel = defineStore('channel', () => {
     return notes;
   }
 
-  function loadWhiteboard(): Whiteboard {
-    if (state.whiteboard) {
-      return state.whiteboard as Whiteboard;
-    }
-
-    const whiteboard = new Whiteboard(
-      socket!,
-      state.room!.id,
-      state.room!.category.id,
-    );
-    state.whiteboard = whiteboard;
-
-    return whiteboard;
-  }
-
   async function loadWebcams(): Promise<void> {
     if (webcamsLoaded) {
       return;
@@ -248,6 +233,7 @@ export const useChannel = defineStore('channel', () => {
         audio: true,
       };
       state.hasName = true;
+      state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
 
       await router.push({
         name: 'room',
@@ -293,6 +279,7 @@ export const useChannel = defineStore('channel', () => {
         state.teacher = data.teacher;
         state.room = data.room;
         state.hasName = false;
+        state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
         resolve();
       });
     });
@@ -436,7 +423,6 @@ export const useChannel = defineStore('channel', () => {
     streams,
     loadWebcams,
     loadNotes,
-    loadWhiteboard,
     getWebcamStream,
     toggleVideo,
     toggleAudio,
