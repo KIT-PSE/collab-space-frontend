@@ -2,9 +2,21 @@
   <main class="container-fluid h-100">
     <div class="row h-100">
       <div
-        class="col-9 p-2 overflow-hidden position-relative"
-        style="max-height: 100%"
+          class="col-9 p-2 overflow-hidden position-relative"
+          style="max-height: 100%"
       >
+        <div class="row">
+          <div class="col d-flex align-items-center">
+            <router-link to="/dashboard">
+              <img
+                src="@/assets/textless-logo.png"
+                alt="CollabSpace"
+                width="100"
+              />
+            </router-link>
+          </div>
+        </div>
+
         <div class="row">
           <div class="col d-flex justify-content-center mt-3">
             <video
@@ -117,6 +129,12 @@
                   >
                     Muted
                   </span>
+                  <span
+                    v-if="student.handSignal"
+                    class="badge text-bg-secondary ms-1"
+                  >
+                    <i class="fas fa-hand-paper"></i>
+                  </span>
                 </div>
               </div>
             </div>
@@ -124,9 +142,22 @@
         </div>
         <div class="row">
           <div class="col d-flex justify-content-center">
-            <button type="button" class="btn text-primary mx-2">
-              <i class="fa fa-hand"></i>
-            </button>
+            <span v-if="channel.isStudent(channel.currentUser())">
+              <button
+                type="button"
+                class="btn text-primary mx-2"
+                @click="toggleHandSignal()"
+              >
+                <i
+                  v-if="
+                    (channel.currentUser() as Student).handSignal
+                  "
+                  class="fa fa-hand-rock"
+                ></i>
+                <i v-else class="fa fa-hand-paper"></i>
+              </button>
+            </span>
+
             <button
               type="button"
               class="btn text-primary mx-2"
@@ -152,11 +183,15 @@
     </div>
   </main>
 
-  <ShareLinkModal :channel="channel.state" />
+  <ShareLinkModal :channel="channel.state as ChannelState" />
 </template>
 
 <script setup lang="ts">
-  import { useChannel } from '@/composables/channel/channel';
+  import {
+    ChannelState,
+    Student,
+    useChannel,
+  } from '@/composables/channel/channel';
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
@@ -192,8 +227,10 @@
   channel.loadWebcams();
 
   function updateWhiteboardSize() {
-    width.value = document.getElementById('whiteboard-wrapper').clientWidth;
-    height.value = document.getElementById('whiteboard-wrapper').clientHeight;
+    width.value =
+      document.getElementById('whiteboard-wrapper')?.clientWidth || 0;
+    height.value =
+      document.getElementById('whiteboard-wrapper')?.clientHeight || 0;
   }
 
   function toggleVideo() {
@@ -202,6 +239,10 @@
 
   function toggleAudio() {
     channel.toggleAudio();
+  }
+
+  function toggleHandSignal() {
+    channel.toggleHandSignal();
   }
 
   function toggleWhiteboard() {
@@ -231,7 +272,7 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   #open-whiteboard {
     position: absolute;
     bottom: 1rem;
@@ -276,8 +317,8 @@
     height: calc(100% - 2rem);
     width: 30%;
     transform: translateY(-50%);
-    max-width: 400px;
-    min-width: 300px;
+    max-width: 350px;
+    min-width: 250px;
 
     &.hide {
       visibility: hidden;

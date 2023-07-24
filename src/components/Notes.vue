@@ -2,7 +2,6 @@
   <div
     class="w-100 h-100 rounded bg-white shadow border-1 border border-opacity-50 border-black"
   >
-    <!-- create a boostrap layout with one header row with title and close button and below some space for the notes -->
     <div class="d-flex flex-column h-100 p-3">
       <div class="row">
         <div class="col-8">
@@ -18,7 +17,6 @@
       </div>
 
       <div class="mt-2" v-if="selectedNote === 0">
-        <!-- display the notes in a list -->
         <ul class="list-group">
           <li
             v-for="note in notes.notesList"
@@ -87,7 +85,7 @@
   import { ref } from 'vue';
 
   const emit = defineEmits(['close']);
-  // SelectedNote: -1 is new Note; 0 is no Note selected
+  // selectedNote: -1 is new Note; 0 is no Note selected
   const selectedNote = ref(0);
   const newNoteName = ref('');
 
