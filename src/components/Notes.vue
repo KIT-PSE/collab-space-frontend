@@ -70,11 +70,12 @@
           >
             <i class="fa fa-arrow-left"></i>
           </button>
-          {{ notes.getNoteById(selectedNote)?.name }}
+          {{ notes.getNoteById(selectedNote)!.name }}
         </div>
         <textarea
           class="form-control mt-2 h-100"
           rows="10"
+          v-model="notes.getNoteById(selectedNote)!.content"
           @keyup="updateNote"
         ></textarea>
       </div>
