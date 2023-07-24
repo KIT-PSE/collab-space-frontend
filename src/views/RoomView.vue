@@ -1,7 +1,10 @@
 <template>
   <main class="container-fluid h-100">
     <div class="row h-100">
-      <div class="col-9 p-2 overflow-hidden position-relative" style="max-height: 100%">
+      <div
+        class="col-9 p-2 overflow-hidden position-relative"
+        style="max-height: 100%"
+      >
         <div class="row">
           <div class="col d-flex align-items-center">
             <router-link to="/dashboard">
