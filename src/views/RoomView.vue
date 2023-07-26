@@ -116,18 +116,22 @@
 
                 <span v-if="channel.isTeacher(channel.currentUser())">
                   <!-- Der Button oben rechts -->
-                <button class="btn btn-primary position-absolute top-0 end-0"
-                        data-bs-toggle="modal"
-                        @click="toggleDropdown()"
-                >
-                  <i class="fa fa-ellipsis-v"></i>
-                </button>
-
+                  <button
+                    class="btn btn-primary position-absolute top-0 end-0"
+                    data-bs-toggle="modal"
+                    @click="toggleDropdown()"
+                  >
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
                 </span>
                 <div class="access-dropdown" v-if="isDropdownOpen">
-                  <button class="btn btn-primary" @click="updatePermission(student.id)">Zugriff ändern</button>
+                  <button
+                    class="btn btn-primary"
+                    @click="updatePermission(student.id)"
+                  >
+                    Zugriff ändern
+                  </button>
                 </div>
-
               </div>
 
               <div class="card-body py-2">
@@ -152,8 +156,8 @@
                     <i class="fas fa-hand-paper"></i>
                   </span>
                   <span
-                      v-if="!student.permission"
-                      class="badge text-bg-secondary ms-1"
+                    v-if="!student.permission"
+                    class="badge text-bg-secondary ms-1"
                   >
                     <i class="fas fa-lock"></i>
                   </span>
@@ -276,7 +280,6 @@
   function updatePermission(studentId: string) {
     channel.updatePermission(studentId);
   }
-
 
   function toggleWhiteboard() {
     if (showNotes.value) {

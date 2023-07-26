@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
-import { useAlerts} from '@/composables/alerts';
+import { useAlerts } from '@/composables/alerts';
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
@@ -179,9 +179,11 @@ export const useChannel = defineStore('channel', () => {
     const student = studentById(studentId);
 
     student.permission = !student.permission;
-    socket?.emit('update-permission', {studentId, permission: student.permission });
+    socket?.emit('update-permission', {
+      studentId,
+      permission: student.permission,
+    });
   }
-
 
   function stopWebcam(): void {
     const stream = streams[state.clientId];
@@ -436,23 +438,24 @@ export const useChannel = defineStore('channel', () => {
     );
 
     socket.on(
-        'update-permission',
-        (payload: { id: string; permission: boolean }) => {
-          const student = studentById(payload.id);
+      'update-permission',
+      (payload: { id: string; permission: boolean }) => {
+        const student = studentById(payload.id);
 
-          if (student) {
-            student.permission = payload.permission;
-          }
+        if (student) {
+          student.permission = payload.permission;
+        }
 
-          if (socket.id === payload.id) {
-            alerts.add({
-              type: 'info',
-              title: 'Zugriffsänderung',
-              message: payload.permission ? 'Sie haben jetzt Zugriff.' : 'Sie haben keinen Zugriff mehr.',
-            })
-          }
-
-        },
+        if (socket.id === payload.id) {
+          alerts.add({
+            type: 'info',
+            title: 'Zugriffsänderung',
+            message: payload.permission
+              ? 'Sie haben jetzt Zugriff.'
+              : 'Sie haben keinen Zugriff mehr.',
+          });
+        }
+      },
     );
   }
 
