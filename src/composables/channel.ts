@@ -63,6 +63,8 @@ export const useChannel = defineStore('channel', () => {
 
   let socket: Socket | null = null;
 
+  let peer: Peer;
+
   async function connect(): Promise<void> {
     if (state.connected) {
       return;
@@ -304,6 +306,19 @@ export const useChannel = defineStore('channel', () => {
 
   function openWebsite(url: string) {
     socket?.emit('open-website', { url });
+
+    console.info('Creating peer');
+    peer = new Peer();
+
+    peer.on('call', (call) => {
+      console.log('calling');
+      call.answer();
+
+      call.on('stream', (stream) => {
+        console.log('streaming');
+        browserStream.value = stream;
+      });
+    });
   }
 
   function handleConnection(socket: Socket) {
@@ -389,19 +404,8 @@ export const useChannel = defineStore('channel', () => {
     );
 
     socket.on('open-website', (peerId: string) => {
-      const peer = new Peer();
-
+      console.log('connecting to peer', peerId);
       peer.connect(peerId);
-
-      peer.on('call', (call) => {
-        console.log('calling');
-        call.answer();
-
-        call.on('stream', (stream) => {
-          console.log('streaming');
-          browserStream.value = stream;
-        });
-      });
     });
 
     socket.on(
