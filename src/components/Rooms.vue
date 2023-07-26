@@ -85,7 +85,7 @@
   import EditCategoryModal from '@/components/EditCategoryModal.vue';
   import { ref } from 'vue';
   import EditRoomModal from '@/components/EditRoomModal.vue';
-  import { useChannel } from '@/composables/channel';
+  import { useChannel } from '@/composables/channel/channel';
   import { useRouter } from 'vue-router';
 
   const user = useUser();

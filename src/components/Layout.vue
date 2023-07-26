@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
   import { useAuth } from '@/composables/auth';
-  import { useChannel } from '@/composables/channel';
+  import { useChannel } from '@/composables/channel/channel';
 
   defineProps<{
     title: string;
