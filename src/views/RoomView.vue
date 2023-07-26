@@ -91,12 +91,15 @@
                   <!-- Der Button oben rechts -->
                 <button class="btn btn-primary position-absolute top-0 end-0"
                         data-bs-toggle="modal"
-                        data-bs-target="#dropdown-modal"
+                        @click="toggleDropdown()"
                 >
                   <i class="fa fa-ellipsis-v"></i>
                 </button>
-                <DropdownModal :student-id ="student.id" :channel="channel"/>
+
                 </span>
+                <div class="access-dropdown" v-if="isDropdownOpen">
+                  <button class="btn btn-primary" @click="updatePermission(student.id)">Zugriff ändern</button>
+                </div>
 
               </div>
 
@@ -120,6 +123,12 @@
                     class="badge text-bg-secondary ms-1"
                   >
                     <i class="fas fa-hand-paper"></i>
+                  </span>
+                  <span
+                      v-if="!student.permission"
+                      class="badge text-bg-secondary ms-1"
+                  >
+                    <i class="fas fa-lock"></i>
                   </span>
                 </div>
               </div>
@@ -180,7 +189,7 @@
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
-  import DropdownModal from "@/components/DropdownModal.vue";
+  import {ref} from "vue";
 
   const auth = useAuth();
   const channel = useChannel();
@@ -208,8 +217,14 @@
     channel.toggleHandSignal();
   }
 
-  function givePermission(student: Student) {
-    channel.givePermission(student);
+  const isDropdownOpen = ref(false);
+
+  function toggleDropdown() {
+    isDropdownOpen.value = !isDropdownOpen.value;
+  }
+
+  function updatePermission(studentId: string) {
+    channel.updatePermission(studentId);
   }
 
 </script>

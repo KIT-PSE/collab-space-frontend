@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
-import { useAlerts } from '@/composables/alerts';
+import {UniqueAlert, useAlerts} from '@/composables/alerts';
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
@@ -149,31 +149,18 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function updatePermission(studentId: string): void {
-    console.log(studentId)
     const student = studentById(studentId);
-    console.log(student)
 
     if (!student.permission) {
-      student.permission = !student.permission;
-      socket?.emit('update-permission', {studentId, permission: student.permission });
-      alerts.add({
-        type: 'info',
-        title: 'Zugriffsänderung',
-        message: `
-            Sie haben jetzt Zugriff.
-      `,
-      })
-    } else if (student.permission) {
-      student.permission = !student.permission;
-      socket?.emit('update-permission', {studentId, permission: student.permission });
-      alerts.add({
-        type: 'info',
-        title: 'Zugriffsänderung',
-        message: `
-            Sie haben keinen Zugriff mehr.
-      `,
-      })
+      student.permission = true;
+
+
+    } else {
+      student.permission = false;
+      //socket?.emit('update-permission', {studentId, permission: student.permission });
+
     }
+    socket?.emit('update-permission', {studentId, permission: student.permission });
   }
 
 
@@ -199,9 +186,12 @@ export const useChannel = defineStore('channel', () => {
     return state.students.find((s) => s.id === id);
   }
 
-  function studentById(id: string): Student | undefined {
-
-    return state.students.find((s) => s.id === id);
+  function studentById(id: string): Student {
+    const student = state.students.find((s) => s.id === id);
+    if (!student) {
+      throw new Error('IllegalState: User not found');
+    }
+    return student;
   }
 
   function isStudent(user: ChannelUser): user is Student {
@@ -429,13 +419,20 @@ export const useChannel = defineStore('channel', () => {
     socket.on(
         'update-permission',
         (payload: { id: string; permission: boolean }) => {
-          console.log(payload)
           const student = studentById(payload.id);
-          console.log(student);
 
           if (student) {
             student.permission = payload.permission;
           }
+
+          if (socket.id === payload.id) {
+            alerts.add({
+              type: 'info',
+              title: 'Zugriffsänderung',
+              message: payload.permission ? 'Sie haben jetzt Zugriff.' : 'Sie haben keinen Zugriff mehr.',
+            })
+          }
+
         },
     );
   }
