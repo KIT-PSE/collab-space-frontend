@@ -129,12 +129,12 @@ const api = {
 
   async changeAccountData(user: User): Promise<boolean> {
     return fetch.putOrFail('/user/changeOrg', {
-        id: user.id,
-        organization: user.organization,
-        name: user.name,
-        email: user.email,
-      });
-  }
+      id: user.id,
+      organization: user.organization,
+      name: user.name,
+      email: user.email,
+    });
+  },
 };
 
 export const useApi = useSingleton(decorateApi(api));
