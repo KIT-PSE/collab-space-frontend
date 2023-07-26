@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
-import {UniqueAlert, useAlerts} from '@/composables/alerts';
+import { useAlerts} from '@/composables/alerts';
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
@@ -151,15 +151,7 @@ export const useChannel = defineStore('channel', () => {
   function updatePermission(studentId: string): void {
     const student = studentById(studentId);
 
-    if (!student.permission) {
-      student.permission = true;
-
-
-    } else {
-      student.permission = false;
-      //socket?.emit('update-permission', {studentId, permission: student.permission });
-
-    }
+    student.permission = !student.permission;
     socket?.emit('update-permission', {studentId, permission: student.permission });
   }
 
@@ -448,7 +440,6 @@ export const useChannel = defineStore('channel', () => {
     isSelf,
     isStudent,
     isTeacher,
-    userById,
     currentUser,
     changeName,
     streams,
