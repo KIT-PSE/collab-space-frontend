@@ -128,7 +128,7 @@ const api = {
   },
 
   async changeAccountData(user: User): Promise<boolean> {
-    return fetch.putOrFail('/user/changeOrg', {
+    return fetch.putOrFail('/user/changeUserData', {
       id: user.id,
       organization: user.organization,
       name: user.name,
