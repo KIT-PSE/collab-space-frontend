@@ -71,6 +71,11 @@
             <i class="fa fa-arrow-left"></i>
           </button>
           {{ notes.getNoteById(selectedNote)!.name }}
+
+          <!-- delete button -->
+          <button class="btn btn-sm text-danger ms-auto" @click="deleteNote">
+            <i class="fa fa-trash"></i>
+          </button>
         </div>
         <textarea
           class="form-control mt-2 h-100"
@@ -86,6 +91,7 @@
 <script setup lang="ts">
   import { useChannel } from '@/composables/channel/channel';
   import { ref } from 'vue';
+  import { ask } from '@/composables/prompt';
 
   const emit = defineEmits(['close']);
   // selectedNote: -1 is new Note; 0 is no Note selected
@@ -115,6 +121,19 @@
       selectedNote.value,
       (payload.target as HTMLTextAreaElement).value,
     );
+  }
+
+  async function deleteNote() {
+    const shouldDelete = await ask(
+      'Wirklich löschen?',
+      'Möchtest du diese Notiz wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.',
+      'Löschen',
+    );
+
+    if (shouldDelete) {
+      notes.deleteNoteById(selectedNote.value);
+      setSelectedNote(0);
+    }
   }
 
   function close() {

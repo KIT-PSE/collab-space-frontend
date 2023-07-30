@@ -31,6 +31,13 @@ export class Notes {
         }
       },
     );
+
+    socket.on('note-deleted', ({ noteId }: { noteId: number }) => {
+      const noteIndex = this.notesList.findIndex((note) => note.id === noteId);
+      if (noteIndex !== -1) {
+        this.notesList.splice(noteIndex, 1);
+      }
+    });
   }
 
   async loadNotes(roomId: number, categoryId: number) {
@@ -59,5 +66,9 @@ export class Notes {
 
   public updateNote(noteId: number, content: string) {
     this.socket.emit('update-note', { noteId, content });
+  }
+
+  public deleteNoteById(noteId: number) {
+    this.socket.emit('delete-note', { noteId });
   }
 }
