@@ -71,4 +71,23 @@ export class Notes {
   public deleteNoteById(noteId: number) {
     this.socket.emit('delete-note', { noteId });
   }
+
+  public downloadNote(noteId: number) {
+    const note = this.getNoteById(noteId);
+    if (note) {
+      const element = document.createElement('a');
+      element.setAttribute(
+        'href',
+        'data:text/plain;charset=utf-8,' + encodeURIComponent(note.content),
+      );
+      element.setAttribute('download', note.name);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    }
+  }
 }

@@ -72,8 +72,14 @@
           </button>
           {{ notes.getNoteById(selectedNote)!.name }}
 
-          <!-- delete button -->
-          <button class="btn btn-sm text-danger ms-auto" @click="deleteNote">
+          <button
+            class="btn btn-sm text-secondary ms-auto"
+            @click="notes.downloadNote(selectedNote)"
+          >
+            <i class="fa fa-download"></i>
+          </button>
+
+          <button class="btn btn-sm text-secondary ms-1" @click="deleteNote">
             <i class="fa fa-trash"></i>
           </button>
         </div>
