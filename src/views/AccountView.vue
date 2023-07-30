@@ -8,7 +8,7 @@
           :disabled="disabledInputs[0].value"
         >
           <button class="btn btn-secondary ms-2" @click="edit(0)">
-            {{ disabledInputs[0].value ? 'Ändern': 'Speichern' }}
+            {{ disabledInputs[0].value ? 'Ändern' : 'Speichern' }}
           </button>
         </Input>
 
@@ -18,7 +18,7 @@
           :disabled="disabledInputs[1].value"
         >
           <button class="btn btn-secondary ms-2" @click="edit(1)">
-            {{ disabledInputs[1].value ? 'Ändern': 'Speichern' }}
+            {{ disabledInputs[1].value ? 'Ändern' : 'Speichern' }}
           </button>
         </Input>
 
@@ -28,7 +28,7 @@
           :disabled="disabledInputs[2].value"
         >
           <button class="btn btn-secondary ms-2" @click="edit(2)">
-            {{ disabledInputs[2].value ? 'Ändern': 'Speichern' }}
+            {{ disabledInputs[2].value ? 'Ändern' : 'Speichern' }}
           </button>
         </EmailInput>
 
@@ -86,11 +86,10 @@
       const result = await auth.changeAccountData();
       if (result) {
         alerts.success('Eintrag wurde erfolgreich geändert');
-      }
-      else {
+      } else {
         alerts.error(
-            'Eintrag konnte nicht geändert werden',
-            new Error('Eintrag konnte nicht geändert werden'),
+          'Eintrag konnte nicht geändert werden',
+          new Error('Eintrag konnte nicht geändert werden'),
         );
       }
     }
