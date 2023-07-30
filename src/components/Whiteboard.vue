@@ -35,6 +35,9 @@
       <button class="btn btn-sm text-secondary bg-white" @click="zoomOut">
         <i class="fa fa-magnifying-glass-minus"></i>
       </button>
+      <button class="btn btn-sm text-secondary bg-white" @click="exportAsImage">
+        <i class="fa fa-download"></i>
+      </button>
       <button class="btn btn-sm text-secondary bg-white" @click="expand">
         <i class="fa fa-up-right-and-down-left-from-center"></i>
       </button>
@@ -258,6 +261,29 @@
       height: props.height,
     });
     canvas.value?.calcOffset();
+  }
+
+  function exportAsImage() {
+    const data = canvas.value?.toDataURL({
+      width: maxCanvasWidth,
+      height: maxCanvasHeight,
+      left: 0,
+      top: 0,
+      format: 'png',
+    });
+
+    if (data) {
+      const element = document.createElement('a');
+      element.setAttribute('href', data);
+      element.setAttribute('download', 'whiteboard_' + Date.now() + '.png');
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    }
   }
 
   function close() {
