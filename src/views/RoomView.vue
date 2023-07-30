@@ -1,5 +1,5 @@
 <template>
-  <main class="container-fluid vh-100">
+  <main class="container-fluid h-100">
     <div class="row h-100">
       <div class="col-9 p-2 overflow-hidden" style="max-height: 100%">
         <div class="row">
@@ -11,31 +11,11 @@
                 width="100"
               />
             </router-link>
-            <div class="d-flex align-items-center ms-3">
-              <label for="website">Webseite</label>
-              <input
-                id="website"
-                label="test"
-                class="ms-2 form-control"
-                placeholder="https://google.com"
-                v-model="website"
-              />
-              <button class="btn btn-secondary ms-2" @click="openWebsite()">
-                öffnen
-              </button>
-            </div>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col d-flex justify-content-center mt-3">
-            <video
-              src="https://placehold.co/1000x800.mp4?text=eingebettete+Webseite"
-              autoplay
-              ref="browserVideo"
-              style="max-width: 100%; max-height: 100%"
-            ></video>
-          </div>
+        <div class="h-100 w-100">
+          <BrowserComponent />
         </div>
       </div>
       <div
@@ -165,16 +145,20 @@
     </div>
   </main>
 
-  <ShareLinkModal :channel="channel.state" />
+  <ShareLinkModal :channel="channel.state as ChannelState" />
 </template>
 
 <script setup lang="ts">
-  import { Student, useChannel } from '@/composables/channel';
+  import {
+    ChannelState,
+    Student,
+    useChannel,
+  } from '@/composables/channel/channel';
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
-  import { ref, watch } from 'vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
+  import BrowserComponent from '@/components/Browser.vue';
 
   const auth = useAuth();
   const channel = useChannel();
@@ -197,35 +181,6 @@
   function toggleAudio() {
     channel.toggleAudio();
   }
-
-  const website = ref('https://google.com');
-  const browserVideo = ref<HTMLVideoElement | null>(null);
-
-  function openWebsite() {
-    channel.openWebsite(website.value);
-  }
-
-  watch(
-    () => channel.browserStream,
-    (stream) => {
-      if (stream) {
-        browserVideo.value!.srcObject = stream;
-      }
-    },
-  );
-
-  // watch(channel.streams, () => {
-  //   if (loaded) {
-  //     return;
-  //   }
-  //
-  //   const stream = channel.getWebcamStream(props.userId);
-  //
-  //   if (stream) {
-  //     video.value!.srcObject = stream;
-  //     loaded = true;
-  //   }
-  // });
 
   function toggleHandSignal() {
     channel.toggleHandSignal();

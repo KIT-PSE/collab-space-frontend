@@ -2,12 +2,13 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive, ref, Ref } from 'vue';
+import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
 import { useStore } from '@/composables/store';
 import Peer from 'peerjs';
+import { useBrowser } from '@/composables/channel/browser';
 
 const alerts = useAlerts();
 
@@ -28,6 +29,7 @@ export interface Teacher extends ChannelUser {
 
 export interface JoinRoomResult {
   room: Room;
+  browserPeerId: string;
   teacher: Teacher;
   students: Student[];
 }
@@ -45,8 +47,9 @@ export interface ChannelState {
 export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
+  const browser = useBrowser();
 
-  const state: ChannelState = reactive({
+  const state = reactive({
     connected: false,
     channelId: '',
     clientId: '',
@@ -54,16 +57,12 @@ export const useChannel = defineStore('channel', () => {
     teacher: null as Teacher | null,
     students: [] as Student[],
     hasName: false,
-  });
+  } as ChannelState);
 
   let webcamsLoaded = false;
   const streams: Record<string, MediaStream> = reactive({});
 
-  const browserStream: Ref<MediaStream | null> = ref(null);
-
   let socket: Socket | null = null;
-
-  let peer: Peer;
 
   async function connect(): Promise<void> {
     if (state.connected) {
@@ -75,6 +74,8 @@ export const useChannel = defineStore('channel', () => {
 
       socket.on('connect', () => {
         state.connected = true;
+        browser.init(socket!);
+
         handleConnection(socket!);
         resolve();
       });
@@ -227,6 +228,8 @@ export const useChannel = defineStore('channel', () => {
       };
       state.hasName = true;
 
+      browser.peerId.value = '';
+
       await router.push({
         name: 'room',
         params: {
@@ -271,6 +274,11 @@ export const useChannel = defineStore('channel', () => {
         state.teacher = data.teacher;
         state.room = data.room;
         state.hasName = false;
+
+        console.log('PeerId: ' + data.browserPeerId);
+        browser.peerId.value = data.browserPeerId;
+        browser.loadBrowserStream();
+
         resolve();
       });
     });
@@ -302,23 +310,6 @@ export const useChannel = defineStore('channel', () => {
     }
 
     return user.id === state.clientId;
-  }
-
-  function openWebsite(url: string) {
-    socket?.emit('open-website', { url });
-
-    console.info('Creating peer');
-    peer = new Peer();
-
-    peer.on('call', (call) => {
-      console.log('calling');
-      call.answer();
-
-      call.on('stream', (stream) => {
-        console.log('streaming');
-        browserStream.value = stream;
-      });
-    });
   }
 
   function handleConnection(socket: Socket) {
@@ -403,11 +394,6 @@ export const useChannel = defineStore('channel', () => {
       },
     );
 
-    socket.on('open-website', (peerId: string) => {
-      console.log('connecting to peer', peerId);
-      peer.connect(peerId);
-    });
-
     socket.on(
       'update-handSignal',
       (payload: { id: string; handSignal: boolean }) => {
@@ -422,6 +408,7 @@ export const useChannel = defineStore('channel', () => {
 
   return {
     state,
+    browser,
     connect,
     open,
     joinAsTeacher,
@@ -430,17 +417,14 @@ export const useChannel = defineStore('channel', () => {
     leave,
     isSelf,
     isStudent,
-    userById,
     currentUser,
     changeName,
-    streams,
     loadWebcams,
     getWebcamStream,
     toggleVideo,
     toggleAudio,
     toggleHandSignal,
     stopWebcam,
-    browserStream,
-    openWebsite,
+    scroll,
   };
 });
