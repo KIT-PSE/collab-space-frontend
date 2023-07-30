@@ -8,7 +8,7 @@
           :disabled="disabledInputs[0].value"
         >
           <button class="btn btn-secondary ms-2" @click="edit(0)">
-            {{ settings[0].value }}
+            {{ disabledInputs[0].value ? 'Ändern': 'Speichern' }}
           </button>
         </Input>
 
@@ -18,7 +18,7 @@
           :disabled="disabledInputs[1].value"
         >
           <button class="btn btn-secondary ms-2" @click="edit(1)">
-            {{ settings[1].value }}
+            {{ disabledInputs[1].value ? 'Ändern': 'Speichern' }}
           </button>
         </Input>
 
@@ -28,7 +28,7 @@
           :disabled="disabledInputs[2].value"
         >
           <button class="btn btn-secondary ms-2" @click="edit(2)">
-            {{ settings[2].value }}
+            {{ disabledInputs[2].value ? 'Ändern': 'Speichern' }}
           </button>
         </EmailInput>
 
@@ -57,11 +57,11 @@
   const user = useUser();
   const auth = useAuth();
   const alerts = useAlerts();
-
   const disabledInputs = [ref(true), ref(true), ref(true)];
 
-  const settings = [ref('Ändern'), ref('Ändern'), ref('Ändern')];
-
+  /**
+   * Deletes the user account
+   */
   async function deleteAccount() {
     const shouldDelete = await ask(
       'Account löschen',
@@ -76,21 +76,21 @@
     await auth.delete();
   }
 
+  /**
+   * Edits the user data (organization, name or email)
+   * @param index The index of the the changed data (0 = organization, 1 = name, 2 = email)
+   */
   async function edit(index: number) {
-    if (settings[index].value === 'Ändern') {
-      settings[index].value = 'Speichern';
-      disabledInputs[index].value = false;
-    } else {
-      settings[index].value = 'Ändern';
-      disabledInputs[index].value = true;
+    disabledInputs[index].value = !disabledInputs[index].value;
+    if (disabledInputs[index].value) {
       const result = await auth.changeAccountData();
-
       if (result) {
         alerts.success('Eintrag wurde erfolgreich geändert');
-      } else {
+      }
+      else {
         alerts.error(
-          'Eintrag konnte nicht geändert werden',
-          new Error('Eintrag konnte nicht geändert werden'),
+            'Eintrag konnte nicht geändert werden',
+            new Error('Eintrag konnte nicht geändert werden'),
         );
       }
     }
