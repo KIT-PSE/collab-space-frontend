@@ -1,6 +1,6 @@
 <template>
   <div
-    class="border border-primary-subtle rounded overflow-hidden mt-4 d-flex flex-column"
+    class="border border-primary-subtle rounded overflow-hidden d-flex flex-column h-100"
   >
     <div
       class="d-flex align-items-center p-2 border-bottom border-primary-subtle"
@@ -57,7 +57,7 @@
       src="https://placehold.co/1920x1080.mp4?text=eingebettete+Webseite"
       autoplay
       ref="browserVideo"
-      style="aspect-ratio: 16 / 9; width: 100%"
+      style="aspect-ratio: 16 / 9; width: 100%; max-height: 100%"
       @mousemove="onMouseMove"
       @mousedown="onMouseDown"
       @mouseup="onMouseUp"

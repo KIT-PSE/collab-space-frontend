@@ -1,8 +1,10 @@
 <template>
   <main class="container-fluid h-100">
     <div class="row h-100">
-      <div class="col-9 p-2 overflow-hidden" style="max-height: 100%">
-        <div class="row">
+      <div
+        class="col-9 d-flex flex-column p-2 gap-4 h-100 overflow-hidden position-relative"
+      >
+        <div>
           <div class="col d-flex align-items-center">
             <router-link to="/dashboard">
               <img
@@ -14,7 +16,7 @@
           </div>
         </div>
 
-        <div class="h-100 w-100">
+        <div class="overflow-auto flex-grow-1">
           <BrowserComponent />
         </div>
         <div id="open-whiteboard">
@@ -46,7 +48,7 @@
         class="col-3 p-2 bg-dark d-flex flex-column justify-content-between"
         style="max-height: 100%"
       >
-        <div class="row overflow-y-auto mb-2">
+        <div class="overflow-y-auto mb-2">
           <div class="d-flex justify-content-between px-4 py-2">
             <h3 class="text-center text-primary mt-2">
               {{ channel.state.room?.name }}
@@ -126,7 +128,7 @@
             </div>
           </div>
         </div>
-        <div class="row">
+        <div>
           <div class="col d-flex justify-content-center">
             <span v-if="channel.isStudent(channel.currentUser())">
               <button
