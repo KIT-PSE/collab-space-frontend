@@ -10,25 +10,25 @@
       <div class="col-auto d-flex align-items-center">
         <slot name="buttons"></slot>
         <router-link
-          v-if="auth.isAdmin && buttons?.includes('admin')"
-          to="/admin"
-          class="btn btn-primary mx-1"
+            v-if="auth.isAdmin && buttons?.includes('admin')"
+            to="/admin"
+            class="btn btn-primary mx-1"
         >
           <i class="fa fa-gear"></i>
           Admin Panel
         </router-link>
         <router-link
-          v-if="buttons?.includes('account')"
-          to="/account"
-          class="btn btn-primary mx-1"
+            v-if="buttons?.includes('account')"
+            to="/account"
+            class="btn btn-primary mx-1"
         >
           <i class="fa fa-gear"></i>
           {{ auth.state.user?.name }}
         </router-link>
         <router-link
-          v-if="buttons?.includes('back')"
-          to="/dashboard"
-          class="btn btn-primary mx-1"
+            v-if="buttons?.includes('back')"
+            to="/dashboard"
+            class="btn btn-primary mx-1"
         >
           <i class="fa fa-circle-left"></i>
           Zurück
@@ -37,32 +37,39 @@
           <i class="fa-solid fa-right-from-bracket fa-lg"></i>
           Ausloggen
         </button>
-        <button class="btn btn-secondary mx-1">
+        <button v-if="isDevMode" class="btn btn-secondary mx-1">
           Timer:
-          <span class="font-monospace">
-            {{ auth.state.loginTimer?.state.time }}
-          </span>
+          <span class="font-monospace">{{ auth.state.loginTimer?.state.time }}</span>
         </button>
-        <button class="btn btn-secondary mx-1">
+        <button v-if="isDevMode" class="btn btn-secondary mx-1">
           <span v-if="channel.state.connected">Verbunden</span>
           <span v-else>Nicht verbunden</span>
         </button>
       </div>
     </div>
-
     <slot></slot>
   </main>
 </template>
 
-<script setup lang="ts">
-  import { useAuth } from '@/composables/auth';
-  import { useChannel } from '@/composables/channel';
+<script lang="ts">
+import { defineProps } from 'vue';
+import { useAuth } from '@/composables/auth';
+import { useChannel } from '@/composables/channel';
 
-  defineProps<{
-    title: string;
-    buttons?: ('account' | 'back' | 'admin')[];
-  }>();
+export default {
+  props: {
+    title: String,
+    buttons: {
+      type: Array as () => ('account' | 'back' | 'admin')[],
+      default: () => [],
+    },
+  },
+  setup(props) {
+    const auth = useAuth();
+    const channel = useChannel();
+    const isDevMode = import.meta.env.DEV;
 
-  const auth = useAuth();
-  const channel = useChannel();
+    return { auth, channel, isDevMode, props };
+  },
+};
 </script>
