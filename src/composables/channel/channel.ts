@@ -369,6 +369,14 @@ export const useChannel = defineStore('channel', () => {
       if (room) {
         room.channelId = '';
       }
+
+      if (state.room && state.room.id == id) {
+        if (state.teacher && state.teacher.id == state.clientId) {
+          router.push({ name: 'dashboard' });
+        } else {
+          router.push({ path: '/' });
+        }
+      }
     });
 
     socket.on('change-name', ({ id, name }: { id: string; name: string }) => {
