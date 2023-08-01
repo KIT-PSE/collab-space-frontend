@@ -41,6 +41,9 @@ export const useAdmin = defineStore('admin', () => {
     try {
       await api.deleteUserAccount(id);
 
+      const index = users.value.findIndex((u) => u.id === id);
+      users.value = users.value.splice(index, 1);
+
       alerts.success('Account erfolgreich gelöscht');
     } catch (error) {
       alerts.error('Löschen des Accounts fehlgeschlagen', error as Error);
