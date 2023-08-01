@@ -51,10 +51,12 @@
   </main>
 </template>
 
+
 <script lang="ts">
 import { defineProps } from 'vue';
 import { useAuth } from '@/composables/auth';
 import { useChannel } from '@/composables/channel';
+
 
 export default {
   props: {

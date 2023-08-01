@@ -1,27 +1,42 @@
 <template>
-  <main class="container-fluid vh-100">
+  <main class="container-fluid h-100">
     <div class="row h-100">
-      <div class="col-9 p-2 overflow-hidden" style="max-height: 100%">
-        <div class="row">
-          <div class="col d-flex align-items-center">
-            <router-link to="/dashboard">
-              <img
-                src="@/assets/textless-logo.png"
-                alt="CollabSpace"
-                width="100"
-              />
-            </router-link>
-          </div>
-        </div>
-
+      <div
+        class="col-9 p-2 overflow-hidden position-relative"
+        style="max-height: 100%"
+      >
         <div class="row">
           <div class="col d-flex justify-content-center mt-3">
             <video
-              src="https://placehold.co/1000x800.mp4?text=eingebettete+Webseite"
+              src="https://placehold.co/1920x1080.mp4?text=eingebettete+Webseite"
               autoplay
-              style="max-width: 100%; max-height: 100%"
+              style="max-width: 100%; max-height: 100%; aspect-ratio: 16/9"
             ></video>
           </div>
+        </div>
+        <div id="open-whiteboard">
+          <button class="btn btn-secondary" @click="toggleWhiteboard">
+            Whiteboard
+          </button>
+        </div>
+        <div id="open-notes">
+          <button class="btn btn-secondary" @click="toggleNotes">
+            Notizen
+          </button>
+        </div>
+        <div
+          id="whiteboard-wrapper"
+          :class="{ hide: !showWhiteboard, expand: expandWhiteboard }"
+        >
+          <Whiteboard
+            @close="toggleWhiteboard"
+            @expand="toggleExpandWhiteboard"
+            :width="width"
+            :height="height"
+          />
+        </div>
+        <div id="notes-wrapper" :class="{ hide: !showNotes }">
+          <Notes @close="toggleNotes" />
         </div>
       </div>
       <div
@@ -156,18 +171,37 @@
     </div>
   </main>
 
-  <ShareLinkModal :channel="channel.state" />
+  <ShareLinkModal :channel="channel.state as ChannelState" />
 </template>
 
 <script setup lang="ts">
-  import { Student, useChannel } from '@/composables/channel';
+  import {
+    ChannelState,
+    Student,
+    useChannel,
+  } from '@/composables/channel/channel';
   import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
+  import Whiteboard from '@/components/Whiteboard.vue';
+  import { onMounted, ref } from 'vue';
+  import Notes from '@/components/Notes.vue';
 
   const auth = useAuth();
   const channel = useChannel();
+
+  const showWhiteboard = ref(false);
+  const expandWhiteboard = ref(false);
+
+  const showNotes = ref(false);
+
+  const width = ref(0);
+  const height = ref(0);
+
+  onMounted(() => {
+    window.addEventListener('resize', updateWhiteboardSize);
+  });
 
   onBeforeRouteLeave(() => {
     channel.stopWebcam();
@@ -180,6 +214,13 @@
 
   channel.loadWebcams();
 
+  function updateWhiteboardSize() {
+    width.value =
+      document.getElementById('whiteboard-wrapper')?.clientWidth || 0;
+    height.value =
+      document.getElementById('whiteboard-wrapper')?.clientHeight || 0;
+  }
+
   function toggleVideo() {
     channel.toggleVideo();
   }
@@ -191,4 +232,84 @@
   function toggleHandSignal() {
     channel.toggleHandSignal();
   }
+
+  function toggleWhiteboard() {
+    if (showNotes.value) {
+      toggleNotes();
+    }
+    showWhiteboard.value = !showWhiteboard.value;
+
+    setTimeout(() => {
+      updateWhiteboardSize();
+    }, 50);
+  }
+
+  function toggleExpandWhiteboard() {
+    expandWhiteboard.value = !expandWhiteboard.value;
+
+    setTimeout(() => {
+      updateWhiteboardSize();
+    }, 50);
+  }
+
+  function toggleNotes() {
+    if (showWhiteboard.value) {
+      toggleWhiteboard();
+    }
+    showNotes.value = !showNotes.value;
+  }
 </script>
+
+<style lang="scss" scoped>
+  #open-whiteboard {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+  }
+
+  #open-notes {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform-origin: 0 0;
+    transform: rotate(-90deg) translateX(-50%);
+  }
+
+  #whiteboard-wrapper {
+    position: absolute;
+    bottom: 1rem;
+    width: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 30%;
+    min-height: 250px;
+    overflow: hidden;
+
+    &.hide {
+      visibility: hidden;
+    }
+
+    &.expand {
+      height: calc(100% - 2rem);
+      width: calc(100% - 2rem);
+      bottom: 50%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+    }
+  }
+
+  #notes-wrapper {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    height: calc(100% - 2rem);
+    width: 30%;
+    transform: translateY(-50%);
+    max-width: 350px;
+    min-width: 250px;
+
+    &.hide {
+      visibility: hidden;
+    }
+  }
+</style>
