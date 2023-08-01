@@ -40,9 +40,9 @@
                   ></i>
                 </button>
                 <button
-                    @click="deleteAccount(user)"
-                    class="btn btn-sm btn-secondary"
-                    :disabled="user.id === auth.state.user?.id"
+                  @click="deleteAccount(user)"
+                  class="btn btn-sm btn-secondary"
+                  :disabled="user.id === auth.state.user?.id"
                 >
                   <i class="fa fa-trash"></i>
                 </button>
@@ -86,11 +86,9 @@
 
   async function deleteAccount(user: User) {
     const shouldDelete = await ask(
-        'Account löschen',
-        `Soll das Account des Benutzers <b>${
-            user.name
-        }</b> wirklich gelöscht werden?`,
-        'Löschen',
+      'Account löschen',
+      `Soll das Account des Benutzers <b>${user.name}</b> wirklich gelöscht werden?`,
+      'Löschen',
     );
 
     if (!shouldDelete) {
