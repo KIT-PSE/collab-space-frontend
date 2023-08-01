@@ -22,6 +22,7 @@ export interface ChannelUser {
 export interface Student extends ChannelUser {
   name: string;
   handSignal: boolean;
+  permission: boolean;
 }
 
 export interface Teacher extends ChannelUser {
@@ -174,6 +175,16 @@ export const useChannel = defineStore('channel', () => {
     socket?.emit('update-handSignal', { handSignal: student.handSignal });
   }
 
+  function updatePermission(studentId: string): void {
+    const student = studentById(studentId);
+
+    student.permission = !student.permission;
+    socket?.emit('update-permission', {
+      studentId,
+      permission: student.permission,
+    });
+  }
+
   function stopWebcam(): void {
     const stream = streams[state.clientId];
 
@@ -196,8 +207,20 @@ export const useChannel = defineStore('channel', () => {
     return state.students.find((s) => s.id === id);
   }
 
+  function studentById(id: string): Student {
+    const student = state.students.find((s) => s.id === id);
+    if (!student) {
+      throw new Error('IllegalState: User not found');
+    }
+    return student;
+  }
+
   function isStudent(user: ChannelUser): user is Student {
     return user.id !== state.teacher?.id;
+  }
+
+  function isTeacher(user: ChannelUser): user is Teacher {
+    return user.id === state.teacher?.id;
   }
 
   function currentUser(): ChannelUser {
@@ -413,6 +436,27 @@ export const useChannel = defineStore('channel', () => {
         }
       },
     );
+
+    socket.on(
+      'update-permission',
+      (payload: { id: string; permission: boolean }) => {
+        const student = studentById(payload.id);
+
+        if (student) {
+          student.permission = payload.permission;
+        }
+
+        if (socket.id === payload.id) {
+          alerts.add({
+            type: 'info',
+            title: 'Zugriffsänderung',
+            message: payload.permission
+              ? 'Sie haben jetzt Zugriff.'
+              : 'Sie haben keinen Zugriff mehr.',
+          });
+        }
+      },
+    );
   }
 
   return {
@@ -425,7 +469,7 @@ export const useChannel = defineStore('channel', () => {
     leave,
     isSelf,
     isStudent,
-    userById,
+    isTeacher,
     currentUser,
     changeName,
     streams,
@@ -436,6 +480,7 @@ export const useChannel = defineStore('channel', () => {
     toggleVideo,
     toggleAudio,
     toggleHandSignal,
+    updatePermission,
     stopWebcam,
   };
 });
