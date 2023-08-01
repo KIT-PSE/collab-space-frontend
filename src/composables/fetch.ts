@@ -116,7 +116,7 @@ class Fetch {
     return await response.json();
   }
 
-  public async delete(path: string, headers = {}): Promise<void> {
+  public async delete(path: string, body: any = {}, headers = {}): Promise<void> {
     const response = await fetch(toFullPath(path), {
       method: 'DELETE',
       headers: {
@@ -124,6 +124,7 @@ class Fetch {
         Accept: 'application/json',
         ...headers,
       },
+      body: JSON.stringify(body),
       credentials: 'include',
     });
 

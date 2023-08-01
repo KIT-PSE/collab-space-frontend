@@ -84,10 +84,13 @@ export const useAuth = defineStore('auth', () => {
         return;
       }
 
-      await api.deleteAccount();
-      await logoutUser();
+      if (state.user !== null) {
+        const id = state.user.id
+        await api.deleteAccount({id});
+        await logoutUser();
 
-      alerts.success('Account erfolgreich gelöscht');
+        alerts.success('Account erfolgreich gelöscht');
+      }
     } catch (error) {
       alerts.error('Löschen des Accounts fehlgeschlagen', error as Error);
     }
