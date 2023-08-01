@@ -35,7 +35,7 @@ export type RegisterData = {
 
 export type Room = {
   id: number;
-  category: Category;
+  category: number;
   name: string;
   channelId?: string;
   password?: string;
