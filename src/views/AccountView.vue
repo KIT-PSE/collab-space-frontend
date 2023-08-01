@@ -1,65 +1,88 @@
 <template>
-  <Layout title="Account Einstellungen" :buttons="['back']">
-    <div class="row mt-5">
-      <div class="col-md-6">
-        <Input
-          label="Schule / Universität oder Organisation"
-          :model-value="user.organization ?? '-'"
-          disabled
-        >
-          <button class="btn btn-secondary ms-2">Ändern</button>
-        </Input>
+  <div class="account-view">
+    <h1>Account-Einstellungen</h1>
 
-        <Input label="Name" :model-value="user.name" disabled>
-          <button class="btn btn-secondary ms-2">Ändern</button>
-        </Input>
+    <h2>Passwort ändern</h2>
+    <button @click="openChangePasswordModal" class="btn btn-primary">
+      Passwort ändern
+    </button>
 
-        <EmailInput label="E-Mail Adresse" :model-value="user.email" disabled>
-          <button class="btn btn-secondary ms-2">Ändern</button>
-        </EmailInput>
+    <!-- ... other account settings ... -->
 
-        <PasswordInput label="Passwort" :model-value="password" disabled>
-          <button
-            class="btn btn-outline-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#change-password-modal"
-          >
-            Ändern
-          </button>
-        </PasswordInput>
+    <!-- Change Password Modal -->
+    <Modal
+        id="change-password-modal"
+        title="Passwort ändern"
+        submit-text="Passwort speichern"
+        @submit="changePassword"
+        @closed="resetForm"
+    >
+      <PasswordInput
+          label="Aktuelles Passwort"
+          v-model="form.currentPassword"
+          :error="errors.currentPassword"
+      />
 
-        <button class="btn btn-danger mt-3" @click="deleteAccount">
-          Account löschen
-        </button>
-      </div>
-    </div>
-    <ChangePasswordModal />
-  </Layout>
+      <PasswordInput
+          label="Neues Passwort"
+          v-model="form.newPassword"
+          :error="errors.newPassword"
+      />
+
+      <PasswordInput
+          label="Passwort wiederholen"
+          v-model="form.confirmPassword"
+          :error="errors.confirmPassword"
+      />
+    </Modal>
+  </div>
 </template>
 
 <script setup lang="ts">
-  import Layout from '@/components/Layout.vue';
-  import Input from '@/components/inputs/Input.vue';
-  import EmailInput from '@/components/inputs/EmailInput.vue';
-  import PasswordInput from '@/components/inputs/PasswordInput.vue';
-  import { useAuth, useUser } from '@/composables/auth';
-  import { ask } from '@/composables/prompt';
-  import ChangePasswordModal from '@/components/inputs/ChangePasswordModal.vue';
+import { ref } from 'vue';
+import PasswordInput from '@/components/inputs/PasswordInput.vue';
+import Modal from '@/components/Modal.vue';
+import { useForm } from '@/composables/form';
+import { closeModal } from '@/utils';
+import { useApi } from '@/composables/api';
+import { ValidationError } from '@/composables/fetch';
 
-  const user = useUser();
-  const auth = useAuth();
+const { form, errors, clearErrors, submit } = useForm({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+});
 
-  async function deleteAccount() {
-    const shouldDelete = await ask(
-      'Account löschen',
-      `Bist du sicher, dass du deinen Account löschen möchtest? Diese Aktion kann <b>nicht rückgängig</b> gemacht werden.`,
-      'Löschen',
-    );
+const api = useApi();
 
-    if (!shouldDelete) {
-      return;
-    }
+const openChangePasswordModal = () => {
+  clearErrors();
+  openModal('change-password-modal');
+};
 
-    await auth.delete();
+async function changePassword() {
+  if (form.newPassword !== form.confirmPassword) {
+    clearErrors();
+    errors.confirmPassword = 'Die Passwörter stimmen nicht überein.';
+    return;
   }
+
+  try {
+    const result = await submit(async (data) => {
+      await api.updatePassword({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+    });
+
+    if (result !== null) {
+      console.log('Passwort erfolgreich geändert.');
+      closeModal('change-password-modal');
+    } else {
+      console.error('Fehler bei der Passwortänderung.');
+    }
+  } catch (error) {
+    console.error('Fehler bei der Passwortänderung:', error.message);
+  }
+}
 </script>

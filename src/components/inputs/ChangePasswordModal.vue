@@ -1,28 +1,28 @@
 <template>
   <!-- Change Password Modal -->
   <Modal
-    id="change-password-modal"
-    title="Passwort ändern"
-    submit-text="Passwort speichern"
-    @submit="changePassword"
-    @closed="resetForm"
+      id="change-password-modal"
+      title="Passwort ändern"
+      submit-text="Passwort speichern"
+      @submit="changePassword"
+      @closed="resetForm"
   >
     <PasswordInput
-      label="Aktuelles Passwort"
-      v-model="currentPassword"
-      :error="errors.currentPassword"
+        label="Aktuelles Passwort"
+        v-model="form.currentPassword"
+        :error="errors.currentPassword"
     />
 
     <PasswordInput
-      label="Neues Passwort"
-      v-model="newPassword"
-      :error="errors.newPassword"
+        label="Neues Passwort"
+        v-model="form.newPassword"
+        :error="errors.newPassword"
     />
 
     <PasswordInput
-      label="Passwort wiederholen"
-      v-model="confirmPassword"
-      :error="errors.confirmPassword"
+        label="Passwort wiederholen"
+        v-model="form.confirmPassword"
+        :error="errors.confirmPassword"
     />
   </Modal>
 </template>
@@ -32,10 +32,10 @@ import PasswordInput from '@/components/inputs/PasswordInput.vue';
 import Modal from '@/components/Modal.vue';
 import { useForm } from '@/composables/form';
 import { closeModal } from '@/utils';
-import {useApi} from "@/composables/api";
+import { useApi } from '@/composables/api';
+import { ValidationError } from '@/composables/fetch';
 
-
-const { form, resetForm, errors } = useForm({
+const { form, errors, clearErrors, submit } = useForm({
   currentPassword: '',
   newPassword: '',
   confirmPassword: '',
@@ -44,25 +44,28 @@ const { form, resetForm, errors } = useForm({
 const api = useApi();
 
 async function changePassword() {
-  if (newPassword !== confirmPassword) {
+  if (form.newPassword !== form.confirmPassword) {
+    clearErrors();
     errors.confirmPassword = 'Die Passwörter stimmen nicht überein.';
     return;
   }
 
   try {
-    await api.updatePassword({
-      currentPassword: currentPassword,
-      newPassword: newPassword,
+    const result = await submit(async (data) => {
+      await api.updatePassword({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
     });
 
-    console.log('Passwort erfolgreich geändert.');
-
-    closeModal('change-password-modal');
+    if (result !== null) {
+      console.log('Passwort erfolgreich geändert.');
+      closeModal('change-password-modal');
+    } else {
+      console.error('Fehler bei der Passwortänderung.');
+    }
   } catch (error) {
     console.error('Fehler bei der Passwortänderung:', error.message);
   }
-
 }
-
-
 </script>
