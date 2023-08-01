@@ -90,8 +90,12 @@ const api = {
     return fetch.postOrFail<User>('/user/changeRole', data);
   },
 
-  async deleteAccount(data: { id: number }): Promise<void> {
-    return fetch.delete('/auth/delete', data);
+  async deleteAccount(): Promise<void> {
+    return fetch.delete('/auth/delete');
+  },
+
+  async deleteUserAccount(id: number): Promise<void> {
+    return fetch.delete(`/user/${id}`);
   },
 
   async allCategories(): Promise<Category[]> {

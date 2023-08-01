@@ -39,8 +39,7 @@ export const useAdmin = defineStore('admin', () => {
 
   async function deleteAccount(id: number) {
     try {
-
-      await api.deleteAccount({id});
+      await api.deleteUserAccount(id);
 
       alerts.success('Account erfolgreich gelöscht');
     } catch (error) {
