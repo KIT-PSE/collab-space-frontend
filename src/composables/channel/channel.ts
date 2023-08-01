@@ -261,7 +261,7 @@ export const useChannel = defineStore('channel', () => {
         },
       });
 
-      room.channelId = result.id;
+      room.channelId = result.room.channelId;
     });
   }
 
