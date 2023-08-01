@@ -85,11 +85,7 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function loadNotes() {
-    if (state.notes) {
-      return state.notes;
-    }
-
-    const notes = new Notes(socket!);
+    const notes = new Notes(socket!, state.room!.id, state.room!.category.id);
     state.notes = notes;
 
     return notes;
