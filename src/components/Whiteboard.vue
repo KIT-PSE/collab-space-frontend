@@ -112,7 +112,7 @@
      * Zooms the canvas in or out, keeping the specified point in the center of the viewport.
      * For implementation details, see http://fabricjs.com/fabric-intro-part-5
      */
-    canvas.value.on('mouse:wheel', function (opt: any) {
+    canvas.value.on('mouse:wheel', function (this: any, opt: any) {
       const delta = opt.e.deltaY;
       let zoom = this.getZoom();
       zoom *= 0.999 ** delta;
@@ -151,7 +151,7 @@
      * Pans the canvas when the user drags the mouse if pan tool selected.
      * For implementation details, see http://fabricjs.com/fabric-intro-part-5
      */
-    canvas.value.on('mouse:down', function (opt: any) {
+    canvas.value.on('mouse:down', function (this: any, opt: any) {
       const event = opt.e;
       if (!this.isDrawingMode) {
         this.isDragging = true;
@@ -160,7 +160,7 @@
         this.lastPosY = event.clientY;
       }
     });
-    canvas.value.on('mouse:move', function (opt: any) {
+    canvas.value.on('mouse:move', function (this: any, opt: any) {
       if (this.isDragging) {
         const event = opt.e;
         const zoom = this.getZoom();
@@ -199,7 +199,7 @@
         this.lastPosY = event.clientY;
       }
     });
-    canvas.value.on('mouse:up', function () {
+    canvas.value.on('mouse:up', function (this: any) {
       this.setViewportTransform(this.viewportTransform);
       this.isDragging = false;
       this.selection = true;
