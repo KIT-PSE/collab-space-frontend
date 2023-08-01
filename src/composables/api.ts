@@ -126,6 +126,15 @@ const api = {
   async deleteRoom(id: number, categoryId: number): Promise<void> {
     return fetch.delete(`/category/${categoryId}/room/${id}`);
   },
+
+  async changeAccountData(user: User): Promise<boolean> {
+    return fetch.putOrFail('/user/changeUserData', {
+      id: user.id,
+      organization: user.organization,
+      name: user.name,
+      email: user.email,
+    });
+  },
 };
 
 export const useApi = useSingleton(decorateApi(api));
