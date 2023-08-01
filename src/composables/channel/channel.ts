@@ -286,7 +286,7 @@ export const useChannel = defineStore('channel', () => {
       socket?.emit(event, payload, (result: any) => {
         if (result.error) {
           leave();
-          reject(result.error);
+          return reject(result.error);
         }
 
         const data = convertDates(result) as JoinRoomResult;
@@ -322,6 +322,7 @@ export const useChannel = defineStore('channel', () => {
   function leave() {
     socket?.close();
     socket = null;
+    state.connected = false;
   }
 
   function isSelf(user: ChannelUser | string) {
