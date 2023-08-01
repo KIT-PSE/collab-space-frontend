@@ -95,17 +95,6 @@ export const useChannel = defineStore('channel', () => {
     return notes;
   }
 
-  async function loadWhiteboard(): Promise<Whiteboard> {
-    if (state.whiteboard) {
-      return state.whiteboard as Whiteboard;
-    }
-
-    const whiteboard = new Whiteboard(socket!);
-    state.whiteboard = whiteboard;
-
-    return whiteboard;
-  }
-
   async function loadWebcams(): Promise<void> {
     if (webcamsLoaded) {
       return;
