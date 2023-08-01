@@ -102,6 +102,9 @@
     });
 
     props.whiteboard.onChanges((canvasJson) => {
+      if (!canvasJson) {
+        return;
+      }
       canvas.value?.loadFromJSON(JSON.parse(canvasJson), () => {});
     });
 
