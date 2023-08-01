@@ -118,7 +118,7 @@
       return;
     }
     const id = await notes.addNote(name);
-
+    newNoteName.value = '';
     setSelectedNote(id);
   }
 
