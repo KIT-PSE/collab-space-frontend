@@ -110,28 +110,28 @@
           >
             <div class="card my-1 d-flex flex-column">
               <div class="position-relative flex-grow-1">
-                <!-- Die Kamera des Schülers -->
                 <div class="ratio ratio-4x3">
                   <Camera :user-id="student.id" class="w-100 h-100" />
                 </div>
 
-                <span v-if="channel.isTeacher(channel.currentUser())">
-                  <!-- Der Button oben rechts -->
+                <div
+                  v-if="channel.isTeacher(channel.currentUser())"
+                  class="dropdown position-absolute top-0 end-0"
+                >
                   <button
-                    class="btn btn-primary position-absolute top-0 end-0"
-                    data-bs-toggle="modal"
-                    @click="toggleDropdown()"
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
                   >
                     <i class="fa fa-ellipsis-v"></i>
                   </button>
-                </span>
-                <div class="access-dropdown" v-if="isDropdownOpen">
-                  <button
-                    class="btn btn-primary"
-                    @click="updatePermission(student.id)"
-                  >
-                    Zugriff ändern
-                  </button>
+
+                  <ul class="dropdown-menu">
+                    <li @click="updatePermission(student.id)">
+                      <button class="dropdown-item">Zugriff ändern</button>
+                    </li>
+                  </ul>
                 </div>
               </div>
 
@@ -271,12 +271,6 @@
 
   function toggleHandSignal() {
     channel.toggleHandSignal();
-  }
-
-  const isDropdownOpen = ref(false);
-
-  function toggleDropdown() {
-    isDropdownOpen.value = !isDropdownOpen.value;
   }
 
   function updatePermission(studentId: string) {
