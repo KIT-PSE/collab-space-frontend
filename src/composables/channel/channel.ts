@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive } from 'vue';
+import { reactive, UnwrapNestedRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
@@ -22,6 +22,7 @@ export interface ChannelUser {
 export interface Student extends ChannelUser {
   name: string;
   handSignal: boolean;
+  permission: boolean;
 }
 
 export interface Teacher extends ChannelUser {
@@ -50,7 +51,7 @@ export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
 
-  const state = reactive({
+  const state: UnwrapNestedRefs<ChannelState> = reactive({
     connected: false,
     channelId: '',
     clientId: '',
@@ -175,6 +176,16 @@ export const useChannel = defineStore('channel', () => {
     socket?.emit('update-handSignal', { handSignal: student.handSignal });
   }
 
+  function updatePermission(studentId: string): void {
+    const student = studentById(studentId);
+
+    student.permission = !student.permission;
+    socket?.emit('update-permission', {
+      studentId,
+      permission: student.permission,
+    });
+  }
+
   function stopWebcam(): void {
     const stream = streams[state.clientId];
 
@@ -197,8 +208,20 @@ export const useChannel = defineStore('channel', () => {
     return state.students.find((s) => s.id === id);
   }
 
+  function studentById(id: string): Student {
+    const student = state.students.find((s) => s.id === id);
+    if (!student) {
+      throw new Error('IllegalState: User not found');
+    }
+    return student;
+  }
+
   function isStudent(user: ChannelUser): user is Student {
     return user.id !== state.teacher?.id;
+  }
+
+  function isTeacher(user: ChannelUser): user is Teacher {
+    return user.id === state.teacher?.id;
   }
 
   function currentUser(): ChannelUser {
@@ -244,6 +267,7 @@ export const useChannel = defineStore('channel', () => {
         audio: true,
       };
       state.hasName = true;
+      state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
 
       await router.push({
         name: 'room',
@@ -289,6 +313,7 @@ export const useChannel = defineStore('channel', () => {
         state.teacher = data.teacher;
         state.room = data.room;
         state.hasName = false;
+        state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
         resolve();
       });
     });
@@ -414,6 +439,27 @@ export const useChannel = defineStore('channel', () => {
         }
       },
     );
+
+    socket.on(
+      'update-permission',
+      (payload: { id: string; permission: boolean }) => {
+        const student = studentById(payload.id);
+
+        if (student) {
+          student.permission = payload.permission;
+        }
+
+        if (socket.id === payload.id) {
+          alerts.add({
+            type: 'info',
+            title: 'Zugriffsänderung',
+            message: payload.permission
+              ? 'Sie haben jetzt Zugriff.'
+              : 'Sie haben keinen Zugriff mehr.',
+          });
+        }
+      },
+    );
   }
 
   return {
@@ -426,17 +472,17 @@ export const useChannel = defineStore('channel', () => {
     leave,
     isSelf,
     isStudent,
-    userById,
+    isTeacher,
     currentUser,
     changeName,
     streams,
     loadWebcams,
     loadNotes,
-    loadWhiteboard,
     getWebcamStream,
     toggleVideo,
     toggleAudio,
     toggleHandSignal,
+    updatePermission,
     stopWebcam,
   };
 });

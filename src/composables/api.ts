@@ -41,6 +41,7 @@ export type Room = {
   password?: string;
   createdAt: Moment;
   updatedAt: Moment;
+  whiteboardCanvas: string;
 };
 
 export type CreateRoom = {
@@ -130,6 +131,15 @@ const api = {
 
   async getNotes(roomId: number, categoryId: number): Promise<Note[]> {
     return fetch.getOrFail(`/category/${categoryId}/room/${roomId}/notes`);
+  },
+
+  async changeAccountData(user: User): Promise<boolean> {
+    return fetch.putOrFail('/user/changeUserData', {
+      id: user.id,
+      organization: user.organization,
+      name: user.name,
+      email: user.email,
+    });
   },
 };
 

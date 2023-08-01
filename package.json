@@ -14,7 +14,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "lint-check": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore",
     "format": "prettier --write src/",
-    "format-check": "prettier --check src/"
+    "format-check": "prettier --check src/",
+    "postinstall": "cd node_modules/fabric && npm i -g uglify-js && node build.js modules=ALL requirejs exclude=gestures,accessors"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.4.0",

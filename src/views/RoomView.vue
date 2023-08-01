@@ -45,6 +45,7 @@
             @expand="toggleExpandWhiteboard"
             :width="width"
             :height="height"
+            :whiteboard="channel.state.whiteboard as WhiteboardComposable"
           />
         </div>
         <div id="notes-wrapper" :class="{ hide: !showNotes }">
@@ -107,13 +108,33 @@
             :key="student.id"
             class="col-lg-6"
           >
-            <div class="card my-1">
-              <!--              <img-->
-              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
-              <!--                alt=""-->
-              <!--                class="card-img-top"-->
-              <!--              />-->
-              <Camera :user-id="student.id" />
+            <div class="card my-1 d-flex flex-column">
+              <div class="position-relative flex-grow-1">
+                <!-- Die Kamera des Schülers -->
+                <div class="ratio ratio-4x3">
+                  <Camera :user-id="student.id" class="w-100 h-100" />
+                </div>
+
+                <span v-if="channel.isTeacher(channel.currentUser())">
+                  <!-- Der Button oben rechts -->
+                  <button
+                    class="btn btn-primary position-absolute top-0 end-0"
+                    data-bs-toggle="modal"
+                    @click="toggleDropdown()"
+                  >
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
+                </span>
+                <div class="access-dropdown" v-if="isDropdownOpen">
+                  <button
+                    class="btn btn-primary"
+                    @click="updatePermission(student.id)"
+                  >
+                    Zugriff ändern
+                  </button>
+                </div>
+              </div>
+
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
@@ -134,6 +155,12 @@
                     class="badge text-bg-secondary ms-1"
                   >
                     <i class="fas fa-hand-paper"></i>
+                  </span>
+                  <span
+                    v-if="!student.permission"
+                    class="badge text-bg-secondary ms-1"
+                  >
+                    <i class="fas fa-lock"></i>
                   </span>
                 </div>
               </div>
@@ -197,6 +224,7 @@
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
   import Whiteboard from '@/components/Whiteboard.vue';
+  import { Whiteboard as WhiteboardComposable } from '@/composables/channel/whiteboard';
   import { onMounted, ref } from 'vue';
   import Notes from '@/components/Notes.vue';
 
@@ -243,6 +271,16 @@
 
   function toggleHandSignal() {
     channel.toggleHandSignal();
+  }
+
+  const isDropdownOpen = ref(false);
+
+  function toggleDropdown() {
+    isDropdownOpen.value = !isDropdownOpen.value;
+  }
+
+  function updatePermission(studentId: string) {
+    channel.updatePermission(studentId);
   }
 
   function toggleWhiteboard() {
