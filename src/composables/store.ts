@@ -104,7 +104,7 @@ export const useStore = defineStore('store', () => {
 
       findCategory(room.category.id)?.rooms.push({
         ...room,
-        category: room.category.id,
+        category: room.category,
       });
 
       return room;
@@ -135,9 +135,9 @@ export const useStore = defineStore('store', () => {
     data: { name: string },
   ): Promise<Room | null> {
     try {
-      const updatedRoom = await api.updateRoom(room.id, room.category, data);
+      const updatedRoom = await api.updateRoom(room.id, room.category.id, data);
 
-      const category = findCategory(room.category);
+      const category = findCategory(room.category.id);
       const index = category?.rooms.findIndex((r) => r.id === updatedRoom.id);
 
       if (!category || index === undefined || index === -1) {
@@ -161,8 +161,8 @@ export const useStore = defineStore('store', () => {
 
   async function deleteRoom(room: Room): Promise<void> {
     try {
-      await api.deleteRoom(room.id, room.category);
-      const category = findCategory(room.category);
+      await api.deleteRoom(room.id, room.category.id);
+      const category = findCategory(room.category.id);
       category?.rooms.splice(category.rooms.indexOf(room), 1);
     } catch (err) {
       alerts.error('Raum konnte nicht gelöscht werden.', err as Error);

@@ -45,6 +45,7 @@
             @expand="toggleExpandWhiteboard"
             :width="width"
             :height="height"
+            :whiteboard="channel.state.whiteboard as WhiteboardComposable"
           />
         </div>
         <div id="notes-wrapper" :class="{ hide: !showNotes }">
@@ -223,6 +224,7 @@
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
   import Whiteboard from '@/components/Whiteboard.vue';
+  import { Whiteboard as WhiteboardComposable } from '@/composables/channel/whiteboard';
   import { onMounted, ref } from 'vue';
   import Notes from '@/components/Notes.vue';
 

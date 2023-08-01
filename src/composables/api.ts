@@ -34,12 +34,13 @@ export type RegisterData = {
 
 export type Room = {
   id: number;
-  category: number;
+  category: Category;
   name: string;
   channelId?: string;
   password?: string;
   createdAt: Moment;
   updatedAt: Moment;
+  whiteboardCanvas: string;
 };
 
 export type CreateRoom = {
