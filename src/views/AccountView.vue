@@ -4,18 +4,32 @@
       <div class="col-md-6">
         <Input
           label="Schule / Universität oder Organisation"
-          :model-value="user.organization ?? '-'"
-          disabled
+          v-model="user.organization"
+          :disabled="disabledInputs[0].value"
         >
-          <button class="btn btn-secondary ms-2">Ändern</button>
+          <button class="btn btn-secondary ms-2" @click="edit(0)">
+            {{ disabledInputs[0].value ? 'Ändern' : 'Speichern' }}
+          </button>
         </Input>
 
-        <Input label="Name" :model-value="user.name" disabled>
-          <button class="btn btn-secondary ms-2">Ändern</button>
+        <Input
+          label="Name"
+          v-model="user.name"
+          :disabled="disabledInputs[1].value"
+        >
+          <button class="btn btn-secondary ms-2" @click="edit(1)">
+            {{ disabledInputs[1].value ? 'Ändern' : 'Speichern' }}
+          </button>
         </Input>
 
-        <EmailInput label="E-Mail Adresse" :model-value="user.email" disabled>
-          <button class="btn btn-secondary ms-2">Ändern</button>
+        <EmailInput
+          label="E-Mail Adresse"
+          v-model="user.email"
+          :disabled="disabledInputs[2].value"
+        >
+          <button class="btn btn-secondary ms-2" @click="edit(2)">
+            {{ disabledInputs[2].value ? 'Ändern' : 'Speichern' }}
+          </button>
         </EmailInput>
 
         <PasswordInput label="Passwort" model-value="12345678" disabled>
@@ -37,10 +51,17 @@
   import PasswordInput from '@/components/inputs/PasswordInput.vue';
   import { useAuth, useUser } from '@/composables/auth';
   import { ask } from '@/composables/prompt';
+  import { ref } from 'vue';
+  import { useAlerts } from '@/composables/alerts';
 
   const user = useUser();
   const auth = useAuth();
+  const alerts = useAlerts();
+  const disabledInputs = [ref(true), ref(true), ref(true)];
 
+  /**
+   * Deletes the user account
+   */
   async function deleteAccount() {
     const shouldDelete = await ask(
       'Account löschen',
@@ -53,5 +74,24 @@
     }
 
     await auth.delete();
+  }
+
+  /**
+   * Edits the user data (organization, name or email)
+   * @param index The index of the the changed data (0 = organization, 1 = name, 2 = email)
+   */
+  async function edit(index: number) {
+    disabledInputs[index].value = !disabledInputs[index].value;
+    if (disabledInputs[index].value) {
+      const result = await auth.changeAccountData();
+      if (result) {
+        alerts.success('Eintrag wurde erfolgreich geändert');
+      } else {
+        alerts.error(
+          'Eintrag konnte nicht geändert werden',
+          new Error('Eintrag konnte nicht geändert werden'),
+        );
+      }
+    }
   }
 </script>

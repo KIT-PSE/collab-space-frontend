@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive } from 'vue';
+import { reactive, UnwrapNestedRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
@@ -51,7 +51,7 @@ export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
 
-  const state = reactive({
+  const state: UnwrapNestedRefs<ChannelState> = reactive({
     connected: false,
     channelId: '',
     clientId: '',
@@ -85,24 +85,10 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function loadNotes() {
-    if (state.notes) {
-      return state.notes;
-    }
-
-    const notes = new Notes(socket!);
+    const notes = new Notes(socket!, state.room!.id, state.room!.category);
     state.notes = notes;
 
     return notes;
-  }
-
-  async function loadWhiteboard(): Promise<Whiteboard> {
-    if (state.whiteboard) {
-      return state.whiteboard as Whiteboard;
-    }
-
-    const whiteboard = new Whiteboard(socket!);
-
-    return whiteboard;
   }
 
   async function loadWebcams(): Promise<void> {
@@ -255,9 +241,9 @@ export const useChannel = defineStore('channel', () => {
 
     socket?.emit('open-room', payload, async (result: any) => {
       state.connected = true;
-      state.channelId = result.id;
+      state.channelId = result.room.channelId;
       state.clientId = socket?.id || '';
-      state.room = room;
+      state.room = result.room;
       state.students = [];
       state.teacher = {
         id: state.clientId,
@@ -266,15 +252,16 @@ export const useChannel = defineStore('channel', () => {
         audio: true,
       };
       state.hasName = true;
+      state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
 
       await router.push({
         name: 'room',
         params: {
-          id: result.id,
+          id: result.room.channelId,
         },
       });
 
-      room.channelId = result.id;
+      room.channelId = result.room.channelId;
     });
   }
 
@@ -299,7 +286,7 @@ export const useChannel = defineStore('channel', () => {
       socket?.emit(event, payload, (result: any) => {
         if (result.error) {
           leave();
-          reject(result.error);
+          return reject(result.error);
         }
 
         const data = convertDates(result) as JoinRoomResult;
@@ -311,6 +298,7 @@ export const useChannel = defineStore('channel', () => {
         state.teacher = data.teacher;
         state.room = data.room;
         state.hasName = false;
+        state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
         resolve();
       });
     });
@@ -334,6 +322,7 @@ export const useChannel = defineStore('channel', () => {
   function leave() {
     socket?.close();
     socket = null;
+    state.connected = false;
   }
 
   function isSelf(user: ChannelUser | string) {
@@ -475,7 +464,6 @@ export const useChannel = defineStore('channel', () => {
     streams,
     loadWebcams,
     loadNotes,
-    loadWhiteboard,
     getWebcamStream,
     toggleVideo,
     toggleAudio,
