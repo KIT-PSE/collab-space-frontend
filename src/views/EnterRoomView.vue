@@ -43,15 +43,15 @@
   const router = useRouter();
 
   const form = useForm({
-    code: '',
-    password: '',
+    code: router.currentRoute.value.query.code ?? '',
+    password: router.currentRoute.value.query.password ?? '',
   });
 
-  const showPassword = ref(false);
+  const showPassword = ref(router.currentRoute.value.query.password !== '');
 
   async function submit() {
     try {
-      await channel.joinAsStudent(form.code, form.password);
+      await channel.joinAsStudent(form.code as string, form.password as string);
       form.clearErrors();
       await router.push(`/room/${form.code}/connecting`);
     } catch (e) {

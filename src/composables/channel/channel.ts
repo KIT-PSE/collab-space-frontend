@@ -273,7 +273,7 @@ export const useChannel = defineStore('channel', () => {
     });
   }
 
-  async function joinAsStudent(id: string, password: string): Promise<void> {
+  async function joinAsStudent(id: string, password?: string): Promise<void> {
     await connect();
     return join(id, 'join-room-as-student', {
       channelId: id,
