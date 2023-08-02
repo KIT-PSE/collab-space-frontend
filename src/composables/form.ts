@@ -1,67 +1,69 @@
 import { reactive } from 'vue';
 import { ValidationError } from '@/composables/fetch';
 
+// inspired by how inertia handles forms: https://inertiajs.com/forms
+
 export type Form<T extends Record<string, any>> = {
   errors: Record<keyof T, string>;
-  data: T;
-  clear: () => void;
-  clearErrors: () => void;
-  setErrors: (error: ValidationError) => void;
-  submit: <U>(action: (data: T) => Promise<U>) => Promise<U | null>;
+  data(): T;
+  clear(): void;
+  clearErrors(): void;
+  setErrors(error: ValidationError): void;
+  submit<U>(action: (data: T) => Promise<U>): Promise<U | null>;
 } & T;
 
 export function useForm<T extends Record<string, any>>(defaults: T): Form<T> {
-  const errors = reactive(
-      Object.fromEntries(Object.keys(defaults).map((key) => [key, ''])) as Record<
-          keyof T,
-          string
-      >
-  );
+  const errors = Object.fromEntries(
+    Object.keys(defaults).map((key) => [key, '']),
+  ) as Record<keyof T, string>;
 
-  const data = reactive(defaults);
-
-  const clear = () => {
-    Object.assign(data, defaults);
-    clearErrors();
-  };
-
-  const clearErrors = () => {
-    Object.keys(errors).forEach((key: keyof T) => {
-      errors[key] = '';
-    });
-  };
-
-  const setErrors = (error: ValidationError) => {
-    const emptyErrors = Object.fromEntries(
-        Object.keys(defaults).map((key) => [key, ''])
-    );
-
-    Object.assign(errors, {
-      ...emptyErrors,
-      ...error.errors,
-    });
-  };
-
-  const submit = async <U>(action: (data: T) => Promise<U>): Promise<U | null> => {
-    try {
-      const result = await action(data);
-      clearErrors();
-      return result;
-    } catch (err) {
-      if (err instanceof ValidationError) {
-        setErrors(err);
-      }
-
-      return null;
-    }
-  };
-
-  return {
-    data,
+  return reactive({
+    ...defaults,
     errors,
-    clear,
-    clearErrors,
-    setErrors,
-    submit,
-  };
+
+    data() {
+      return Object.fromEntries(
+        Object.keys(defaults).map((key) => [key, this[key]]),
+      ) as T;
+    },
+
+    clear() {
+      Object.keys(defaults).forEach((key: keyof T) => {
+        // @ts-ignore
+        this[key] = defaults[key];
+      });
+      this.clearErrors();
+    },
+
+    clearErrors() {
+      Object.keys(this.errors).forEach((key: keyof T) => {
+        this.errors[key] = '';
+      });
+    },
+
+    setErrors(error: ValidationError) {
+      const emptyErrors = Object.fromEntries(
+        Object.keys(defaults).map((key) => [key, '']),
+      );
+
+      Object.assign(this.errors, {
+        ...emptyErrors,
+        ...error.errors,
+      });
+    },
+
+    async submit<U>(action: (data: T) => Promise<U>): Promise<U | null> {
+      try {
+        const result = await action(this.data());
+        this.clearErrors();
+        return result;
+      } catch (err) {
+        if (err instanceof ValidationError) {
+          this.setErrors(err);
+        }
+
+        return null;
+      }
+    },
+  }) as Form<T>;
 }
