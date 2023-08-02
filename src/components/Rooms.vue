@@ -1,75 +1,63 @@
 <template>
   <div class="row">
-    <transition-group name="bounce">
-      <div
-        v-for="category in store.categories"
-        :key="category.id"
-        class="col-lg-9"
-      >
-        <div class="d-flex justify-content-between">
-          <h3>{{ category.name }}</h3>
-          <div>
-            <button class="btn text-secondary" @click="editCategory(category)">
-              <i class="fa fa-pen"></i>
-            </button>
-            <button
-              class="btn text-secondary"
-              @click="deleteCategory(category)"
-            >
-              <i class="fa fa-trash"></i>
-            </button>
-          </div>
+    <div
+      v-for="category in store.categories"
+      :key="category.id"
+      class="col-lg-9"
+    >
+      <div class="d-flex justify-content-between">
+        <h3>{{ category.name }}</h3>
+        <div>
+          <button class="btn text-secondary" @click="editCategory(category)">
+            <i class="fa fa-pen"></i>
+          </button>
+          <button class="btn text-secondary" @click="deleteCategory(category)">
+            <i class="fa fa-trash"></i>
+          </button>
         </div>
-        <div class="row py-4">
-          <transition-group name="bounce">
-            <div v-for="room in category.rooms" :key="room.id" class="col-4">
-              <div
-                class="card my-1"
-                style="cursor: pointer"
-                @click="openRoom(room)"
-              >
-                <img
-                  src="https://placehold.co/600x400.png?text=Raum+Vorschau"
-                  alt=""
-                  class="card-img-top"
-                />
-                <div class="card-body py-2">
-                  <div class="card-text text-dark text-decoration-none">
-                    <div
-                      class="d-flex justify-content-between align-items-center"
+      </div>
+      <div class="row py-4">
+        <div v-for="room in category.rooms" :key="room.id" class="col-4">
+          <div
+            class="card my-1"
+            style="cursor: pointer"
+            @click="openRoom(room)"
+          >
+            <img
+              src="https://placehold.co/600x400.png?text=Raum+Vorschau"
+              alt=""
+              class="card-img-top"
+            />
+            <div class="card-body py-2">
+              <div class="card-text text-dark text-decoration-none">
+                <div class="d-flex justify-content-between align-items-center">
+                  <p>
+                    {{ room.name }}
+                    <span v-if="room.channelId" class="badge text-bg-primary">
+                      Live
+                    </span>
+                  </p>
+                  <div>
+                    <button
+                      class="btn btn-sm text-secondary"
+                      @click.stop="editRoom(room)"
                     >
-                      <p>
-                        {{ room.name }}
-                        <span
-                          v-if="room.channelId"
-                          class="badge text-bg-primary"
-                        >
-                          Live
-                        </span>
-                      </p>
-                      <div>
-                        <button
-                          class="btn btn-sm text-secondary"
-                          @click.stop="editRoom(room)"
-                        >
-                          <i class="fa fa-pen"></i>
-                        </button>
-                        <button
-                          class="btn btn-sm text-secondary"
-                          @click.stop="deleteRoom(room)"
-                        >
-                          <i class="fa fa-trash"></i>
-                        </button>
-                      </div>
-                    </div>
+                      <i class="fa fa-pen"></i>
+                    </button>
+                    <button
+                      class="btn btn-sm text-secondary"
+                      @click.stop="deleteRoom(room)"
+                    >
+                      <i class="fa fa-trash"></i>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          </transition-group>
+          </div>
         </div>
       </div>
-    </transition-group>
+    </div>
   </div>
 
   <EditCategoryModal :category="categoryToEdit" />
