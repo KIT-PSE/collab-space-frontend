@@ -302,9 +302,7 @@ export const useChannel = defineStore('channel', () => {
         state.room = data.room;
         state.hasName = false;
 
-        console.log('PeerId: ' + data.browserPeerId);
         browser.peerId.value = data.browserPeerId;
-        browser.loadBrowserStream();
 
         resolve();
       });

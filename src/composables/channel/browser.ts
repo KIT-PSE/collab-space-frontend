@@ -35,7 +35,7 @@ export const useBrowser = () => {
     if (!peerId.value) {
       return false;
     }
-    console.log('loading browser stream', peerId.value);
+    console.trace('loading browser stream', peerId.value);
     browserPeer.connect(peerId.value);
     return true;
   }
