@@ -145,9 +145,9 @@ const api = {
   async updatePassword(data: {
     currentPassword: string;
     newPassword: string;
-  }): Promise<void> {
+  }): Promise<boolean> {
     return fetch.postOrFail('/user/changePassword', data);
-  }
+  },
 };
 
 export const useApi = useSingleton(decorateApi(api));

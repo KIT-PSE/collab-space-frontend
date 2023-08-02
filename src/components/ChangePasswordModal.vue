@@ -45,28 +45,40 @@
   const api = useApi();
 
   async function changePassword() {
+    if (form.currentPassword === '') {
+      form.clearErrors();
+      form.errors.currentPassword = 'Bitte gib dein aktuelles Passwort ein.';
+      return;
+    }
+    if (form.newPassword === '') {
+      form.clearErrors();
+      form.errors.newPassword = 'Bitte gib ein neues Passwort ein.';
+      return;
+    }
+    if (form.confirmNewPassword === '') {
+      form.clearErrors();
+      form.errors.confirmNewPassword = 'Bitte wiederhole dein neues Passwort.';
+      return;
+    }
     if (form.newPassword !== form.confirmNewPassword) {
       form.clearErrors();
       form.errors.confirmNewPassword = 'Die Passwörter stimmen nicht überein.';
       return;
     }
 
+    form.clearErrors();
     try {
-      const result = await form.submit(async (data) => {
-        await api.updatePassword({
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-        });
+      const result = await api.updatePassword({
+        currentPassword: form.data().currentPassword,
+        newPassword: form.data().newPassword,
       });
 
-      if (result !== null) {
+      if (result) {
         console.log('Passwort erfolgreich geändert.');
         closeModal('change-password-modal');
-      } else {
-        console.error('Fehler bei der Passwortänderung.');
       }
     } catch (error) {
-      console.error('Fehler bei der Passwortänderung:', error);
+      form.errors.currentPassword = 'Das aktuelle Passwort ist falsch.';
     }
   }
 </script>
