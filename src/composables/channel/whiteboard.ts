@@ -1,11 +1,17 @@
 import { Socket } from 'socket.io-client';
 
 export class Whiteboard {
-  constructor(private readonly socket: Socket) {}
+  constructor(private readonly socket: Socket, private initialCanvas: string) {}
 
-  /**
-   * Noch keine Platzhalter für die Whiteboard-Funktionen, da
-   * noch nicht klar ist, ob Bibliothek verwendet wird oder
-   * eigene Lösung implementiert wird.
-   */
+  public async change(canvas: string) {
+    this.socket.emit('whiteboard-change', { canvas });
+  }
+
+  public onChanges(callback: (canvas: string) => void) {
+    callback(this.initialCanvas);
+
+    this.socket.on('whiteboard-change', (payload: { canvas: string }) => {
+      callback(payload.canvas);
+    });
+  }
 }

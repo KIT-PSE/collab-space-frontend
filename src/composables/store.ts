@@ -102,9 +102,9 @@ export const useStore = defineStore('store', () => {
     try {
       const room = await api.createRoom(data);
 
-      findCategory(room.category.id)?.rooms.push({
+      findCategory(room.category)?.rooms.push({
         ...room,
-        category: room.category.id,
+        category: room.category,
       });
 
       return room;

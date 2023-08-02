@@ -6,6 +6,18 @@
         style="max-height: 100%"
       >
         <div class="row">
+          <div class="col d-flex align-items-center">
+            <router-link to="/dashboard">
+              <img
+                src="@/assets/textless-logo.png"
+                alt="CollabSpace"
+                width="100"
+              />
+            </router-link>
+          </div>
+        </div>
+
+        <div class="row">
           <div class="col d-flex justify-content-center mt-3">
             <video
               src="https://placehold.co/1920x1080.mp4?text=eingebettete+Webseite"
@@ -33,6 +45,7 @@
             @expand="toggleExpandWhiteboard"
             :width="width"
             :height="height"
+            :whiteboard="channel.state.whiteboard as WhiteboardComposable"
           />
         </div>
         <div id="notes-wrapper" :class="{ hide: !showNotes }">
@@ -95,13 +108,33 @@
             :key="student.id"
             class="col-lg-6"
           >
-            <div class="card my-1">
-              <!--              <img-->
-              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
-              <!--                alt=""-->
-              <!--                class="card-img-top"-->
-              <!--              />-->
-              <Camera :user-id="student.id" />
+            <div class="card my-1 d-flex flex-column">
+              <div class="position-relative flex-grow-1">
+                <div class="ratio ratio-4x3">
+                  <Camera :user-id="student.id" class="w-100 h-100" />
+                </div>
+
+                <div
+                  v-if="channel.isTeacher(channel.currentUser())"
+                  class="dropdown position-absolute top-0 end-0"
+                >
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
+
+                  <ul class="dropdown-menu">
+                    <li @click="updatePermission(student.id)">
+                      <button class="dropdown-item">Zugriff ändern</button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
@@ -122,6 +155,12 @@
                     class="badge text-bg-secondary ms-1"
                   >
                     <i class="fas fa-hand-paper"></i>
+                  </span>
+                  <span
+                    v-if="!student.permission"
+                    class="badge text-bg-secondary ms-1"
+                  >
+                    <i class="fas fa-lock"></i>
                   </span>
                 </div>
               </div>
@@ -185,6 +224,7 @@
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
   import Whiteboard from '@/components/Whiteboard.vue';
+  import { Whiteboard as WhiteboardComposable } from '@/composables/channel/whiteboard';
   import { onMounted, ref } from 'vue';
   import Notes from '@/components/Notes.vue';
 
@@ -231,6 +271,10 @@
 
   function toggleHandSignal() {
     channel.toggleHandSignal();
+  }
+
+  function updatePermission(studentId: string) {
+    channel.updatePermission(studentId);
   }
 
   function toggleWhiteboard() {
