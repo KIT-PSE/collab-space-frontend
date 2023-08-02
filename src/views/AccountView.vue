@@ -33,7 +33,12 @@
         </EmailInput>
 
         <PasswordInput label="Passwort" model-value="12345678" disabled>
-          <button class="btn btn-secondary ms-2">Ändern</button>
+          <button
+            @click="openChangePasswordModal"
+            class="btn btn-secondary ms-2"
+          >
+            Ändern
+          </button>
         </PasswordInput>
 
         <button class="btn btn-danger mt-3" @click="deleteAccount">
@@ -42,6 +47,8 @@
       </div>
     </div>
   </Layout>
+
+  <ChangePasswordModal />
 </template>
 
 <script setup lang="ts">
@@ -53,6 +60,8 @@
   import { ask } from '@/composables/prompt';
   import { ref } from 'vue';
   import { useAlerts } from '@/composables/alerts';
+  import ChangePasswordModal from '@/components/ChangePasswordModal.vue';
+  import { openModal } from '@/utils';
 
   const user = useUser();
   const auth = useAuth();
@@ -78,7 +87,7 @@
 
   /**
    * Edits the user data (organization, name or email)
-   * @param index The index of the the changed data (0 = organization, 1 = name, 2 = email)
+   * @param index The index of the changed data (0 = organization, 1 = name, 2 = email)
    */
   async function edit(index: number) {
     disabledInputs[index].value = !disabledInputs[index].value;
@@ -93,5 +102,12 @@
         );
       }
     }
+  }
+
+  /**
+   * Opens the change password modal
+   */
+  function openChangePasswordModal() {
+    openModal('change-password-modal');
   }
 </script>

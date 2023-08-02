@@ -62,6 +62,12 @@ export type CreateCategory = {
   name: string;
 };
 
+export type ChangePassword = {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+};
+
 export type UpdateCategory = CreateCategory;
 export type UpdateRoom = CreateRoom;
 
@@ -140,6 +146,10 @@ const api = {
       name: user.name,
       email: user.email,
     });
+  },
+
+  async updatePassword(data: ChangePassword): Promise<boolean> {
+    return fetch.postOrFail('/user/changePassword', data);
   },
 };
 
