@@ -37,7 +37,7 @@
   import { useChannel } from '@/composables/channel/channel';
   import { useForm } from '@/composables/form';
   import { useRouter } from 'vue-router';
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
 
   const channel = useChannel();
   const router = useRouter();
@@ -47,7 +47,16 @@
     password: router.currentRoute.value.query.password ?? '',
   });
 
-  const showPassword = ref(router.currentRoute.value.query.password !== '');
+  const showPassword = ref(
+    router.currentRoute.value.query.password &&
+      router.currentRoute.value.query.password !== '',
+  );
+
+  onMounted(() => {
+    if (form.code) {
+      submit();
+    }
+  });
 
   async function submit() {
     try {
