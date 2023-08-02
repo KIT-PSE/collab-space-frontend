@@ -1,7 +1,7 @@
 <template>
   <Layout title="Admin" :buttons="['back']">
     <div class="row my-5">
-      <div class="col-md-7">
+      <div class="col">
         <h2>Users</h2>
         <table class="table">
           <thead>
