@@ -327,6 +327,10 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function leave() {
+    if (!state.connected) {
+      return;
+    }
+
     socket?.close();
     socket = null;
   }

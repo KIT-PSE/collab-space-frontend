@@ -6,7 +6,7 @@
       >
         <div>
           <div class="col d-flex align-items-center">
-            <router-link to="/dashboard">
+            <router-link :to="auth.isLoggedIn ? '/dashboard' : '/'">
               <img
                 src="@/assets/textless-logo.png"
                 alt="CollabSpace"
@@ -96,11 +96,6 @@
             class="col-lg-6"
           >
             <div class="card my-1">
-              <!--              <img-->
-              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
-              <!--                alt=""-->
-              <!--                class="card-img-top"-->
-              <!--              />-->
               <Camera :user-id="student.id" />
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
@@ -185,7 +180,7 @@
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
   import Whiteboard from '@/components/Whiteboard.vue';
-  import { onMounted, ref } from 'vue';
+  import { onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue';
   import Notes from '@/components/Notes.vue';
   import BrowserComponent from '@/components/Browser.vue';
 
@@ -204,8 +199,10 @@
     window.addEventListener('resize', updateWhiteboardSize);
   });
 
-  onBeforeRouteLeave(() => {
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateWhiteboardSize);
     channel.stopWebcam();
+
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
     } else {
