@@ -48,6 +48,9 @@ export async function roomGuard(to: RouteLocationNormalized) {
       }
     }
   } catch (err) {
+    if (err === 'Wrong password') {
+      return { name: 'home', query: { code: to.params.id } };
+    }
     alerts.error('Raum beitreten fehlgeschlagen', err as Error);
     return { name: 'home' };
   }
