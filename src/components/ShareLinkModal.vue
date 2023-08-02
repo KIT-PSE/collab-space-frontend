@@ -29,10 +29,14 @@
   }
 
   function createShareText() {
-    // TODO: Add Password if needed
+    const { channelId, password = '' } = props.channel.room ?? {};
+    const passwordText = password ? `&password=${password}` : '';
+    const passwordLine = password ? `Passwort: ${password}` : '';
+
     return `Trete dem CollabSpace Raum bei:
 
-    Link: ${window.location.origin}/room/${props.channel.room?.channelId}
-    Code: ${props.channel.room?.channelId}`;
+      Link: ${window.location.origin}/?code=${channelId ?? ''}${passwordText}
+      Code: ${channelId ?? ''}
+      ${passwordLine}`;
   }
 </script>

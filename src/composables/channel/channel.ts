@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive } from 'vue';
+import { reactive, UnwrapNestedRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
@@ -23,6 +23,7 @@ export interface ChannelUser {
 export interface Student extends ChannelUser {
   name: string;
   handSignal: boolean;
+  permission: boolean;
 }
 
 export interface Teacher extends ChannelUser {
@@ -53,7 +54,7 @@ export const useChannel = defineStore('channel', () => {
   const auth = useAuth();
   const browser = useBrowser();
 
-  const state = reactive({
+  const state: UnwrapNestedRefs<ChannelState> = reactive({
     connected: false,
     channelId: '',
     clientId: '',
@@ -89,24 +90,10 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function loadNotes() {
-    if (state.notes) {
-      return state.notes;
-    }
-
-    const notes = new Notes(socket!);
+    const notes = new Notes(socket!, state.room!.id, state.room!.category);
     state.notes = notes;
 
     return notes;
-  }
-
-  async function loadWhiteboard(): Promise<Whiteboard> {
-    if (state.whiteboard) {
-      return state.whiteboard as Whiteboard;
-    }
-
-    const whiteboard = new Whiteboard(socket!);
-
-    return whiteboard;
   }
 
   async function loadWebcams(): Promise<void> {
@@ -185,6 +172,16 @@ export const useChannel = defineStore('channel', () => {
     socket?.emit('update-handSignal', { handSignal: student.handSignal });
   }
 
+  function updatePermission(studentId: string): void {
+    const student = studentById(studentId);
+
+    student.permission = !student.permission;
+    socket?.emit('update-permission', {
+      studentId,
+      permission: student.permission,
+    });
+  }
+
   function stopWebcam(): void {
     const stream = streams[state.clientId];
 
@@ -207,8 +204,20 @@ export const useChannel = defineStore('channel', () => {
     return state.students.find((s) => s.id === id);
   }
 
+  function studentById(id: string): Student {
+    const student = state.students.find((s) => s.id === id);
+    if (!student) {
+      throw new Error('IllegalState: User not found');
+    }
+    return student;
+  }
+
   function isStudent(user: ChannelUser): user is Student {
     return user.id !== state.teacher?.id;
+  }
+
+  function isTeacher(user: ChannelUser): user is Teacher {
+    return user.id === state.teacher?.id;
   }
 
   function currentUser(): ChannelUser {
@@ -243,9 +252,9 @@ export const useChannel = defineStore('channel', () => {
 
     socket?.emit('open-room', payload, async (result: any) => {
       state.connected = true;
-      state.channelId = result.id;
+      state.channelId = result.room.channelId;
       state.clientId = socket?.id || '';
-      state.room = room;
+      state.room = result.room;
       state.students = [];
       state.teacher = {
         id: state.clientId,
@@ -254,17 +263,18 @@ export const useChannel = defineStore('channel', () => {
         audio: true,
       };
       state.hasName = true;
+      state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
 
       browser.peerId.value = '';
 
       await router.push({
         name: 'room',
         params: {
-          id: result.id,
+          id: result.room.channelId,
         },
       });
 
-      room.channelId = result.id;
+      room.channelId = result.room.channelId;
     });
   }
 
@@ -276,11 +286,12 @@ export const useChannel = defineStore('channel', () => {
     });
   }
 
-  async function joinAsStudent(id: string): Promise<void> {
+  async function joinAsStudent(id: string, password?: string): Promise<void> {
     await connect();
     return join(id, 'join-room-as-student', {
       channelId: id,
       name: 'Verbinden...',
+      password,
     });
   }
 
@@ -289,7 +300,7 @@ export const useChannel = defineStore('channel', () => {
       socket?.emit(event, payload, (result: any) => {
         if (result.error) {
           leave();
-          reject(result.error);
+          return reject(result.error);
         }
 
         const data = convertDates(result) as JoinRoomResult;
@@ -301,8 +312,10 @@ export const useChannel = defineStore('channel', () => {
         state.teacher = data.teacher;
         state.room = data.room;
         state.hasName = false;
+        state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
 
         browser.peerId.value = data.browserPeerId;
+
 
         resolve();
       });
@@ -331,6 +344,7 @@ export const useChannel = defineStore('channel', () => {
 
     socket?.close();
     socket = null;
+    state.connected = false;
   }
 
   function isSelf(user: ChannelUser | string) {
@@ -433,6 +447,27 @@ export const useChannel = defineStore('channel', () => {
         }
       },
     );
+
+    socket.on(
+      'update-permission',
+      (payload: { id: string; permission: boolean }) => {
+        const student = studentById(payload.id);
+
+        if (student) {
+          student.permission = payload.permission;
+        }
+
+        if (socket.id === payload.id) {
+          alerts.add({
+            type: 'info',
+            title: 'Zugriffsänderung',
+            message: payload.permission
+              ? 'Sie haben jetzt Zugriff.'
+              : 'Sie haben keinen Zugriff mehr.',
+          });
+        }
+      },
+    );
   }
 
   return {
@@ -446,16 +481,17 @@ export const useChannel = defineStore('channel', () => {
     leave,
     isSelf,
     isStudent,
+    isTeacher,
     currentUser,
     changeName,
     streams,
     loadWebcams,
     loadNotes,
-    loadWhiteboard,
     getWebcamStream,
     toggleVideo,
     toggleAudio,
     toggleHandSignal,
+    updatePermission,
     stopWebcam,
     scroll,
   };

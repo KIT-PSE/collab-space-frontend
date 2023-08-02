@@ -150,6 +150,13 @@ export const useAuth = defineStore('auth', () => {
     );
   }
 
+  async function changeAccountData(): Promise<boolean> {
+    if (state.user === null) {
+      return false;
+    }
+    return api.changeAccountData(state.user);
+  }
+
   return {
     state,
     isLoggedIn,
@@ -160,6 +167,7 @@ export const useAuth = defineStore('auth', () => {
     logout,
     loadUser,
     onLogout,
+    changeAccountData,
   };
 });
 

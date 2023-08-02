@@ -37,13 +37,13 @@
           <i class="fa-solid fa-right-from-bracket fa-lg"></i>
           Ausloggen
         </button>
-        <button class="btn btn-secondary mx-1">
+        <button class="btn btn-secondary mx-1" v-if="dev">
           Timer:
           <span class="font-monospace">
             {{ auth.state.loginTimer?.state.time }}
           </span>
         </button>
-        <button class="btn btn-secondary mx-1">
+        <button class="btn btn-secondary mx-1" v-if="dev">
           <span v-if="channel.state.connected">Verbunden</span>
           <span v-else>Nicht verbunden</span>
         </button>
@@ -65,4 +65,6 @@
 
   const auth = useAuth();
   const channel = useChannel();
+
+  const dev = import.meta.env.DEV;
 </script>
