@@ -100,6 +100,10 @@ const api = {
     return fetch.delete('/auth/delete');
   },
 
+  async deleteUserAccount(id: number): Promise<void> {
+    return fetch.delete(`/user/${id}`);
+  },
+
   async allCategories(): Promise<Category[]> {
     return fetch.getOrFail('/category');
   },
