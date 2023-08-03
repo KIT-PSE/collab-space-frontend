@@ -10,6 +10,7 @@ import { useStore } from '@/composables/store';
 import Peer from 'peerjs';
 import { Notes } from '@/composables/channel/notes';
 import { Whiteboard } from '@/composables/channel/whiteboard';
+import { useBrowser } from '@/composables/channel/browser';
 
 const alerts = useAlerts();
 
@@ -31,6 +32,7 @@ export interface Teacher extends ChannelUser {
 
 export interface JoinRoomResult {
   room: Room;
+  browserPeerId: string;
   teacher: Teacher;
   students: Student[];
 }
@@ -50,6 +52,7 @@ export interface ChannelState {
 export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
+  const browser = useBrowser();
 
   const state: UnwrapNestedRefs<ChannelState> = reactive({
     connected: false,
@@ -78,6 +81,8 @@ export const useChannel = defineStore('channel', () => {
 
       socket.on('connect', () => {
         state.connected = true;
+        browser.init(socket!);
+
         handleConnection(socket!);
         resolve();
       });
@@ -97,6 +102,12 @@ export const useChannel = defineStore('channel', () => {
     }
 
     const user = currentUser();
+
+    if (import.meta.env.DEV) {
+      // deactivate audio in dev mode as it can get annoying
+      user.audio = false;
+    }
+
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
@@ -254,6 +265,8 @@ export const useChannel = defineStore('channel', () => {
       state.hasName = true;
       state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
 
+      browser.peerId.value = '';
+
       await router.push({
         name: 'room',
         params: {
@@ -301,6 +314,8 @@ export const useChannel = defineStore('channel', () => {
         state.hasName = false;
         state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
 
+        browser.peerId.value = data.browserPeerId;
+
         resolve();
       });
     });
@@ -322,6 +337,10 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function leave() {
+    if (!state.connected) {
+      return;
+    }
+
     socket?.close();
     socket = null;
     state.connected = false;
@@ -452,6 +471,7 @@ export const useChannel = defineStore('channel', () => {
 
   return {
     state,
+    browser,
     connect,
     open,
     joinAsTeacher,
@@ -472,5 +492,6 @@ export const useChannel = defineStore('channel', () => {
     toggleHandSignal,
     updatePermission,
     stopWebcam,
+    scroll,
   };
 });
