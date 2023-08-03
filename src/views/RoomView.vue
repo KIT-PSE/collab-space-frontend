@@ -136,8 +136,8 @@
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
                   <span
-                      v-if="!student.permission"
-                      class="badge text-bg-secondary ms-1"
+                    v-if="!student.permission"
+                    class="badge text-bg-secondary ms-1"
                   >
                     <i class="fas fa-lock"></i>
                   </span>
