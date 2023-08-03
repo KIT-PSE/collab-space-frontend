@@ -48,7 +48,7 @@ export class Webcam {
       const peer = new Peer();
 
       peer.on('open', (id) => {
-        this.user.emit('connect-webcam', {
+        this.socket.emit('connect-webcam', {
           userId: userToConnectTo.id,
           peerId: id,
         });
@@ -62,7 +62,7 @@ export class Webcam {
       });
     }
 
-    this.streams[user.id] = stream;
+    this.streams[this.user.id] = stream;
     this.webcamsLoaded = true;
   }
 
@@ -77,27 +77,27 @@ export class Webcam {
     stream
       ?.getVideoTracks()
       .forEach((track) => (track.enabled = this.user.video));
-    socket?.emit('update-webcam', {
+    this.socket.emit('update-webcam', {
       video: this.user.video,
       audio: this.user.audio,
     });
   }
 
   public toggleAudio(): void {
-    const stream = streams[this.user.id];
+    const stream = this.streams[this.user.id];
 
     this.user.audio = !this.user.audio;
     stream
       ?.getAudioTracks()
       .forEach((track) => (track.enabled = this.user.audio));
-    socket?.emit('update-webcam', {
+    this.socket.emit('update-webcam', {
       video: this.user.video,
       audio: this.user.audio,
     });
   }
 
   public stopWebcam(): void {
-    const stream = streams[this.user.id];
+    const stream = this.streams[this.user.id];
 
     for (const track of stream?.getTracks() ?? []) {
       track.stop();

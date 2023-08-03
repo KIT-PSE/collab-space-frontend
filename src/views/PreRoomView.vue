@@ -81,13 +81,13 @@
 
   function toggleVideo() {
     video.value = !video.value;
-    channel.toggleVideo();
+    channel.state.webcam?.toggleVideo();
     stream!.getVideoTracks().forEach((track) => (track.enabled = video.value));
   }
 
   function toggleAudio() {
     audio.value = !audio.value;
-    channel.toggleAudio();
+    channel.state.webcam?.toggleAudio();
     stream!.getAudioTracks().forEach((track) => (track.enabled = audio.value));
   }
 

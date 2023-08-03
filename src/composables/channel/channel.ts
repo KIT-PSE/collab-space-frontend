@@ -92,7 +92,7 @@ export const useChannel = defineStore('channel', () => {
     return notes;
   }
 
-  async function loadWebcams(): Webcam {
+  function loadWebcams(): Webcam {
     const webcam = new Webcam(socket!, state.teacher!, otherUsers);
     state.webcam = webcam;
 
