@@ -7,7 +7,6 @@ import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
 import { useStore } from '@/composables/store';
-import Peer from 'peerjs';
 import { Notes } from '@/composables/channel/notes';
 import { Whiteboard } from '@/composables/channel/whiteboard';
 import { Webcam } from '@/composables/channel/webcam';
