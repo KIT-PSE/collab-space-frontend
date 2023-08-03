@@ -41,7 +41,7 @@ export const useWebcam = () => {
       const peer = new Peer();
 
       peer.on('open', (id) => {
-        socket.emit('connect-webcam', {
+        socket?.emit('connect-webcam', {
           userId: userToConnectTo.id,
           peerId: id,
         });
@@ -59,7 +59,7 @@ export const useWebcam = () => {
       'connect-webcam',
       ({ userId, peerId }: { userId: string; peerId: string }) => {
         const peer = new Peer();
-        const stream = getWebcamStream(user?.id);
+        const stream = getWebcamStream(user!.id);
 
         peer.on('open', () => {
           const call = peer.call(peerId, stream);
@@ -70,7 +70,7 @@ export const useWebcam = () => {
       },
     );
 
-    streams[user?.id] = stream;
+    streams[user!.id] = stream;
     webcamsLoaded = true;
   }
 
@@ -79,29 +79,29 @@ export const useWebcam = () => {
   }
 
   function toggleVideo(): void {
-    const stream = streams[user?.id];
+    const stream = streams[user!.id];
 
     user!.video = !user!.video;
-    stream?.getVideoTracks().forEach((track) => (track.enabled = user?.video));
+    stream?.getVideoTracks().forEach((track) => (track.enabled = user!.video));
     socket?.emit('update-webcam', {
-      video: user?.video,
-      audio: user?.audio,
+      video: user!.video,
+      audio: user!.audio,
     });
   }
 
   function toggleAudio(): void {
-    const stream = streams[user?.id];
+    const stream = streams[user!.id];
 
     user!.audio = !user!.audio;
-    stream?.getAudioTracks().forEach((track) => (track.enabled = user?.audio));
+    stream?.getAudioTracks().forEach((track) => (track.enabled = user!.audio));
     socket?.emit('update-webcam', {
-      video: user?.video,
-      audio: user?.audio,
+      video: user!.video,
+      audio: user!.audio,
     });
   }
 
   function stopWebcam(): void {
-    const stream = streams[user?.id];
+    const stream = streams[user!.id];
 
     for (const track of stream?.getTracks() ?? []) {
       track.stop();
