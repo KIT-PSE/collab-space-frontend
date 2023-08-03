@@ -72,7 +72,7 @@
 <script setup lang="ts">
   import { computed, onMounted, ref, watch } from 'vue';
   import { useThrottleFn } from '@vueuse/core';
-  import { Student, useChannel } from '@/composables/channel/channel';
+  import { useChannel } from '@/composables/channel/channel';
 
   const website = ref('https://google.com');
   const browserVideo = ref<HTMLVideoElement | null>(null);
