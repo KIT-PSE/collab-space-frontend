@@ -29,6 +29,8 @@ export class UniqueAlert implements Alerts {
     this.type = alert.type;
     this.title = alert.title;
     this.message = alert.message;
+
+    this.removeAfter(5000);
   }
 
   public removeAfter(duration: number): void {
