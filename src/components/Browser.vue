@@ -100,7 +100,7 @@
   }
 
   const onMouseMove = useThrottleFn((event: MouseEvent) => {
-    if (!isStreaming.value) {
+    if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
     }
     const { x: targetX, y: targetY } = getAdjustedMousePosition(event);
@@ -108,7 +108,7 @@
   }, 50);
 
   function onMouseDown(event: MouseEvent) {
-    if (!isStreaming.value) {
+    if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
     }
 
@@ -120,7 +120,7 @@
   }
 
   function onMouseUp(event: MouseEvent) {
-    if (!isStreaming.value) {
+    if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
     }
 
@@ -132,7 +132,7 @@
   }
 
   function onKeyDown(event: KeyboardEvent) {
-    if (!isStreaming.value) {
+    if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
     }
 
@@ -140,7 +140,7 @@
   }
 
   function onKeyUp(event: KeyboardEvent) {
-    if (!isStreaming.value) {
+    if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
     }
 
@@ -148,7 +148,7 @@
   }
 
   function onWheel(event: WheelEvent) {
-    if (!isStreaming.value) {
+    if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
     }
 

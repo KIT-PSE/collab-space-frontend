@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive, UnwrapNestedRefs } from 'vue';
+import { computed, reactive, UnwrapNestedRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
@@ -65,6 +65,11 @@ export const useChannel = defineStore('channel', () => {
     notes: null,
     whiteboard: null,
   } as ChannelState);
+
+  const hasCurrentUserPermission = computed(() => {
+    const user = currentUser();
+    return isTeacher(user) || (user as Student).permission;
+  });
 
   let webcamsLoaded = false;
   const streams: Record<string, MediaStream> = reactive({});
@@ -481,6 +486,7 @@ export const useChannel = defineStore('channel', () => {
     isSelf,
     isStudent,
     isTeacher,
+    hasCurrentUserPermission,
     currentUser,
     changeName,
     streams,
