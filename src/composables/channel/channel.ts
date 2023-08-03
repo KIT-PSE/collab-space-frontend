@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive, UnwrapNestedRefs } from 'vue';
+import { computed, reactive, UnwrapNestedRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
@@ -10,6 +10,7 @@ import { useStore } from '@/composables/store';
 import { Notes } from '@/composables/channel/notes';
 import { Whiteboard } from '@/composables/channel/whiteboard';
 import { useWebcam } from '@/composables/channel/webcam';
+import { useBrowser } from '@/composables/channel/browser';
 
 const alerts = useAlerts();
 
@@ -31,6 +32,7 @@ export interface Teacher extends ChannelUser {
 
 export interface JoinRoomResult {
   room: Room;
+  browserPeerId: string;
   teacher: Teacher;
   students: Student[];
 }
@@ -50,6 +52,7 @@ export interface ChannelState {
 export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
+  const browser = useBrowser();
   const webcam = useWebcam();
 
   const state: UnwrapNestedRefs<ChannelState> = reactive({
@@ -64,6 +67,11 @@ export const useChannel = defineStore('channel', () => {
     whiteboard: null,
   } as ChannelState);
 
+  const hasCurrentUserPermission = computed(() => {
+    const user = currentUser();
+    return isTeacher(user) || (user as Student).permission;
+  });
+
   let socket: Socket | null = null;
 
   async function connect(): Promise<void> {
@@ -76,7 +84,8 @@ export const useChannel = defineStore('channel', () => {
 
       socket.on('connect', () => {
         state.connected = true;
-        webcam.initWebcam(socket!);
+        webcam.init(socket!);
+        browser.init(socket!);
 
         handleConnection(socket!);
         resolve();
@@ -181,6 +190,8 @@ export const useChannel = defineStore('channel', () => {
       state.hasName = true;
       state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
 
+      browser.peerId.value = '';
+
       await router.push({
         name: 'room',
         params: {
@@ -227,6 +238,9 @@ export const useChannel = defineStore('channel', () => {
         state.room = data.room;
         state.hasName = false;
         state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
+
+        browser.peerId.value = data.browserPeerId;
+
         resolve();
       });
     });
@@ -248,6 +262,10 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function leave() {
+    if (!state.connected) {
+      return;
+    }
+
     socket?.close();
     socket = null;
     state.connected = false;
@@ -364,6 +382,7 @@ export const useChannel = defineStore('channel', () => {
   return {
     state,
     webcam,
+    browser,
     connect,
     open,
     joinAsTeacher,
@@ -373,6 +392,7 @@ export const useChannel = defineStore('channel', () => {
     isSelf,
     isStudent,
     isTeacher,
+    hasCurrentUserPermission,
     currentUser,
     changeName,
     loadWebcams,

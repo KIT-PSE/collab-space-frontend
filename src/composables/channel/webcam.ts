@@ -10,7 +10,7 @@ export const useWebcam = () => {
   let user: ChannelUser | null = null;
   let socket: Socket | null = null;
 
-  function initWebcam(newSocket: Socket): void {
+  function init(newSocket: Socket): void {
     socket = newSocket;
     user = {
       id: socket.id,
@@ -116,7 +116,7 @@ export const useWebcam = () => {
 
   return {
     streams,
-    initWebcam,
+    init,
     loadWebcams,
     getWebcamStream,
     toggleVideo,

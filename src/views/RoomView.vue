@@ -2,12 +2,11 @@
   <main class="container-fluid h-100">
     <div class="row h-100">
       <div
-        class="col-9 p-2 overflow-hidden position-relative"
-        style="max-height: 100%"
+        class="col-9 d-flex flex-column p-2 gap-4 h-100 overflow-hidden position-relative"
       >
         <div class="row">
           <div class="col d-flex align-items-center">
-            <router-link to="/dashboard">
+            <router-link :to="auth.isLoggedIn ? '/dashboard' : '/'">
               <img
                 src="@/assets/textless-logo.png"
                 alt="CollabSpace"
@@ -17,14 +16,8 @@
           </div>
         </div>
 
-        <div class="row">
-          <div class="col d-flex justify-content-center mt-3">
-            <video
-              src="https://placehold.co/1920x1080.mp4?text=eingebettete+Webseite"
-              autoplay
-              style="max-width: 100%; max-height: 100%; aspect-ratio: 16/9"
-            ></video>
-          </div>
+        <div class="overflow-auto flex-grow-1">
+          <BrowserComponent />
         </div>
         <div id="open-whiteboard">
           <button class="btn btn-secondary" @click="toggleWhiteboard">
@@ -56,7 +49,7 @@
         class="col-3 p-2 bg-dark d-flex flex-column justify-content-between"
         style="max-height: 100%"
       >
-        <div class="row overflow-y-auto mb-2">
+        <div class="overflow-y-auto mb-2">
           <div class="d-flex justify-content-between px-4 py-2">
             <h3 class="text-center text-primary mt-2">
               {{ channel.state.room?.name }}
@@ -76,11 +69,6 @@
 
           <div v-if="channel.state.teacher" class="col-lg-6">
             <div class="card my-1">
-              <!--              <img-->
-              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
-              <!--                alt=""-->
-              <!--                class="card-img-top"-->
-              <!--              />-->
               <Camera :user-id="channel.state.teacher.id" />
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
@@ -167,7 +155,7 @@
             </div>
           </div>
         </div>
-        <div class="row">
+        <div>
           <div class="col d-flex justify-content-center">
             <span v-if="channel.isStudent(channel.currentUser())">
               <button
@@ -219,14 +207,14 @@
     Student,
     useChannel,
   } from '@/composables/channel/channel';
-  import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
   import Whiteboard from '@/components/Whiteboard.vue';
+  import { onBeforeUnmount, onMounted, ref } from 'vue';
   import { Whiteboard as WhiteboardComposable } from '@/composables/channel/whiteboard';
-  import { onMounted, ref } from 'vue';
   import Notes from '@/components/Notes.vue';
+  import BrowserComponent from '@/components/Browser.vue';
 
   const auth = useAuth();
   const channel = useChannel();
@@ -241,10 +229,15 @@
 
   onMounted(() => {
     window.addEventListener('resize', updateWhiteboardSize);
+    document.documentElement.style.overflowY = 'hidden';
   });
 
-  onBeforeRouteLeave(() => {
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateWhiteboardSize);
+    document.documentElement.style.overflowY = '';
+
     channel.webcam.stopWebcam();
+
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
     } else {
