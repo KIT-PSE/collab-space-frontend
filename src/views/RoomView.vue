@@ -46,10 +46,10 @@
         </div>
       </div>
       <div
-        class="col-3 p-2 bg-dark d-flex flex-column justify-content-between"
+        class="col-3 py-3 bg-dark d-flex flex-column justify-content-between"
         style="max-height: 100%"
       >
-        <div class="overflow-y-auto mb-2">
+        <div class="row overflow-y-auto mb-2">
           <div class="d-flex justify-content-between px-4 py-2">
             <h3 class="text-center text-primary mt-2">
               {{ channel.state.room?.name }}
@@ -68,12 +68,15 @@
           </div>
 
           <div v-if="channel.state.teacher" class="col-lg-6">
-            <div class="card my-1">
+            <div class="card my-1 border-4 border-primary">
               <Camera :user-id="channel.state.teacher.id" />
               <div class="card-body py-2">
-                <div class="card-text text-dark text-decoration-none">
+                <div
+                  class="card-text text-dark text-decoration-none d-flex align-items-center flex-wrap"
+                >
                   {{ channel.state.teacher?.user.name }}
-                  <span class="badge text-bg-primary ms-1">Lehrer</span>
+                  <!--<span class="badge text-bg-primary ms-1">Lehrer</span>-->
+                  <span class="flex-grow-1"></span>
                   <span
                     v-if="channel.isSelf(channel.state.teacher)"
                     class="badge text-bg-secondary ms-1"
@@ -84,7 +87,7 @@
                     v-if="!channel.state.teacher.audio"
                     class="badge text-bg-secondary ms-1"
                   >
-                    Muted
+                    <i class="fas fa-microphone-slash"></i>
                   </span>
                 </div>
               </div>
