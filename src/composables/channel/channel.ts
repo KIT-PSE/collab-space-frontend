@@ -316,7 +316,6 @@ export const useChannel = defineStore('channel', () => {
 
         browser.peerId.value = data.browserPeerId;
 
-
         resolve();
       });
     });
