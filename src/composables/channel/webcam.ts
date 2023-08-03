@@ -1,5 +1,5 @@
 import Peer from 'peerjs';
-import { reactive, ref } from 'vue';
+import { reactive } from 'vue';
 import { Socket } from 'socket.io-client';
 import { ChannelUser } from '@/composables/channel/channel';
 
