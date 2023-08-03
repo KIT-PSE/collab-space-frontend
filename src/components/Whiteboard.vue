@@ -58,6 +58,7 @@
   import { onMounted, ref, watch } from 'vue';
   import { fabric } from 'fabric';
   import { Whiteboard } from '@/composables/channel/whiteboard';
+  import {useChannel} from '@/composables/channel/channel';
 
   enum Tool {
     Pen = 'pen',
@@ -83,6 +84,15 @@
   const minZoomLevel = 0.5;
   const maxZoomLevel = 2;
 
+  const channel = useChannel();
+  watch(() => channel.hasCurrentUserPermission, (permission: boolean) => {
+    if (!canvas.value || tool.value === Tool.Select) {
+      return;
+    }
+
+    canvas.value!.isDrawingMode = permission;
+  })
+
   /**
    * Constants for the viewportTransform array of the canvas.
    * See http://fabricjs.com/docs/fabric.Canvas.html#viewportTransform
@@ -92,7 +102,7 @@
 
   onMounted(async () => {
     canvas.value = new fabric.Canvas('whiteboard', {
-      isDrawingMode: true,
+      isDrawingMode: channel.hasCurrentUserPermission,
       selection: false,
     });
 
@@ -218,7 +228,7 @@
         o.selectable = false;
       });
     } else {
-      canvasRef.isDrawingMode = true;
+      canvasRef.isDrawingMode = channel.hasCurrentUserPermission;
       canvasRef.hoverCursor = 'crosshair';
 
       switch (newTool) {
