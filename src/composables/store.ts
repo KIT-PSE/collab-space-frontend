@@ -91,7 +91,6 @@ export const useStore = defineStore('store', () => {
   async function deleteCategory(category: Category): Promise<void> {
     try {
       await api.deleteCategory(category.id);
-      // categories.value = categories.value.filter((c) => c.id !== category.id);
       categories.value.splice(categories.value.indexOf(category), 1);
     } catch (err) {
       alerts.error('Kategorie konnte nicht gelöscht werden.', err as Error);
@@ -102,12 +101,12 @@ export const useStore = defineStore('store', () => {
     try {
       const room = await api.createRoom(data);
 
-      findCategory(room.category)?.rooms.push({
+      findCategory(room.category.id)?.rooms.push({
         ...room,
-        category: room.category,
+        category: room.category.id,
       });
 
-      return room;
+      return { ...room, category: room.category.id };
     } catch (err) {
       if (err instanceof ValidationError) {
         throw err;

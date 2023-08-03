@@ -300,6 +300,7 @@ export const useChannel = defineStore('channel', () => {
         state.room = data.room;
         state.hasName = false;
         state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
+
         resolve();
       });
     });
