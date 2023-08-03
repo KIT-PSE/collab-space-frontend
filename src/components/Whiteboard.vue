@@ -58,7 +58,7 @@
   import { onMounted, ref, watch } from 'vue';
   import { fabric } from 'fabric';
   import { Whiteboard } from '@/composables/channel/whiteboard';
-  import {useChannel} from '@/composables/channel/channel';
+  import { useChannel } from '@/composables/channel/channel';
 
   enum Tool {
     Pen = 'pen',
@@ -85,13 +85,16 @@
   const maxZoomLevel = 2;
 
   const channel = useChannel();
-  watch(() => channel.hasCurrentUserPermission, (permission: boolean) => {
-    if (!canvas.value || tool.value === Tool.Select) {
-      return;
-    }
+  watch(
+    () => channel.hasCurrentUserPermission,
+    (permission: boolean) => {
+      if (!canvas.value || tool.value === Tool.Select) {
+        return;
+      }
 
-    canvas.value!.isDrawingMode = permission;
-  })
+      canvas.value!.isDrawingMode = permission;
+    },
+  );
 
   /**
    * Constants for the viewportTransform array of the canvas.

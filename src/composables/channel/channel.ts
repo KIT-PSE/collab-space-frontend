@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import {computed, reactive, UnwrapNestedRefs} from 'vue';
+import { computed, reactive, UnwrapNestedRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
