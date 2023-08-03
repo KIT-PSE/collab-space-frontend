@@ -236,7 +236,7 @@
     window.removeEventListener('resize', updateWhiteboardSize);
     document.documentElement.style.overflowY = '';
 
-    channel.stopWebcam();
+    channel.webcam.stopWebcam();
 
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
@@ -255,11 +255,11 @@
   }
 
   function toggleVideo() {
-    channel.toggleVideo();
+    channel.webcam.toggleVideo();
   }
 
   function toggleAudio() {
-    channel.toggleAudio();
+    channel.webcam.toggleAudio();
   }
 
   function toggleHandSignal() {
