@@ -30,7 +30,7 @@ export class Webcam {
     );
   }
 
-  private async loadWebcams(): Promise<void> {
+  public async loadWebcams(): Promise<void> {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,

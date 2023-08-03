@@ -25,7 +25,7 @@
     if (loaded) {
       return;
     }
-
+    
     const stream = webcam.getWebcamStream(props.userId);
 
     if (stream) {

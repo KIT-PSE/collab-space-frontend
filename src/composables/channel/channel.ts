@@ -94,10 +94,13 @@ export const useChannel = defineStore('channel', () => {
 
   function loadWebcams(): Webcam {
     if (state.webcam) {
+      if(!state.webcam.webcamsLoaded) {
+        state.webcam.loadWebcams();
+      }
       return state.webcam as Webcam;
     }
 
-    const webcam = new Webcam(socket!, state.teacher!, otherUsers);
+    const webcam = new Webcam(socket!, currentUser(), otherUsers);
     state.webcam = webcam;
 
     return webcam;
