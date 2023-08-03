@@ -16,17 +16,17 @@
   }>();
 
   const channel = useChannel();
-  const webcam = channel.state.webcam;
+  const webcam = channel.loadWebcams();
 
   const video = ref<HTMLVideoElement | null>(null);
   let loaded = false;
 
-  watch(webcam?.streams, () => {
+  watch(webcam.streams, () => {
     if (loaded) {
       return;
     }
 
-    const stream = webcam?.getWebcamStream(props.userId);
+    const stream = webcam.getWebcamStream(props.userId);
 
     if (stream) {
       video.value!.srcObject = stream;

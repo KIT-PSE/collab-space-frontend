@@ -262,11 +262,11 @@
   }
 
   function toggleVideo() {
-    channel.toggleVideo();
+    channel.state.webcam?.toggleVideo();
   }
 
   function toggleAudio() {
-    channel.toggleAudio();
+    channel.state.webcam?.toggleAudio();
   }
 
   function toggleHandSignal() {
