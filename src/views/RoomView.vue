@@ -244,7 +244,7 @@
   });
 
   onBeforeRouteLeave(() => {
-    channel.stopWebcam();
+    channel.state.webcam?.stopWebcam();
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
     } else {

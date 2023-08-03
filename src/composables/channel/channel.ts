@@ -10,6 +10,7 @@ import { useStore } from '@/composables/store';
 import Peer from 'peerjs';
 import { Notes } from '@/composables/channel/notes';
 import { Whiteboard } from '@/composables/channel/whiteboard';
+import { Webcam } from '@/composables/channel/webcam';
 
 const alerts = useAlerts();
 
@@ -45,6 +46,7 @@ export interface ChannelState {
   hasName: boolean;
   notes: Notes | null;
   whiteboard: Whiteboard | null;
+  webcam: Webcam | null;
 }
 
 export const useChannel = defineStore('channel', () => {
@@ -63,8 +65,8 @@ export const useChannel = defineStore('channel', () => {
     whiteboard: null,
   } as ChannelState);
 
-  let webcamsLoaded = false;
-  const streams: Record<string, MediaStream> = reactive({});
+  //let webcamsLoaded = false;
+  //const streams: Record<string, MediaStream> = reactive({});
 
   let socket: Socket | null = null;
 
@@ -91,68 +93,34 @@ export const useChannel = defineStore('channel', () => {
     return notes;
   }
 
-  async function loadWebcams(): Promise<void> {
-    if (webcamsLoaded) {
-      return;
-    }
+  async function loadWebcams(): Webcam {
+    const webcam = new Webcam(socket!, state.teacher!, otherUsers);
+    state.webcam = webcam;
 
-    const user = currentUser();
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-
-    if (!user?.video) {
-      stream.getVideoTracks().forEach((track) => (track.enabled = false));
-    }
-
-    if (!user?.audio) {
-      stream.getAudioTracks().forEach((track) => (track.enabled = false));
-    }
-
-    for (const userToConnectTo of otherUsers()) {
-      const peer = new Peer();
-
-      peer.on('open', (id) => {
-        socket?.emit('connect-webcam', {
-          userId: userToConnectTo.id,
-          peerId: id,
-        });
-      });
-
-      peer.on('call', (call) => {
-        call.answer(stream);
-        call.on('stream', (remoteStream) => {
-          streams[userToConnectTo.id] = remoteStream;
-        });
-      });
-    }
-
-    streams[state.clientId] = stream;
-    webcamsLoaded = true;
+    return webcam;
   }
 
-  function getWebcamStream(userId: string): MediaStream {
-    return streams[userId] ?? null;
-  }
+  /*function getWebcamStream(userId: string): MediaStream {
+      return streams[userId] ?? null;
+  }*/
 
-  function toggleVideo(): void {
+  /*function toggleVideo(): void {
     const user = currentUser();
     const stream = streams[user.id];
 
     user.video = !user.video;
     stream?.getVideoTracks().forEach((track) => (track.enabled = user.video));
     socket?.emit('update-webcam', { video: user.video, audio: user.audio });
-  }
+  }*/
 
-  function toggleAudio(): void {
+  /*function toggleAudio(): void {
     const user = currentUser();
     const stream = streams[user.id];
 
     user.audio = !user.audio;
     stream?.getAudioTracks().forEach((track) => (track.enabled = user.audio));
     socket?.emit('update-webcam', { video: user.video, audio: user.audio });
-  }
+  }*/
 
   function toggleHandSignal(): void {
     const student = currentUser() as Student;
@@ -171,7 +139,7 @@ export const useChannel = defineStore('channel', () => {
     });
   }
 
-  function stopWebcam(): void {
+  /*function stopWebcam(): void {
     const stream = streams[state.clientId];
 
     for (const track of stream?.getTracks() ?? []) {
@@ -183,7 +151,7 @@ export const useChannel = defineStore('channel', () => {
     }
 
     webcamsLoaded = false;
-  }
+  }*/
 
   function userById(id: string): ChannelUser | undefined {
     if (state.teacher?.id === id) {
@@ -389,7 +357,7 @@ export const useChannel = defineStore('channel', () => {
       state.students[index].name = name;
     });
 
-    socket.on(
+    /*socket.on(
       'connect-webcam',
       ({ userId, peerId }: { userId: string; peerId: string }) => {
         const peer = new Peer();
@@ -402,7 +370,7 @@ export const useChannel = defineStore('channel', () => {
           });
         });
       },
-    );
+    );*/
 
     socket.on(
       'update-webcam',
@@ -462,14 +430,14 @@ export const useChannel = defineStore('channel', () => {
     isTeacher,
     currentUser,
     changeName,
-    streams,
+    //streams,
     loadWebcams,
     loadNotes,
-    getWebcamStream,
-    toggleVideo,
-    toggleAudio,
+    //getWebcamStream,
+    //toggleVideo,
+    //toggleAudio,
     toggleHandSignal,
     updatePermission,
-    stopWebcam,
+    //stopWebcam,
   };
 });
