@@ -9,7 +9,7 @@ import { useAuth } from '@/composables/auth';
 import { useStore } from '@/composables/store';
 import { Notes } from '@/composables/channel/notes';
 import { Whiteboard } from '@/composables/channel/whiteboard';
-import { Webcam } from '@/composables/channel/webcam';
+import { useWebcam } from '@/composables/channel/webcam';
 
 const alerts = useAlerts();
 
@@ -45,12 +45,12 @@ export interface ChannelState {
   hasName: boolean;
   notes: Notes | null;
   whiteboard: Whiteboard | null;
-  webcam: Webcam | null;
 }
 
 export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
+  const webcam = useWebcam();
 
   const state: UnwrapNestedRefs<ChannelState> = reactive({
     connected: false,
@@ -76,6 +76,8 @@ export const useChannel = defineStore('channel', () => {
 
       socket.on('connect', () => {
         state.connected = true;
+        webcam.initWebcam(socket!);
+
         handleConnection(socket!);
         resolve();
       });
@@ -89,18 +91,8 @@ export const useChannel = defineStore('channel', () => {
     return notes;
   }
 
-  function loadWebcams(): Webcam {
-    if (state.webcam) {
-      if(!state.webcam.webcamsLoaded) {
-        state.webcam.loadWebcams();
-      }
-      return state.webcam as Webcam;
-    }
-
-    const webcam = new Webcam(socket!, currentUser(), otherUsers);
-    state.webcam = webcam;
-
-    return webcam;
+  async function loadWebcams() {
+    await webcam.loadWebcams(otherUsers);
   }
 
   function toggleHandSignal(): void {
@@ -371,6 +363,7 @@ export const useChannel = defineStore('channel', () => {
 
   return {
     state,
+    webcam,
     connect,
     open,
     joinAsTeacher,

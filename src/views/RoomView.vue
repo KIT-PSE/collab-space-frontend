@@ -244,7 +244,7 @@
   });
 
   onBeforeRouteLeave(() => {
-    channel.state.webcam?.stopWebcam();
+    channel.webcam.stopWebcam();
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
     } else {
@@ -262,11 +262,11 @@
   }
 
   function toggleVideo() {
-    channel.state.webcam?.toggleVideo();
+    channel.webcam.toggleVideo();
   }
 
   function toggleAudio() {
-    channel.state.webcam?.toggleAudio();
+    channel.webcam.toggleAudio();
   }
 
   function toggleHandSignal() {
