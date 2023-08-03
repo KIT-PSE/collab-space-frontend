@@ -120,7 +120,7 @@ const api = {
     return fetch.delete(`/category/${id}`);
   },
 
-  async createRoom(data: CreateRoom): Promise<Room & { category: Category }> {
+  async createRoom(data: CreateRoom): Promise<Omit<Room, 'category'> & { category: Category }> {
     return fetch.postOrFail(`/category/${data.categoryId}/room`, {
       name: data.name,
       password: data.password,
