@@ -229,10 +229,13 @@
 
   onMounted(() => {
     window.addEventListener('resize', updateWhiteboardSize);
+    document.documentElement.style.overflowY = 'hidden';
   });
 
   onBeforeUnmount(() => {
     window.removeEventListener('resize', updateWhiteboardSize);
+    document.documentElement.style.overflowY = '';
+
     channel.stopWebcam();
 
     if (auth.isLoggedIn) {
