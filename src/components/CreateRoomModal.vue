@@ -50,6 +50,11 @@
     password: '',
   });
 
+  /**
+   * Asynchronous function that handles the process of submitting a form to create a room.
+   * This function checks if a category has been selected, sets an error message if not,
+   * and then calls the 'store.createRoom()' function to create a room using the form data.
+   */
   async function submit() {
     if (!form.categoryId) {
       form.errors.categoryId = 'Bitte wähle eine Kategorie aus.';

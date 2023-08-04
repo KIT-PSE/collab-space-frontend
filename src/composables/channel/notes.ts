@@ -2,12 +2,21 @@ import { Socket } from 'socket.io-client';
 import { reactive } from 'vue';
 import { useApi } from '@/composables/api';
 
+/**
+ * The note object that is used to represent a note
+ * @property id - The id of the note
+ * @property name - The name of the note
+ * @property content - The content of the note
+ */
 export interface Note {
   id: number;
   name: string;
   content: string;
 }
 
+/**
+ *  Composable that contains all the functions and variables related to the integrated Notes.
+ */
 export class Notes {
   public notesList = reactive([] as Note[]);
 
@@ -40,16 +49,29 @@ export class Notes {
     });
   }
 
+  /**
+   * Loads alle the notes from the server
+   * @param roomId - The id of the room
+   * @param categoryId - The id of the category
+   */
   async loadNotes(roomId: number, categoryId: number) {
     const api = useApi();
     const notesResult = await api.getNotes(roomId, categoryId);
     this.notesList.push(...notesResult);
   }
 
+  /**
+   * Gets a note by its id
+   * @param noteId - The id of the note
+   */
   public getNoteById(noteId: number) {
     return this.notesList.find((note) => note.id === noteId);
   }
 
+  /**
+   * Adds a note to the server
+   * @param name - The name of the note
+   */
   public addNote(name: string): Promise<number> {
     return new Promise((resolve) => {
       this.socket.emit('add-note', { name }, (response: { id: number }) => {
@@ -64,14 +86,27 @@ export class Notes {
     });
   }
 
+  /**
+   * Updates a note on the server
+   * @param noteId - The id of the note
+   * @param content - The content of the note
+   */
   public updateNote(noteId: number, content: string) {
     this.socket.emit('update-note', { noteId, content });
   }
 
+  /**
+   * Deletes a note on the server
+   * @param noteId - The id of the note
+   */
   public deleteNoteById(noteId: number) {
     this.socket.emit('delete-note', { noteId });
   }
 
+  /**
+   * Downloads a note from the server
+   * @param noteId - The id of the note
+   */
   public downloadNote(noteId: number) {
     const note = this.getNoteById(noteId);
     if (note) {

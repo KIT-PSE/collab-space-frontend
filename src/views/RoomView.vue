@@ -247,6 +247,10 @@
 
   channel.loadWebcams();
 
+  /**
+   * Function that updates the 'width' and 'height' values based on the client width and height of the "whiteboard-wrapper" element.
+   * It retrieves the client width and height using 'document.getElementById()', and updates the 'width' and 'height' values accordingly.
+   */
   function updateWhiteboardSize() {
     width.value =
       document.getElementById('whiteboard-wrapper')?.clientWidth || 0;
@@ -254,22 +258,40 @@
       document.getElementById('whiteboard-wrapper')?.clientHeight || 0;
   }
 
+  /**
+   * Function that toggles the video transmission status through the channel using 'channel.toggleVideo()'.
+   */
   function toggleVideo() {
     channel.toggleVideo();
   }
+
+  /**
+   * Function that toggles the audio transmission status through the channel using 'channel.toggleAudio()'.
+   */
 
   function toggleAudio() {
     channel.toggleAudio();
   }
 
+  /**
+   * Function that toggles the hand signal through the channel using 'channel.toggleHandSignal()'.
+   */
   function toggleHandSignal() {
     channel.toggleHandSignal();
   }
 
+  /**
+   * Function that updates the permission of a student with the provided 'studentId' through the channel using 'channel.updatePermission()'.
+   * @param studentId - The ID of the student whose permission is to be updated.
+   */
   function updatePermission(studentId: string) {
     channel.updatePermission(studentId);
   }
 
+  /**
+   * Function that toggles the visibility of the whiteboard. If the notes are visible, it will also toggle the notes using 'toggleNotes()'.
+   * It updates the 'showWhiteboard.value' and sets a timeout to call 'updateWhiteboardSize()' after 50 milliseconds.
+   */
   function toggleWhiteboard() {
     if (showNotes.value) {
       toggleNotes();
@@ -281,6 +303,10 @@
     }, 50);
   }
 
+  /**
+   * Function that toggles the expanded view of the whiteboard and sets a timeout to call 'updateWhiteboardSize()' after 50 milliseconds.
+   * It updates the 'expandWhiteboard.value'.
+   */
   function toggleExpandWhiteboard() {
     expandWhiteboard.value = !expandWhiteboard.value;
 
@@ -289,6 +315,10 @@
     }, 50);
   }
 
+  /**
+   * Function that toggles the visibility of the notes. If the whiteboard is visible, it will also toggle the whiteboard using 'toggleWhiteboard()'.
+   * It updates the 'showNotes.value'.
+   */
   function toggleNotes() {
     if (showWhiteboard.value) {
       toggleWhiteboard();

@@ -60,9 +60,26 @@
   import { Whiteboard } from '@/composables/channel/whiteboard';
   import { useChannel } from '@/composables/channel/channel';
 
+  /**
+   * Enumeration representing different tools used in the application.
+   */
   enum Tool {
+    /**
+     * The Pen tool, used for drawing or writing.
+     * The string value is 'pen'.
+     */
     Pen = 'pen',
+
+    /**
+     * The Select tool, used for selecting objects or elements.
+     * The string value is 'select'.
+     */
     Select = 'select',
+
+    /**
+     * The Eraser tool, used for erasing or removing content.
+     * The string value is 'eraser'.
+     */
     Eraser = 'eraser',
   }
 
@@ -219,6 +236,11 @@
     });
   });
 
+  /**
+   * Function that sets the active tool for the canvas.
+   * It changes various properties of the canvas based on the selected tool.
+   * @param newTool - The new tool to be set as active.
+   */
   function setTool(newTool: Tool) {
     const canvasRef = canvas.value!;
     if (newTool === Tool.Select) {
@@ -250,16 +272,28 @@
     tool.value = newTool;
   }
 
+  /**
+   * Function that zooms in on the canvas.
+   */
   function zoomIn() {
     let zoom = canvas.value!.getZoom() * 1.25 || 1;
     zoomCanvas(zoom);
   }
 
+  /**
+   * Function that zooms out on the canvas.
+   */
   function zoomOut() {
     let zoom = canvas.value!.getZoom() / 1.25 || 1;
     zoomCanvas(zoom);
   }
 
+  /**
+   * Function that zooms the canvas to the specified 'zoomValue' around the provided 'point'.
+   * The zoomValue is clamped between 'minZoomLevel' and 'maxZoomLevel'.
+   * @param zoomValue - The zoom value to be set.
+   * @param point - The point around which the canvas should be zoomed (optional).
+   */
   function zoomCanvas(zoomValue: number, point?: fabric.IPoint) {
     zoomValue = Math.max(Math.min(zoomValue, maxZoomLevel), minZoomLevel);
     canvas.value?.zoomToPoint(
@@ -271,6 +305,10 @@
     );
   }
 
+  /**
+   * Function that updates the dimensions of the canvas based on 'props.width' and 'props.height'.
+   * The 'calcOffset' method is called to recalculate the canvas offset.
+   */
   function updateDimensions() {
     canvas.value?.setDimensions({
       width: props.width,
@@ -279,6 +317,9 @@
     canvas.value?.calcOffset();
   }
 
+  /**
+   * Function that exports the canvas as an image (PNG format) and initiates the download of the image.
+   */
   function exportAsImage() {
     const data = canvas.value?.toDataURL({
       width: maxCanvasWidth,
@@ -302,10 +343,16 @@
     }
   }
 
+  /**
+   * Function that emits a custom event named 'close'.
+   */
   function close() {
     emit('close');
   }
 
+  /**
+   * Function that emits a custom event named 'expand'.
+   */
   function expand() {
     emit('expand');
   }

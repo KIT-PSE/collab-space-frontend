@@ -37,6 +37,10 @@
     password: import.meta.env.DEV ? '12345' : '',
   });
 
+  /**
+   * Function that initiates the login process by submitting the login form data to the 'auth.login()' method.
+   * The 'form.submit()' method is used to send the login data.
+   */
   function login() {
     form.submit((data) => auth.login(data));
   }

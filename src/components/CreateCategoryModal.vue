@@ -25,6 +25,9 @@
 
   const form = useForm({ name: '' });
 
+  /**
+   * Asynchronous function that handles the process of submitting a form to create a category.
+   */
   async function submit() {
     const result = await form.submit((data) => store.createCategory(data));
 

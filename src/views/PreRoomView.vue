@@ -79,18 +79,34 @@
   const video = ref(true);
   const audio = ref(true);
 
+  /**
+   * Function that toggles the video status for the current user.
+   * It updates the 'video' value, calls 'channel.toggleVideo()' to toggle video transmission through the channel,
+   * and enables/disables the video tracks in the local media stream accordingly.
+   */
   function toggleVideo() {
     video.value = !video.value;
     channel.toggleVideo();
     stream!.getVideoTracks().forEach((track) => (track.enabled = video.value));
   }
 
+  /**
+   * Function that toggles the audio status for the current user.
+   * It updates the 'audio' value, calls 'channel.toggleAudio()' to toggle audio transmission through the channel,
+   * and enables/disables the audio tracks in the local media stream accordingly.
+   */
   function toggleAudio() {
     audio.value = !audio.value;
     channel.toggleAudio();
     stream!.getAudioTracks().forEach((track) => (track.enabled = audio.value));
   }
 
+  /**
+   * Asynchronous function that handles the submission process when the user changes their name.
+   * It checks if the user has provided a name, and if not, it sets an error message.
+   * Otherwise, it calls 'channel.changeName()' to update the user's name and navigates to the room
+   * with the updated name using 'router.push()'.
+   */
   async function submit() {
     if (!form.name) {
       form.errors.name = 'Bitte gib deinen Namen ein';
@@ -102,6 +118,10 @@
     await router.push(`/room/${channel.state.channelId}`);
   }
 
+  /**
+   * Function that resets the user's name by removing it from the local storage
+   * and clearing the 'form.name' and 'savedUserName.value'.
+   */
   function resetName() {
     localStorage.removeItem('session-name');
     savedUserName.value = '';

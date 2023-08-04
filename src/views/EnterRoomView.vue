@@ -58,6 +58,12 @@
     }
   });
 
+  /**
+   * Asynchronous function that handles the submission process for joining a room as a student.
+   * It attempts to join the room with the provided 'code' and 'password'.
+   * If successful, it navigates to the room's "connecting" page.
+   * If there's an error, it handles specific error cases and sets the appropriate error messages.
+   */
   async function submit() {
     try {
       await channel.joinAsStudent(form.code as string, form.password as string);
