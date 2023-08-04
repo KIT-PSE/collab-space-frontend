@@ -29,7 +29,11 @@
           <button
             type="button"
             class="btn"
-            :class="submitText === 'Löschen' ? 'btn-danger' : 'btn-primary'"
+            :class="
+              submitText && ['Löschen', 'Schließen'].includes(submitText)
+                ? 'btn-danger'
+                : 'btn-primary'
+            "
             @click="$emit('submit')"
           >
             {{ submitText || 'Speichern' }}
