@@ -13,6 +13,13 @@
       :error="form.errors.code"
     />
 
+    <Input
+      v-if="showPassword"
+      label="Passwort"
+      v-model="form.password"
+      :error="form.errors.password"
+    />
+
     <button class="btn btn-primary w-100" @click="submit">Beitreten</button>
 
     <router-link
@@ -30,21 +37,43 @@
   import { useChannel } from '@/composables/channel/channel';
   import { useForm } from '@/composables/form';
   import { useRouter } from 'vue-router';
+  import { onMounted, ref } from 'vue';
 
   const channel = useChannel();
   const router = useRouter();
 
   const form = useForm({
-    code: '',
+    code: router.currentRoute.value.query.code ?? '',
+    password: router.currentRoute.value.query.password ?? '',
+  });
+
+  const showPassword = ref(
+    router.currentRoute.value.query.password &&
+      router.currentRoute.value.query.password !== '',
+  );
+
+  onMounted(() => {
+    if (form.code) {
+      submit();
+    }
   });
 
   async function submit() {
     try {
-      await channel.joinAsStudent(form.code);
+      await channel.joinAsStudent(form.code as string, form.password as string);
       form.clearErrors();
       await router.push(`/room/${form.code}/connecting`);
-    } catch (err) {
-      form.errors.code = err as string;
+    } catch (e) {
+      const error = e as string;
+      if (error === 'Wrong password') {
+        if (showPassword.value) {
+          form.errors.password = 'Das Passwort ist falsch.';
+        } else {
+          showPassword.value = true;
+        }
+      } else {
+        form.errors.code = error;
+      }
     }
   }
 </script>

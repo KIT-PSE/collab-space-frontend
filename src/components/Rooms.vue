@@ -1,75 +1,83 @@
 <template>
-  <div class="row">
-    <transition-group name="bounce">
-      <div
-        v-for="category in store.categories"
-        :key="category.id"
-        class="col-lg-9"
-      >
-        <div class="d-flex justify-content-between">
-          <h3>{{ category.name }}</h3>
-          <div>
-            <button class="btn text-secondary" @click="editCategory(category)">
-              <i class="fa fa-pen"></i>
-            </button>
-            <button
-              class="btn text-secondary"
-              @click="deleteCategory(category)"
-            >
-              <i class="fa fa-trash"></i>
-            </button>
+  <div class="row mb-5">
+    <div
+      class="card d-flex align-items-center justify-content-center"
+      v-if="store.categories.length === 0"
+    >
+      <p class="py-5 m-0">
+        Hier ist noch nichts zu sehen. Erstelle deine erste Kategorie!
+      </p>
+    </div>
+
+    <div
+      v-for="category in store.categories"
+      :key="category.id"
+      class="col-lg-9"
+    >
+      <div class="d-flex justify-content-between">
+        <h3>{{ category.name }}</h3>
+        <div>
+          <button class="btn text-secondary" @click="editCategory(category)">
+            <i class="fa fa-pen"></i>
+          </button>
+          <button class="btn text-secondary" @click="deleteCategory(category)">
+            <i class="fa fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      <div class="row py-4">
+        <div v-if="category.rooms.length === 0">
+          <div class="card my-1 col-4">
+            <p class="py-5 px-3 text-center m-0">
+              Hier ist noch nichts zu sehen. Füge dieser Kategorie den ersten
+              Raum hinzu!
+            </p>
           </div>
         </div>
-        <div class="row py-4">
-          <transition-group name="bounce">
-            <div v-for="room in category.rooms" :key="room.id" class="col-4">
-              <div
-                class="card my-1"
-                style="cursor: pointer"
-                @click="openRoom(room)"
-              >
-                <img
-                  src="https://placehold.co/600x400.png?text=Raum+Vorschau"
-                  alt=""
-                  class="card-img-top"
-                />
-                <div class="card-body py-2">
-                  <div class="card-text text-dark text-decoration-none">
-                    <div
-                      class="d-flex justify-content-between align-items-center"
+        <div v-for="room in category.rooms" :key="room.id" class="col-4">
+          <div
+            class="card my-1 position-relative"
+            style="cursor: pointer"
+            @click="openRoom(room)"
+          >
+            <span
+              v-if="room.channelId"
+              class="position-absolute badge text-bg-primary top-0 start-0 m-2"
+            >
+              Live
+            </span>
+            <img
+              src="https://placehold.co/600x300.png?text=Raum+Vorschau"
+              alt=""
+              class="card-img-top"
+            />
+            <div class="card-body py-2">
+              <div class="card-text text-dark text-decoration-none">
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="m-0">
+                    {{ room.name }}
+                  </p>
+                  <div>
+                    <button
+                      class="btn btn-sm text-secondary"
+                      @click.stop="editRoom(room)"
                     >
-                      <p>
-                        {{ room.name }}
-                        <span
-                          v-if="room.channelId"
-                          class="badge text-bg-primary"
-                        >
-                          Live
-                        </span>
-                      </p>
-                      <div>
-                        <button
-                          class="btn btn-sm text-secondary"
-                          @click.stop="editRoom(room)"
-                        >
-                          <i class="fa fa-pen"></i>
-                        </button>
-                        <button
-                          class="btn btn-sm text-secondary"
-                          @click.stop="deleteRoom(room)"
-                        >
-                          <i class="fa fa-trash"></i>
-                        </button>
-                      </div>
-                    </div>
+                      <i class="fa fa-pen"></i>
+                    </button>
+                    <button
+                      class="btn btn-sm text-secondary"
+                      @click.stop="deleteRoom(room)"
+                    >
+                      <i class="fa fa-trash"></i>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          </transition-group>
+          </div>
         </div>
       </div>
-    </transition-group>
+    </div>
   </div>
 
   <EditCategoryModal :category="categoryToEdit" />

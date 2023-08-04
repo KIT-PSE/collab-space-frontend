@@ -20,12 +20,12 @@
   const video = ref<HTMLVideoElement | null>(null);
   let loaded = false;
 
-  watch(channel.streams, () => {
+  watch(channel.webcam.streams, () => {
     if (loaded) {
       return;
     }
 
-    const stream = channel.getWebcamStream(props.userId);
+    const stream = channel.webcam.getWebcamStream(props.userId);
 
     if (stream) {
       video.value!.srcObject = stream;

@@ -2,14 +2,15 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { Room, User } from '@/composables/api';
 import { useAlerts } from '@/composables/alerts';
-import { reactive } from 'vue';
+import { computed, reactive, UnwrapNestedRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
 import { useStore } from '@/composables/store';
-import Peer from 'peerjs';
 import { Notes } from '@/composables/channel/notes';
 import { Whiteboard } from '@/composables/channel/whiteboard';
+import { useWebcam } from '@/composables/channel/webcam';
+import { useBrowser } from '@/composables/channel/browser';
 
 const alerts = useAlerts();
 
@@ -22,6 +23,7 @@ export interface ChannelUser {
 export interface Student extends ChannelUser {
   name: string;
   handSignal: boolean;
+  permission: boolean;
 }
 
 export interface Teacher extends ChannelUser {
@@ -30,6 +32,7 @@ export interface Teacher extends ChannelUser {
 
 export interface JoinRoomResult {
   room: Room;
+  browserPeerId: string;
   teacher: Teacher;
   students: Student[];
 }
@@ -49,8 +52,10 @@ export interface ChannelState {
 export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
+  const browser = useBrowser();
+  const webcam = useWebcam();
 
-  const state = reactive({
+  const state: UnwrapNestedRefs<ChannelState> = reactive({
     connected: false,
     channelId: '',
     clientId: '',
@@ -62,8 +67,10 @@ export const useChannel = defineStore('channel', () => {
     whiteboard: null,
   } as ChannelState);
 
-  let webcamsLoaded = false;
-  const streams: Record<string, MediaStream> = reactive({});
+  const hasCurrentUserPermission = computed(() => {
+    const user = currentUser();
+    return isTeacher(user) || (user as Student).permission;
+  });
 
   let socket: Socket | null = null;
 
@@ -77,6 +84,9 @@ export const useChannel = defineStore('channel', () => {
 
       socket.on('connect', () => {
         state.connected = true;
+        webcam.init(socket!);
+        browser.init(socket!);
+
         handleConnection(socket!);
         resolve();
       });
@@ -84,87 +94,14 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function loadNotes() {
-    if (state.notes) {
-      return state.notes;
-    }
-
-    const notes = new Notes(socket!);
+    const notes = new Notes(socket!, state.room!.id, state.room!.category);
     state.notes = notes;
 
     return notes;
   }
 
-  async function loadWhiteboard(): Promise<Whiteboard> {
-    if (state.whiteboard) {
-      return state.whiteboard as Whiteboard;
-    }
-
-    const whiteboard = new Whiteboard(socket!);
-
-    return whiteboard;
-  }
-
-  async function loadWebcams(): Promise<void> {
-    if (webcamsLoaded) {
-      return;
-    }
-
-    const user = currentUser();
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-
-    if (!user?.video) {
-      stream.getVideoTracks().forEach((track) => (track.enabled = false));
-    }
-
-    if (!user?.audio) {
-      stream.getAudioTracks().forEach((track) => (track.enabled = false));
-    }
-
-    for (const userToConnectTo of otherUsers()) {
-      const peer = new Peer();
-
-      peer.on('open', (id) => {
-        socket?.emit('connect-webcam', {
-          userId: userToConnectTo.id,
-          peerId: id,
-        });
-      });
-
-      peer.on('call', (call) => {
-        call.answer(stream);
-        call.on('stream', (remoteStream) => {
-          streams[userToConnectTo.id] = remoteStream;
-        });
-      });
-    }
-
-    streams[state.clientId] = stream;
-    webcamsLoaded = true;
-  }
-
-  function getWebcamStream(userId: string): MediaStream {
-    return streams[userId] ?? null;
-  }
-
-  function toggleVideo(): void {
-    const user = currentUser();
-    const stream = streams[user.id];
-
-    user.video = !user.video;
-    stream?.getVideoTracks().forEach((track) => (track.enabled = user.video));
-    socket?.emit('update-webcam', { video: user.video, audio: user.audio });
-  }
-
-  function toggleAudio(): void {
-    const user = currentUser();
-    const stream = streams[user.id];
-
-    user.audio = !user.audio;
-    stream?.getAudioTracks().forEach((track) => (track.enabled = user.audio));
-    socket?.emit('update-webcam', { video: user.video, audio: user.audio });
+  async function loadWebcams() {
+    await webcam.loadWebcams(otherUsers);
   }
 
   function toggleHandSignal(): void {
@@ -174,18 +111,14 @@ export const useChannel = defineStore('channel', () => {
     socket?.emit('update-handSignal', { handSignal: student.handSignal });
   }
 
-  function stopWebcam(): void {
-    const stream = streams[state.clientId];
+  function updatePermission(studentId: string): void {
+    const student = studentById(studentId);
 
-    for (const track of stream?.getTracks() ?? []) {
-      track.stop();
-    }
-
-    for (const id in streams) {
-      delete streams[id];
-    }
-
-    webcamsLoaded = false;
+    student.permission = !student.permission;
+    socket?.emit('update-permission', {
+      studentId,
+      permission: student.permission,
+    });
   }
 
   function userById(id: string): ChannelUser | undefined {
@@ -196,8 +129,20 @@ export const useChannel = defineStore('channel', () => {
     return state.students.find((s) => s.id === id);
   }
 
+  function studentById(id: string): Student {
+    const student = state.students.find((s) => s.id === id);
+    if (!student) {
+      throw new Error('IllegalState: User not found');
+    }
+    return student;
+  }
+
   function isStudent(user: ChannelUser): user is Student {
     return user.id !== state.teacher?.id;
+  }
+
+  function isTeacher(user: ChannelUser): user is Teacher {
+    return user.id === state.teacher?.id;
   }
 
   function currentUser(): ChannelUser {
@@ -232,9 +177,9 @@ export const useChannel = defineStore('channel', () => {
 
     socket?.emit('open-room', payload, async (result: any) => {
       state.connected = true;
-      state.channelId = result.id;
+      state.channelId = result.room.channelId;
       state.clientId = socket?.id || '';
-      state.room = room;
+      state.room = result.room;
       state.students = [];
       state.teacher = {
         id: state.clientId,
@@ -243,15 +188,18 @@ export const useChannel = defineStore('channel', () => {
         audio: true,
       };
       state.hasName = true;
+      state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
+
+      browser.peerId.value = '';
 
       await router.push({
         name: 'room',
         params: {
-          id: result.id,
+          id: result.room.channelId,
         },
       });
 
-      room.channelId = result.id;
+      room.channelId = result.room.channelId;
     });
   }
 
@@ -263,11 +211,12 @@ export const useChannel = defineStore('channel', () => {
     });
   }
 
-  async function joinAsStudent(id: string): Promise<void> {
+  async function joinAsStudent(id: string, password?: string): Promise<void> {
     await connect();
     return join(id, 'join-room-as-student', {
       channelId: id,
       name: 'Verbinden...',
+      password,
     });
   }
 
@@ -276,7 +225,7 @@ export const useChannel = defineStore('channel', () => {
       socket?.emit(event, payload, (result: any) => {
         if (result.error) {
           leave();
-          reject(result.error);
+          return reject(result.error);
         }
 
         const data = convertDates(result) as JoinRoomResult;
@@ -288,6 +237,10 @@ export const useChannel = defineStore('channel', () => {
         state.teacher = data.teacher;
         state.room = data.room;
         state.hasName = false;
+        state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
+
+        browser.peerId.value = data.browserPeerId;
+
         resolve();
       });
     });
@@ -309,8 +262,13 @@ export const useChannel = defineStore('channel', () => {
   }
 
   function leave() {
+    if (!state.connected) {
+      return;
+    }
+
     socket?.close();
     socket = null;
+    state.connected = false;
   }
 
   function isSelf(user: ChannelUser | string) {
@@ -385,21 +343,6 @@ export const useChannel = defineStore('channel', () => {
     });
 
     socket.on(
-      'connect-webcam',
-      ({ userId, peerId }: { userId: string; peerId: string }) => {
-        const peer = new Peer();
-        const stream = getWebcamStream(state.clientId);
-
-        peer.on('open', () => {
-          const call = peer.call(peerId, stream);
-          call.on('stream', (remoteStream) => {
-            streams[userId] = remoteStream;
-          });
-        });
-      },
-    );
-
-    socket.on(
       'update-webcam',
       (payload: { id: string; video: boolean; audio: boolean }) => {
         const user = userById(payload.id);
@@ -421,10 +364,33 @@ export const useChannel = defineStore('channel', () => {
         }
       },
     );
+
+    socket.on(
+      'update-permission',
+      (payload: { id: string; permission: boolean }) => {
+        const student = studentById(payload.id);
+
+        if (student) {
+          student.permission = payload.permission;
+        }
+
+        if (socket.id === payload.id) {
+          alerts.add({
+            type: 'info',
+            title: 'Zugriffsänderung',
+            message: payload.permission
+              ? 'Sie haben jetzt Zugriff.'
+              : 'Sie haben keinen Zugriff mehr.',
+          });
+        }
+      },
+    );
   }
 
   return {
     state,
+    webcam,
+    browser,
     connect,
     open,
     joinAsTeacher,
@@ -433,17 +399,13 @@ export const useChannel = defineStore('channel', () => {
     leave,
     isSelf,
     isStudent,
-    userById,
+    isTeacher,
+    hasCurrentUserPermission,
     currentUser,
     changeName,
-    streams,
     loadWebcams,
     loadNotes,
-    loadWhiteboard,
-    getWebcamStream,
-    toggleVideo,
-    toggleAudio,
     toggleHandSignal,
-    stopWebcam,
+    updatePermission,
   };
 });

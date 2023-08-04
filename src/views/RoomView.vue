@@ -2,17 +2,27 @@
   <main class="container-fluid h-100">
     <div class="row h-100">
       <div
-        class="col-9 p-2 overflow-hidden position-relative"
-        style="max-height: 100%"
+        class="col-9 d-flex flex-column gap-2 h-100 overflow-hidden position-relative"
       >
-        <div class="row">
-          <div class="col d-flex justify-content-center mt-3">
-            <video
-              src="https://placehold.co/1920x1080.mp4?text=eingebettete+Webseite"
-              autoplay
-              style="max-width: 100%; max-height: 100%; aspect-ratio: 16/9"
-            ></video>
+        <nav
+          class="navbar bg-body-tertiary my-2 px-2 sticky-top rounded shadow-sm"
+        >
+          <div class="container">
+            <router-link
+              class="navbar-brand d-flex align-items-center"
+              :to="auth.isLoggedIn ? '/dashboard' : '/'"
+            >
+              <img
+                src="@/assets/textless-logo.png"
+                alt="CollabSpace"
+                height="36"
+              />
+            </router-link>
           </div>
+        </nav>
+
+        <div class="overflow-auto flex-grow-1">
+          <BrowserComponent />
         </div>
         <div id="open-whiteboard">
           <button class="btn btn-secondary" @click="toggleWhiteboard">
@@ -33,6 +43,7 @@
             @expand="toggleExpandWhiteboard"
             :width="width"
             :height="height"
+            :whiteboard="channel.state.whiteboard as WhiteboardComposable"
           />
         </div>
         <div id="notes-wrapper" :class="{ hide: !showNotes }">
@@ -40,7 +51,7 @@
         </div>
       </div>
       <div
-        class="col-3 p-2 bg-dark d-flex flex-column justify-content-between"
+        class="col-3 py-3 bg-dark d-flex flex-column justify-content-between"
         style="max-height: 100%"
       >
         <div class="row overflow-y-auto mb-2">
@@ -62,28 +73,33 @@
           </div>
 
           <div v-if="channel.state.teacher" class="col-lg-6">
-            <div class="card my-1">
-              <!--              <img-->
-              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
-              <!--                alt=""-->
-              <!--                class="card-img-top"-->
-              <!--              />-->
+            <div
+              class="card my-1"
+              :class="channel.isSelf(channel.state.teacher) ? 'bg-primary' : ''"
+            >
               <Camera :user-id="channel.state.teacher.id" />
               <div class="card-body py-2">
-                <div class="card-text text-dark text-decoration-none">
+                <div
+                  class="card-text text-dark text-decoration-none d-flex align-items-center flex-wrap"
+                >
                   {{ channel.state.teacher?.user.name }}
-                  <span class="badge text-bg-primary ms-1">Lehrer</span>
+                  <!--<span class="badge text-bg-primary ms-1">Lehrer</span>-->
+                  <span class="flex-grow-1"></span>
                   <span
-                    v-if="channel.isSelf(channel.state.teacher)"
-                    class="badge text-bg-secondary ms-1"
+                    class="badge ms-1"
+                    :class="
+                      channel.isSelf(channel.state.teacher)
+                        ? 'text-bg-light'
+                        : 'text-bg-primary'
+                    "
                   >
-                    Du
+                    <i class="fa-solid fa-chalkboard-user"></i>
                   </span>
                   <span
                     v-if="!channel.state.teacher.audio"
                     class="badge text-bg-secondary ms-1"
                   >
-                    Muted
+                    <i class="fas fa-microphone-slash"></i>
                   </span>
                 </div>
               </div>
@@ -95,27 +111,50 @@
             :key="student.id"
             class="col-lg-6"
           >
-            <div class="card my-1">
-              <!--              <img-->
-              <!--                src="https://placehold.co/600x400.png?text=Kamera+Bild"-->
-              <!--                alt=""-->
-              <!--                class="card-img-top"-->
-              <!--              />-->
-              <Camera :user-id="student.id" />
+            <div
+              class="card my-1 d-flex flex-column"
+              :class="channel.isSelf(student) ? 'bg-primary' : ''"
+            >
+              <div class="position-relative flex-grow-1">
+                <div class="ratio ratio-4x3">
+                  <Camera :user-id="student.id" class="w-100 h-100" />
+                </div>
+
+                <div
+                  v-if="channel.isTeacher(channel.currentUser())"
+                  class="dropdown position-absolute top-0 end-0"
+                >
+                  <button
+                    class="btn text-white"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
+
+                  <ul class="dropdown-menu">
+                    <li @click="updatePermission(student.id)">
+                      <button class="dropdown-item">Zugriff ändern</button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
               <div class="card-body py-2">
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
                   <span
-                    v-if="channel.isSelf(student)"
+                    v-if="!student.permission"
                     class="badge text-bg-secondary ms-1"
                   >
-                    Du
+                    <i class="fas fa-lock"></i>
                   </span>
                   <span
                     v-if="!student.audio"
                     class="badge text-bg-secondary ms-1"
                   >
-                    Muted
+                    <i class="fas fa-microphone-slash"></i>
                   </span>
                   <span
                     v-if="student.handSignal"
@@ -128,7 +167,7 @@
             </div>
           </div>
         </div>
-        <div class="row">
+        <div>
           <div class="col d-flex justify-content-center">
             <span v-if="channel.isStudent(channel.currentUser())">
               <button
@@ -180,13 +219,14 @@
     Student,
     useChannel,
   } from '@/composables/channel/channel';
-  import { onBeforeRouteLeave } from 'vue-router';
   import { useAuth } from '@/composables/auth';
   import Camera from '@/components/Camera.vue';
   import ShareLinkModal from '@/components/ShareLinkModal.vue';
   import Whiteboard from '@/components/Whiteboard.vue';
-  import { onMounted, ref } from 'vue';
+  import { onBeforeUnmount, onMounted, ref } from 'vue';
+  import { Whiteboard as WhiteboardComposable } from '@/composables/channel/whiteboard';
   import Notes from '@/components/Notes.vue';
+  import BrowserComponent from '@/components/Browser.vue';
 
   const auth = useAuth();
   const channel = useChannel();
@@ -201,10 +241,15 @@
 
   onMounted(() => {
     window.addEventListener('resize', updateWhiteboardSize);
+    document.documentElement.style.overflowY = 'hidden';
   });
 
-  onBeforeRouteLeave(() => {
-    channel.stopWebcam();
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateWhiteboardSize);
+    document.documentElement.style.overflowY = '';
+
+    channel.webcam.stopWebcam();
+
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
     } else {
@@ -222,15 +267,19 @@
   }
 
   function toggleVideo() {
-    channel.toggleVideo();
+    channel.webcam.toggleVideo();
   }
 
   function toggleAudio() {
-    channel.toggleAudio();
+    channel.webcam.toggleAudio();
   }
 
   function toggleHandSignal() {
     channel.toggleHandSignal();
+  }
+
+  function updatePermission(studentId: string) {
+    channel.updatePermission(studentId);
   }
 
   function toggleWhiteboard() {
@@ -307,6 +356,7 @@
     transform: translateY(-50%);
     max-width: 350px;
     min-width: 250px;
+    z-index: 2000;
 
     &.hide {
       visibility: hidden;

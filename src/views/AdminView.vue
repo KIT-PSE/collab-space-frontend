@@ -1,8 +1,8 @@
 <template>
-  <Layout title="Admin" :buttons="['back']">
-    <div class="row my-5">
-      <div class="col-md-7">
-        <h2>Users</h2>
+  <Layout title="Admin-Panel" :buttons="['back']">
+    <div class="row">
+      <div class="col">
+        <h2>Nutzer</h2>
         <table class="table">
           <thead>
             <tr>
@@ -40,6 +40,7 @@
                   ></i>
                 </button>
                 <button
+                  @click="deleteAccount(user)"
                   class="btn btn-sm btn-secondary"
                   :disabled="user.id === auth.state.user?.id"
                 >
@@ -81,5 +82,19 @@
     }
 
     await admin.changeUserRole(user.id);
+  }
+
+  async function deleteAccount(user: User) {
+    const shouldDelete = await ask(
+      'Account löschen',
+      `Soll das Account des Benutzers <b>${user.name}</b> wirklich gelöscht werden?`,
+      'Löschen',
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    await admin.deleteAccount(user.id);
   }
 </script>

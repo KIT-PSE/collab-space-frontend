@@ -7,7 +7,6 @@
           class="form-control"
           :class="error ? 'is-invalid' : ''"
           :id="id"
-          placeholder="Lorem Ipsum"
           v-bind="$attrs"
           :value="modelValue"
           @input="input"

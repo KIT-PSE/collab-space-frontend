@@ -7,17 +7,25 @@
     >
       <button
         class="btn btn-sm text-secondary bg-white"
-        :class="{ 'border border-secondary': !canvas?.isDrawingMode }"
-        @click="togglePanMode"
+        :class="{ 'border border-secondary': tool === Tool.Select }"
+        @click="setTool(Tool.Select)"
       >
         <i class="fa fa-arrow-pointer"></i>
       </button>
       <button
         class="btn btn-sm text-secondary bg-white"
-        :class="{ 'border border-secondary': canvas?.isDrawingMode }"
-        @click="togglePanMode"
+        :class="{ 'border border-secondary': tool === Tool.Pen }"
+        @click="setTool(Tool.Pen)"
       >
         <i class="fa fa-pen"></i>
+      </button>
+      <!-- eraser -->
+      <button
+        class="btn btn-sm text-secondary bg-white"
+        :class="{ 'border border-secondary': tool === Tool.Eraser }"
+        @click="setTool(Tool.Eraser)"
+      >
+        <i class="fa fa-eraser"></i>
       </button>
     </div>
     <div class="position-absolute top-0 end-0 p-1 z-1">
@@ -26,6 +34,9 @@
       </button>
       <button class="btn btn-sm text-secondary bg-white" @click="zoomOut">
         <i class="fa fa-magnifying-glass-minus"></i>
+      </button>
+      <button class="btn btn-sm text-secondary bg-white" @click="exportAsImage">
+        <i class="fa fa-download"></i>
       </button>
       <button class="btn btn-sm text-secondary bg-white" @click="expand">
         <i class="fa fa-up-right-and-down-left-from-center"></i>
@@ -46,21 +57,44 @@
 <script setup lang="ts">
   import { onMounted, ref, watch } from 'vue';
   import { fabric } from 'fabric';
+  import { Whiteboard } from '@/composables/channel/whiteboard';
+  import { useChannel } from '@/composables/channel/channel';
+
+  enum Tool {
+    Pen = 'pen',
+    Select = 'select',
+    Eraser = 'eraser',
+  }
 
   const props = defineProps<{
     width: number;
     height: number;
+    whiteboard: Whiteboard;
   }>();
   const emit = defineEmits(['close', 'expand']);
+
+  const tool = ref<Tool>(Tool.Pen);
 
   watch(() => props.width, updateDimensions);
   watch(() => props.height, updateDimensions);
 
-  const canvas = ref<fabric.Canvas | null>(null);
+  const canvas = ref<fabric.Canvas>();
   const maxCanvasWidth = 2500;
   const maxCanvasHeight = 2500;
   const minZoomLevel = 0.5;
   const maxZoomLevel = 2;
+
+  const channel = useChannel();
+  watch(
+    () => channel.hasCurrentUserPermission,
+    (permission: boolean) => {
+      if (!canvas.value || tool.value === Tool.Select) {
+        return;
+      }
+
+      canvas.value!.isDrawingMode = permission;
+    },
+  );
 
   /**
    * Constants for the viewportTransform array of the canvas.
@@ -69,14 +103,25 @@
   const VIEWPORT_TRANSFORM_WIDTH_INDEX = 4;
   const VIEWPORT_TRANSFORM_HEIGHT_INDEX = 5;
 
-  onMounted(() => {
+  onMounted(async () => {
     canvas.value = new fabric.Canvas('whiteboard', {
-      isDrawingMode: true,
+      isDrawingMode: channel.hasCurrentUserPermission,
       selection: false,
     });
 
-    canvas.value.on('path:created', (e) => {
-      console.log(e);
+    canvas.value.on('path:created', () => {
+      const canvasJSON = canvas.value?.toJSON();
+      props.whiteboard.change(JSON.stringify(canvasJSON));
+    });
+
+    props.whiteboard.onChanges((canvasJson) => {
+      if (!canvasJson) {
+        return;
+      }
+      canvas.value?.loadFromJSON(JSON.parse(canvasJson), () => {});
+
+      // Disable selection of objects because sync is not implemented
+      disableSelection();
     });
 
     /**
@@ -177,9 +222,35 @@
     });
   });
 
-  function togglePanMode() {
-    canvas.value!.isDrawingMode = !canvas.value!.isDrawingMode;
-    // Disable selection of objects because sync is not implemented
+  function setTool(newTool: Tool) {
+    const canvasRef = canvas.value!;
+    if (newTool === Tool.Select) {
+      canvasRef.isDrawingMode = false;
+      canvasRef.hoverCursor = 'move';
+
+      // Disable selection of objects because sync is not implemented
+      disableSelection();
+    } else {
+      canvasRef.isDrawingMode = channel.hasCurrentUserPermission;
+      canvasRef.hoverCursor = 'crosshair';
+
+      switch (newTool) {
+        case Tool.Pen:
+          canvasRef.freeDrawingBrush = new fabric.PencilBrush(canvasRef);
+          canvasRef.freeDrawingBrush.width = 1;
+          break;
+        case Tool.Eraser:
+          // @ts-ignore
+          canvasRef.freeDrawingBrush = new fabric.EraserBrush(canvasRef);
+          canvasRef.freeDrawingBrush.width = 20;
+          break;
+      }
+    }
+
+    tool.value = newTool;
+  }
+
+  function disableSelection() {
     canvas.value?.discardActiveObject();
     canvas.value?.renderAll();
     canvas.value?.forEachObject((o) => {
@@ -214,6 +285,29 @@
       height: props.height,
     });
     canvas.value?.calcOffset();
+  }
+
+  function exportAsImage() {
+    const data = canvas.value?.toDataURL({
+      width: maxCanvasWidth,
+      height: maxCanvasHeight,
+      left: 0,
+      top: 0,
+      format: 'png',
+    });
+
+    if (data) {
+      const element = document.createElement('a');
+      element.setAttribute('href', data);
+      element.setAttribute('download', 'whiteboard_' + Date.now() + '.png');
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    }
   }
 
   function close() {
