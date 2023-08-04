@@ -25,7 +25,7 @@
       return;
     }
 
-    const stream = channel.webcam.getWebcamStream(props.userId);
+    const stream = channel.webcam.getStream(props.userId);
 
     if (stream) {
       video.value!.srcObject = stream;

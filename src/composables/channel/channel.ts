@@ -102,7 +102,7 @@ export const useChannel = defineStore('channel', () => {
   }
 
   async function loadWebcams() {
-    await webcam.loadWebcams(otherUsers);
+    await webcam.load(otherUsers);
   }
 
   function toggleHandSignal(): void {
