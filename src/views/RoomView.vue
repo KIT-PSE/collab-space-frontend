@@ -20,7 +20,9 @@
             </router-link>
 
             <button
-              v-if="channel.isSelf(channel.state.teacher)"
+              v-if="
+                channel.state.teacher && channel.isSelf(channel.state.teacher)
+              "
               class="btn btn-outline-secondary mx-1"
               @click="closeChannel"
             >
