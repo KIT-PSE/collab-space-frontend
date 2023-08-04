@@ -19,7 +19,13 @@ export const useWebcam = () => {
     };
   }
 
-  async function loadWebcams(otherUsers: () => ChannelUser[]): Promise<void> {
+  /**
+   * Loads webcams and initiates video calls between the current user and other users.
+   * In development environments, audio stream is deactivated to avoid disturbances.
+   * The function uses WebRTC and Peer.js to enable video calls.
+   * @returns  A Promise that resolves successfully once webcams are loaded.
+   */
+  async function load(otherUsers: () => ChannelUser[]): Promise<void> {
     if (webcamsLoaded) {
       return;
     }
@@ -59,7 +65,7 @@ export const useWebcam = () => {
       'connect-webcam',
       ({ userId, peerId }: { userId: string; peerId: string }) => {
         const peer = new Peer();
-        const stream = getWebcamStream(user!.id);
+        const stream = getStream(user!.id);
 
         peer.on('open', () => {
           const call = peer.call(peerId, stream);
@@ -74,10 +80,20 @@ export const useWebcam = () => {
     webcamsLoaded = true;
   }
 
-  function getWebcamStream(userId: string): MediaStream {
+  /**
+   * Gets the current state of a webcam stream from a user.
+   * @param userId - The id of the user to get the webcam stream from
+   * @returns The current state of a webcam stream from a user
+   */
+  function getStream(userId: string): MediaStream {
     return streams[userId] ?? null;
   }
 
+  /**
+   * Toggles the video state (enable/disable) of the current user's webcam.
+   * This function updates the `video` property of the current user, enables/disables the video track in the user's stream accordingly,
+   * and emits an 'update-webcam' event to the server with the updated video state.
+   */
   function toggleVideo(): void {
     const stream = streams[user!.id];
 
@@ -89,6 +105,11 @@ export const useWebcam = () => {
     });
   }
 
+  /**
+   * Toggles the audio state (enable/disable) of the current user's microphone.
+   * This function updates the `audio` property of the current user, enables/disables the audio track in the user's stream accordingly,
+   * and emits an 'update-webcam' event to the server with the updated audio state.
+   */
   function toggleAudio(): void {
     const stream = streams[user!.id];
 
@@ -100,7 +121,10 @@ export const useWebcam = () => {
     });
   }
 
-  function stopWebcam(): void {
+  /**
+   * Stops the webcam streaming of the current user and removes all other users' streams.
+   */
+  function stop(): void {
     const stream = streams[user!.id];
 
     for (const track of stream?.getTracks() ?? []) {
@@ -117,10 +141,10 @@ export const useWebcam = () => {
   return {
     streams,
     init,
-    loadWebcams,
-    getWebcamStream,
+    load,
+    getStream,
     toggleVideo,
     toggleAudio,
-    stopWebcam,
+    stop,
   };
 };

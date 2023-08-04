@@ -12,10 +12,13 @@
     <div
       v-for="category in store.categories"
       :key="category.id"
-      class="col-lg-9"
+      class="col-lg-9 mb-4"
     >
-      <div class="d-flex justify-content-between">
-        <h3>{{ category.name }}</h3>
+      <div
+        class="d-flex justify-content-between align-items-center rounded ps-3 pe-1 py-2"
+        style="background: rgba(0, 0, 0, 0.09)"
+      >
+        <h4 class="m-0">{{ category.name }}</h4>
         <div>
           <button class="btn text-secondary" @click="editCategory(category)">
             <i class="fa fa-pen"></i>
@@ -28,7 +31,7 @@
       <div class="row py-4">
         <div v-if="category.rooms.length === 0">
           <div class="card my-1 col-4">
-            <p class="py-5 px-3 text-center m-0">
+            <p class="py-4 px-3 text-center m-0">
               Hier ist noch nichts zu sehen. Füge dieser Kategorie den ersten
               Raum hinzu!
             </p>
@@ -38,6 +41,7 @@
           <div
             class="card my-1 position-relative"
             style="cursor: pointer"
+            :class="room.channelId ? 'border-primary' : ''"
             @click="openRoom(room)"
           >
             <span
@@ -46,40 +50,46 @@
             >
               Live
             </span>
-            <img
-              src="https://placehold.co/600x300.png?text=Raum+Vorschau"
-              alt=""
-              class="card-img-top"
-            />
-            <div class="card-body py-2">
+            <div
+              class="card-body d-flex flex-column justify-content-end py-2 pt-5"
+            >
               <div class="card-text text-dark text-decoration-none">
-                <div class="d-flex justify-content-between align-items-center">
-                  <p class="m-0">
+                <div>
+                  <p class="m-0 fw-semibold">
                     {{ room.name }}
                   </p>
-                  <div>
-                    <button
-                      class="btn btn-sm text-secondary"
-                      @click.stop="editRoom(room)"
-                    >
-                      <i class="fa fa-pen"></i>
-                    </button>
-                    <button
-                      v-if="!room.channelId"
-                      class="btn btn-sm text-secondary"
-                      @click.stop="deleteRoom(room)"
-                    >
-                      <i class="fa fa-trash"></i>
-                    </button>
-                    <button
-                      v-if="room.channelId"
-                      class="btn btn-sm text-secondary"
-                      @click.stop="closeRoom(room)"
-                    >
-                      <i class="fa fa-ban"></i>
-                    </button>
-                  </div>
                 </div>
+              </div>
+            </div>
+
+            <div
+              class="card-footer d-flex justify-content-between align-items-center"
+            >
+              <span style="font-size: 0.86rem">
+                {{ room.channelId ? 'Beitreten' : 'Öffnen' }}
+              </span>
+
+              <div>
+                <button
+                  class="btn btn-sm text-secondary"
+                  @click.stop="editRoom(room)"
+                >
+                  <i class="fa fa-pen"></i>
+                </button>
+                <button
+                  v-if="!room.channelId"
+                  class="btn btn-sm text-secondary"
+                  @click.stop="deleteRoom(room)"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
+                <button
+                  v-if="room.channelId"
+                  class="btn btn-sm text-secondary"
+                  @click.stop="closeRoom(room)"
+                >
+                  <i class="fa fa-ban"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -113,6 +123,12 @@
   store.load();
   auth.onLogout(() => store.unload());
 
+  /**
+   * Asynchronous function that opens a room.
+   * If the room has a 'channelId', it joins the channel as a teacher and navigates to the room's URL.
+   * If there is no 'channelId', it opens a new channel for the user.
+   * @param room - The room to be opened.
+   */
   async function openRoom(room: Room) {
     if (room.channelId) {
       await channel.joinAsTeacher(room.channelId, user.value);
@@ -126,16 +142,31 @@
   let categoryToEdit = ref<Category | null>(null);
   let roomToEdit = ref<Room | null>(null);
 
+  /**
+   * Function that sets the 'categoryToEdit' variable to the provided 'category'
+   * and opens the 'edit-category-modal'.
+   * @param category - The category to be edited.
+   */
   function editCategory(category: Category) {
     categoryToEdit.value = category;
     openModal('edit-category-modal');
   }
 
+  /**
+   * Function that sets the 'roomToEdit' variable to the provided 'room'
+   * and opens the 'edit-room-modal'.
+   * @param room - The room to be edited.
+   */
   function editRoom(room: Room) {
     roomToEdit.value = room;
     openModal('edit-room-modal');
   }
 
+  /**
+   * Asynchronous function that prompts the user to confirm category deletion.
+   * If confirmed, it deletes the provided 'category' using the 'store.deleteCategory()' function.
+   * @param category - The category to be deleted.
+   */
   async function deleteCategory(category: Category) {
     const shouldDestroy = await ask(
       'Kategorie löschen',
@@ -150,6 +181,11 @@
     await store.deleteCategory(category);
   }
 
+  /**
+   * Asynchronous function that prompts the user to confirm room deletion.
+   * If confirmed, it deletes the provided 'room' using the 'store.deleteRoom()' function.
+   * @param room - The room to be deleted.
+   */
   async function deleteRoom(room: Room) {
     const shouldDestroy = await ask(
       'Raum löschen',
@@ -164,6 +200,11 @@
     await store.deleteRoom(room);
   }
 
+  /**
+   * Asynchronous function that prompts the user to confirm room closure.
+   * If confirmed, it closes the provided 'room' using the 'channel.close()' function.
+   * @param room - The room to be closed.
+   */
   async function closeRoom(room: Room) {
     const shouldClose = await ask(
       'Raum schließen',

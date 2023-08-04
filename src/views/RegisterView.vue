@@ -57,6 +57,10 @@
     confirmPassword: '',
   });
 
+  /**
+   * Function that initiates the registration process by submitting the registration form data to the 'auth.register()' method.
+   * The 'form.submit()' method is used to send the registration data.
+   */
   function register() {
     form.submit((data) => auth.register(data));
   }

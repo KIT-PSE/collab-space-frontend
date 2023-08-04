@@ -41,6 +41,9 @@
 
   const api = useApi();
 
+  /**
+   * Asynchronous function that handles the process of changing a user's password.
+   */
   async function changePassword() {
     const result = await form.submit((data) => api.updatePassword(data));
 

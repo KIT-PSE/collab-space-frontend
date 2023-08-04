@@ -39,6 +39,11 @@
     },
   );
 
+  /**
+   * Asynchronous function that handles the process of submitting a form to update a category.
+   * It calls the 'store.updateCategory()' function with the form data to update the category.
+   * If the update is successful, it closes the 'edit-category-modal' modal.
+   */
   async function submit() {
     const result = await form.submit((data) =>
       store.updateCategory(props.category!, data),
@@ -51,6 +56,10 @@
     closeModal('edit-category-modal');
   }
 
+  /**
+   * Function called when the 'edit-category-modal' modal is closed.
+   * It resets the form 'name' field to the original category name (if available).
+   */
   function onClose() {
     form.name = props.category?.name ?? '';
   }

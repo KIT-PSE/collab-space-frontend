@@ -1,5 +1,8 @@
 import { reactive, watch } from 'vue';
 
+/**
+ * Represents a timer that counts down from a specified amount of time.
+ */
 export class Timer {
   private handler = () => {};
 
@@ -8,6 +11,10 @@ export class Timer {
     enabled: true,
   });
 
+  /**
+   * Creates a new Timer instance.
+   * @param amount - The amount of time to count down from (in seconds).
+   */
   constructor(amount: number) {
     this.state.time = amount;
 
@@ -34,22 +41,40 @@ export class Timer {
     );
   }
 
+  /**
+   * Starts the timer.
+   */
   public start(): void {
     this.state.enabled = true;
     this.decrease();
   }
 
+  /**
+   * Stops the timer.
+   */
   public stop(): void {
     this.state.enabled = false;
   }
 
+  /**
+   * Decreases the remaining time on the timer.
+   */
   public decrease(): void {
     setTimeout(() => this.state.time--, 1000);
   }
 
+  /**
+   * Sets a handler function to be called when the timer finishes.
+   * @param handler - The handler function to be called when the timer finishes.
+   */
   public onFinished(handler: () => void): void {
     this.handler = handler;
   }
 }
 
+/**
+ * A composable function that creates and returns a Timer instance with the specified amount of time.
+ * @param amount - The amount of time to count down from (in seconds).
+ * @returns The Timer instance.
+ */
 export const useTimer = (amount: number) => new Timer(amount);

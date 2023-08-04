@@ -24,7 +24,7 @@
       </button>
       <input
         class="m-0 ms-2 py-1 px-3 bg-primary-subtle bg-opacity-25 rounded flex-grow-1 border-0 text-dark"
-        v-model="website"
+        v-model="channel.browser.url"
         style="outline-color: #34d1b3"
       />
       <button
@@ -74,7 +74,6 @@
   import { useThrottleFn } from '@vueuse/core';
   import { useChannel } from '@/composables/channel/channel';
 
-  const website = ref('https://google.com');
   const browserVideo = ref<HTMLVideoElement | null>(null);
 
   const channel = useChannel();
@@ -89,16 +88,26 @@
     channel.browser.loadBrowserStream();
   });
 
+  /**
+   * Opens the website specified in the `website.value` variable using the browser channel.
+   */
   function openWebsite() {
-    channel.browser.openWebsite(website.value);
+    channel.browser.openWebsite(channel.browser.url);
   }
 
+  /**
+   * Closes the currently opened website using the browser channel. It also resets the streaming and video source.
+   */
   function closeWebsite() {
     channel.browser.closeWebsite();
     isStreaming.value = false;
     browserVideo.value!.srcObject = null;
   }
 
+  /**
+   * Throttled function that handles mouse movement events while streaming is active and the user has permission.
+   * @param {MouseEvent} event - The mouse move event object.
+   */
   const onMouseMove = useThrottleFn((event: MouseEvent) => {
     if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
@@ -107,6 +116,10 @@
     channel.browser.moveMouse(targetX, targetY);
   }, 50);
 
+  /**
+   * Handles the `mousedown` event on the browser video element.
+   * @param event - The mouse down event object.
+   */
   function onMouseDown(event: MouseEvent) {
     if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
@@ -119,6 +132,10 @@
     channel.browser.mouseDown();
   }
 
+  /**
+   * Handles the `mouseup` event on the browser video element.
+   * @param event - The mouse up event object.
+   */
   function onMouseUp(event: MouseEvent) {
     if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
@@ -131,6 +148,10 @@
     channel.browser.mouseUp();
   }
 
+  /**
+   * Handles the `keydown` event on the document.
+   * @param  event - The key down event object.
+   */
   function onKeyDown(event: KeyboardEvent) {
     if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
@@ -139,6 +160,10 @@
     channel.browser.keyDown(event.key);
   }
 
+  /**
+   * Handles the `keyup` event on the document.
+   * @param event - The key up event object.
+   */
   function onKeyUp(event: KeyboardEvent) {
     if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
@@ -147,6 +172,10 @@
     channel.browser.keyUp(event.key);
   }
 
+  /**
+   * Handles the `wheel` event on the browser video element.
+   * @param event - The wheel event object.
+   */
   function onWheel(event: WheelEvent) {
     if (!isStreaming.value || !channel.hasCurrentUserPermission) {
       return;
@@ -155,18 +184,33 @@
     channel.browser.scroll(event.deltaY);
   }
 
+  /**
+   * Reloads the currently opened website using the browser channel.
+   */
   function reload() {
     channel.browser.reload();
   }
 
+  /**
+   * Navigates back in the browser history using the browser channel.
+   */
   function navigateBack() {
     channel.browser.navigateBack();
   }
 
+  /**
+   * Navigates forward in the browser history using the browser channel.
+   */
   function navigateForward() {
     channel.browser.navigateForward();
   }
 
+  /**
+   * Calculates the adjusted mouse position relative to the browser video element.
+   * It takes into account the size of the element and the target browser dimensions.
+   * @param event - The mouse event object.
+   * @returns The adjusted mouse position with `x` and `y` coordinates.
+   */
   function getAdjustedMousePosition(event: MouseEvent) {
     const element = browserVideo.value!;
     const rect = element.getBoundingClientRect();
@@ -193,6 +237,10 @@
     return { x: targetX, y: targetY };
   }
 
+  /**
+   * Watches changes in the `channel.browser.browserStream` and updates the `isStreaming.value` and `browserVideo.value!.srcObject` accordingly.
+   * @param stream - The browser stream object or null if the stream has ended.
+   */
   watch(
     () => channel.browser.browserStream,
     (stream) => {

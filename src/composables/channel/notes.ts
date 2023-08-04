@@ -2,12 +2,21 @@ import { Socket } from 'socket.io-client';
 import { reactive } from 'vue';
 import { useApi } from '@/composables/api';
 
+/**
+ * The note object that is used to represent a note
+ * @property id - The id of the note
+ * @property name - The name of the note
+ * @property content - The content of the note
+ */
 export interface Note {
   id: number;
   name: string;
   content: string;
 }
 
+/**
+ *  Composable that contains all the functions and variables related to the integrated Notes.
+ */
 export class Notes {
   public notesList = reactive([] as Note[]);
 
@@ -16,7 +25,7 @@ export class Notes {
     private readonly roomId: number,
     private readonly categoryId: number,
   ) {
-    this.loadNotes(roomId, categoryId);
+    this.load(roomId, categoryId);
 
     socket.on('note-added', (note: Note) => {
       this.notesList.push(note);
@@ -25,7 +34,7 @@ export class Notes {
     socket.on(
       'note-updated',
       ({ noteId, content }: { noteId: number; content: string }) => {
-        const note = this.getNoteById(noteId);
+        const note = this.getNote(noteId);
         if (note) {
           note.content = content;
         }
@@ -40,17 +49,30 @@ export class Notes {
     });
   }
 
-  async loadNotes(roomId: number, categoryId: number) {
+  /**
+   * Loads alle the notes from the server
+   * @param roomId - The id of the room
+   * @param categoryId - The id of the category
+   */
+  async load(roomId: number, categoryId: number) {
     const api = useApi();
     const notesResult = await api.getNotes(roomId, categoryId);
     this.notesList.push(...notesResult);
   }
 
-  public getNoteById(noteId: number) {
+  /**
+   * Gets a note by its id
+   * @param noteId - The id of the note
+   */
+  public getNote(noteId: number) {
     return this.notesList.find((note) => note.id === noteId);
   }
 
-  public addNote(name: string): Promise<number> {
+  /**
+   * Adds a note to the server
+   * @param name - The name of the note
+   */
+  public add(name: string): Promise<number> {
     return new Promise((resolve) => {
       this.socket.emit('add-note', { name }, (response: { id: number }) => {
         this.notesList.push({
@@ -64,16 +86,29 @@ export class Notes {
     });
   }
 
-  public updateNote(noteId: number, content: string) {
+  /**
+   * Updates a note on the server
+   * @param noteId - The id of the note
+   * @param content - The content of the note
+   */
+  public update(noteId: number, content: string) {
     this.socket.emit('update-note', { noteId, content });
   }
 
-  public deleteNoteById(noteId: number) {
+  /**
+   * Deletes a note on the server
+   * @param noteId - The id of the note
+   */
+  public delete(noteId: number) {
     this.socket.emit('delete-note', { noteId });
   }
 
-  public downloadNote(noteId: number) {
-    const note = this.getNoteById(noteId);
+  /**
+   * Downloads a note from the server
+   * @param noteId - The id of the note
+   */
+  public download(noteId: number) {
+    const note = this.getNote(noteId);
     if (note) {
       const element = document.createElement('a');
       element.setAttribute(
