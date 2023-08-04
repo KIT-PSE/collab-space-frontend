@@ -18,6 +18,15 @@
                 height="36"
               />
             </router-link>
+
+            <button
+              v-if="channel.isSelf(channel.state.teacher)"
+              class="btn btn-outline-secondary mx-1"
+              @click="closeChannel"
+            >
+              Raum schließen
+              <i class="fa fa-ban ms-2"></i>
+            </button>
           </div>
         </nav>
 
@@ -227,6 +236,7 @@
   import { Whiteboard as WhiteboardComposable } from '@/composables/channel/whiteboard';
   import Notes from '@/components/Notes.vue';
   import BrowserComponent from '@/components/Browser.vue';
+  import { ask } from '@/composables/prompt';
 
   const auth = useAuth();
   const channel = useChannel();
@@ -336,6 +346,23 @@
       toggleWhiteboard();
     }
     showNotes.value = !showNotes.value;
+  }
+
+  /**
+   * Close the channel. This will remove all students from the channel and close the channel.
+   */
+  async function closeChannel() {
+    const shouldClose = await ask(
+      'Raum schließen',
+      `Soll der Raum <b>${channel.state.room?.name}</b> wirklich geschlossen werden? Alle Schüler werden aus dem Raum entfernt.`,
+      'Schließen',
+    );
+
+    if (!shouldClose) {
+      return;
+    }
+
+    channel.close(channel.state.channelId);
   }
 </script>
 
