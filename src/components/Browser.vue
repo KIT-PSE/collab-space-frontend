@@ -1,9 +1,9 @@
 <template>
   <div
-    class="border border-primary-subtle rounded overflow-hidden d-flex flex-column h-100"
+    class="border border-primary-subtle rounded overflow-hidden d-flex flex-column"
   >
     <div
-      class="d-flex align-items-center p-2 border-bottom border-primary-subtle"
+      class="d-flex align-items-center p-2 border-bottom border-primary-subtle sticky-top"
     >
       <button @click="reload" :disabled="!isStreaming" class="btn btn-sm">
         <i class="fas fa-sync"></i>

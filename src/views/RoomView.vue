@@ -2,19 +2,24 @@
   <main class="container-fluid h-100">
     <div class="row h-100">
       <div
-        class="col-9 d-flex flex-column p-2 gap-4 h-100 overflow-hidden position-relative"
+        class="col-9 d-flex flex-column gap-2 h-100 overflow-hidden position-relative"
       >
-        <div class="row">
-          <div class="col d-flex align-items-center">
-            <router-link :to="auth.isLoggedIn ? '/dashboard' : '/'">
+        <nav
+          class="navbar bg-body-tertiary my-2 px-2 sticky-top rounded shadow-sm"
+        >
+          <div class="container">
+            <router-link
+              class="navbar-brand d-flex align-items-center"
+              :to="auth.isLoggedIn ? '/dashboard' : '/'"
+            >
               <img
                 src="@/assets/textless-logo.png"
                 alt="CollabSpace"
-                width="100"
+                height="36"
               />
             </router-link>
           </div>
-        </div>
+        </nav>
 
         <div class="overflow-auto flex-grow-1">
           <BrowserComponent />
@@ -46,7 +51,7 @@
         </div>
       </div>
       <div
-        class="col-3 p-2 bg-dark d-flex flex-column justify-content-between"
+        class="col-3 py-3 bg-dark d-flex flex-column justify-content-between"
         style="max-height: 100%"
       >
         <div class="row overflow-y-auto mb-2">
@@ -74,8 +79,12 @@
             >
               <Camera :user-id="channel.state.teacher.id" />
               <div class="card-body py-2">
-                <div class="card-text text-dark text-decoration-none">
+                <div
+                  class="card-text text-dark text-decoration-none d-flex align-items-center flex-wrap"
+                >
                   {{ channel.state.teacher?.user.name }}
+                  <!--<span class="badge text-bg-primary ms-1">Lehrer</span>-->
+                  <span class="flex-grow-1"></span>
                   <span
                     class="badge ms-1"
                     :class="
@@ -90,7 +99,7 @@
                     v-if="!channel.state.teacher.audio"
                     class="badge text-bg-secondary ms-1"
                   >
-                    <i class="fa fa-volume-mute"></i>
+                    <i class="fas fa-microphone-slash"></i>
                   </span>
                 </div>
               </div>
@@ -145,7 +154,7 @@
                     v-if="!student.audio"
                     class="badge text-bg-secondary ms-1"
                   >
-                    <i class="fa fa-volume-mute"></i>
+                    <i class="fas fa-microphone-slash"></i>
                   </span>
                   <span
                     v-if="student.handSignal"
@@ -347,6 +356,7 @@
     transform: translateY(-50%);
     max-width: 350px;
     min-width: 250px;
+    z-index: 2000;
 
     &.hide {
       visibility: hidden;

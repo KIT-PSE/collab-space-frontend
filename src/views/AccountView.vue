@@ -1,6 +1,8 @@
 <template>
   <Layout title="Account Einstellungen" :buttons="['back']">
-    <div class="row mt-5">
+    <div class="row">
+      <h2 class="mb-4">Account-Daten ändern</h2>
+
       <div class="col-md-6">
         <Input
           label="Schule / Universität oder Organisation"

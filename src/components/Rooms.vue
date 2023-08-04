@@ -1,5 +1,14 @@
 <template>
-  <div class="row">
+  <div class="row mb-5">
+    <div
+      class="card d-flex align-items-center justify-content-center"
+      v-if="store.categories.length === 0"
+    >
+      <p class="py-5 m-0">
+        Hier ist noch nichts zu sehen. Erstelle deine erste Kategorie!
+      </p>
+    </div>
+
     <div
       v-for="category in store.categories"
       :key="category.id"
@@ -17,25 +26,36 @@
         </div>
       </div>
       <div class="row py-4">
+        <div v-if="category.rooms.length === 0">
+          <div class="card my-1 col-4">
+            <p class="py-5 px-3 text-center m-0">
+              Hier ist noch nichts zu sehen. Füge dieser Kategorie den ersten
+              Raum hinzu!
+            </p>
+          </div>
+        </div>
         <div v-for="room in category.rooms" :key="room.id" class="col-4">
           <div
-            class="card my-1"
+            class="card my-1 position-relative"
             style="cursor: pointer"
             @click="openRoom(room)"
           >
+            <span
+              v-if="room.channelId"
+              class="position-absolute badge text-bg-primary top-0 start-0 m-2"
+            >
+              Live
+            </span>
             <img
-              src="https://placehold.co/600x400.png?text=Raum+Vorschau"
+              src="https://placehold.co/600x300.png?text=Raum+Vorschau"
               alt=""
               class="card-img-top"
             />
             <div class="card-body py-2">
               <div class="card-text text-dark text-decoration-none">
                 <div class="d-flex justify-content-between align-items-center">
-                  <p>
+                  <p class="m-0">
                     {{ room.name }}
-                    <span v-if="room.channelId" class="badge text-bg-primary">
-                      Live
-                    </span>
                   </p>
                   <div>
                     <button
