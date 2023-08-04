@@ -271,6 +271,10 @@ export const useChannel = defineStore('channel', () => {
     state.connected = false;
   }
 
+  function close(channelId: string) {
+    socket?.emit('close-channel', { channelId });
+  }
+
   function isSelf(user: ChannelUser | string) {
     if (typeof user === 'string') {
       return user === state.clientId;
@@ -329,6 +333,7 @@ export const useChannel = defineStore('channel', () => {
       }
 
       if (state.room && state.room.id == id) {
+        alerts.info('Der Raum wurde geschlossen.');
         if (state.teacher && state.teacher.id == state.clientId) {
           router.push({ name: 'dashboard' });
         } else {
@@ -397,6 +402,7 @@ export const useChannel = defineStore('channel', () => {
     joinAsStudent,
     leaveAsTeacher,
     leave,
+    close,
     isSelf,
     isStudent,
     isTeacher,
