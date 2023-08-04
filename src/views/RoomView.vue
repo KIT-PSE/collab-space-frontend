@@ -354,6 +354,7 @@
     transform: translateY(-50%);
     max-width: 350px;
     min-width: 250px;
+    z-index: 2000;
 
     &.hide {
       visibility: hidden;
