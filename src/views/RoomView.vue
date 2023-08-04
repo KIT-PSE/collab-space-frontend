@@ -68,7 +68,10 @@
           </div>
 
           <div v-if="channel.state.teacher" class="col-lg-6">
-            <div class="card my-1 border-4 border-primary">
+            <div
+              class="card my-1"
+              :class="channel.isSelf(channel.state.teacher) ? 'bg-primary' : ''"
+            >
               <Camera :user-id="channel.state.teacher.id" />
               <div class="card-body py-2">
                 <div
@@ -78,10 +81,14 @@
                   <!--<span class="badge text-bg-primary ms-1">Lehrer</span>-->
                   <span class="flex-grow-1"></span>
                   <span
-                    v-if="channel.isSelf(channel.state.teacher)"
-                    class="badge text-bg-secondary ms-1"
+                    class="badge ms-1"
+                    :class="
+                      channel.isSelf(channel.state.teacher)
+                        ? 'text-bg-light'
+                        : 'text-bg-primary'
+                    "
                   >
-                    Du
+                    <i class="fa-solid fa-chalkboard-user"></i>
                   </span>
                   <span
                     v-if="!channel.state.teacher.audio"
@@ -99,7 +106,10 @@
             :key="student.id"
             class="col-lg-6"
           >
-            <div class="card my-1 d-flex flex-column">
+            <div
+              class="card my-1 d-flex flex-column"
+              :class="channel.isSelf(student) ? 'bg-primary' : ''"
+            >
               <div class="position-relative flex-grow-1">
                 <div class="ratio ratio-4x3">
                   <Camera :user-id="student.id" class="w-100 h-100" />
@@ -110,7 +120,7 @@
                   class="dropdown position-absolute top-0 end-0"
                 >
                   <button
-                    class="btn btn-outline-secondary"
+                    class="btn text-white"
                     type="button"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
@@ -130,28 +140,22 @@
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
                   <span
-                    v-if="channel.isSelf(student)"
+                    v-if="!student.permission"
                     class="badge text-bg-secondary ms-1"
                   >
-                    Du
+                    <i class="fas fa-lock"></i>
                   </span>
                   <span
                     v-if="!student.audio"
                     class="badge text-bg-secondary ms-1"
                   >
-                    Muted
+                    <i class="fas fa-microphone-slash"></i>
                   </span>
                   <span
                     v-if="student.handSignal"
                     class="badge text-bg-secondary ms-1"
                   >
                     <i class="fas fa-hand-paper"></i>
-                  </span>
-                  <span
-                    v-if="!student.permission"
-                    class="badge text-bg-secondary ms-1"
-                  >
-                    <i class="fas fa-lock"></i>
                   </span>
                 </div>
               </div>
@@ -239,7 +243,7 @@
     window.removeEventListener('resize', updateWhiteboardSize);
     document.documentElement.style.overflowY = '';
 
-    channel.stopWebcam();
+    channel.webcam.stopWebcam();
 
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
@@ -258,11 +262,11 @@
   }
 
   function toggleVideo() {
-    channel.toggleVideo();
+    channel.webcam.toggleVideo();
   }
 
   function toggleAudio() {
-    channel.toggleAudio();
+    channel.webcam.toggleAudio();
   }
 
   function toggleHandSignal() {
