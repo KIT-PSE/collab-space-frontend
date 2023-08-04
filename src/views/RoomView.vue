@@ -4,16 +4,18 @@
       <div
         class="col-9 d-flex flex-column gap-2 h-100 overflow-hidden position-relative"
       >
-        <nav class="navbar bg-body-tertiary my-2 px-2 sticky-top rounded shadow-sm">
+        <nav
+          class="navbar bg-body-tertiary my-2 px-2 sticky-top rounded shadow-sm"
+        >
           <div class="container">
             <router-link
-                class="navbar-brand d-flex align-items-center"
-            :to="auth.isLoggedIn ? '/dashboard' : '/'"
+              class="navbar-brand d-flex align-items-center"
+              :to="auth.isLoggedIn ? '/dashboard' : '/'"
             >
               <img
-                  src="@/assets/textless-logo.png"
-                  alt="CollabSpace"
-                  height="36"
+                src="@/assets/textless-logo.png"
+                alt="CollabSpace"
+                height="36"
               />
             </router-link>
           </div>
