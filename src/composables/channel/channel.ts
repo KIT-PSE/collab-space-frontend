@@ -271,6 +271,10 @@ export const useChannel = defineStore('channel', () => {
     state.connected = false;
   }
 
+  /**
+   * Closes the channel with the given id.
+   * @param channelId The id of the channel to close.
+   */
   function close(channelId: string) {
     socket?.emit('close-channel', { channelId });
   }
