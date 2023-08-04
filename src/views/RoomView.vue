@@ -2,19 +2,22 @@
   <main class="container-fluid h-100">
     <div class="row h-100">
       <div
-        class="col-9 d-flex flex-column p-2 gap-4 h-100 overflow-hidden position-relative"
+        class="col-9 d-flex flex-column gap-2 h-100 overflow-hidden position-relative"
       >
-        <div class="row">
-          <div class="col d-flex align-items-center">
-            <router-link :to="auth.isLoggedIn ? '/dashboard' : '/'">
+        <nav class="navbar bg-body-tertiary my-2 px-2 sticky-top rounded shadow-sm">
+          <div class="container">
+            <router-link
+                class="navbar-brand d-flex align-items-center"
+            :to="auth.isLoggedIn ? '/dashboard' : '/'"
+            >
               <img
-                src="@/assets/textless-logo.png"
-                alt="CollabSpace"
-                width="100"
+                  src="@/assets/textless-logo.png"
+                  alt="CollabSpace"
+                  height="36"
               />
             </router-link>
           </div>
-        </div>
+        </nav>
 
         <div class="overflow-auto flex-grow-1">
           <BrowserComponent />

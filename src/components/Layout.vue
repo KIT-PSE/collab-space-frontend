@@ -6,7 +6,7 @@
         to="/dashboard"
       >
         <img
-          src="@/assets/icon-logo.png"
+          src="@/assets/textless-logo.png"
           alt="CollabSpace"
           height="36"
           class="me-3"
@@ -83,5 +83,5 @@
   const auth = useAuth();
   const channel = useChannel();
 
-  const dev = import.meta.env.DEV;
+  const dev = import.meta.env.DEV && false;
 </script>
