@@ -24,7 +24,7 @@
       </button>
       <input
         class="m-0 ms-2 py-1 px-3 bg-primary-subtle bg-opacity-25 rounded flex-grow-1 border-0 text-dark"
-        v-model="website"
+        v-model="channel.browser.url"
         style="outline-color: #34d1b3"
       />
       <button
@@ -74,7 +74,6 @@
   import { useThrottleFn } from '@vueuse/core';
   import { useChannel } from '@/composables/channel/channel';
 
-  const website = ref('https://google.com');
   const browserVideo = ref<HTMLVideoElement | null>(null);
 
   const channel = useChannel();
@@ -90,7 +89,7 @@
   });
 
   function openWebsite() {
-    channel.browser.openWebsite(website.value);
+    channel.browser.openWebsite(channel.browser.url);
   }
 
   function closeWebsite() {

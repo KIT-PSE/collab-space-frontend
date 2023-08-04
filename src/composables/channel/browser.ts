@@ -5,6 +5,7 @@ import { Socket } from 'socket.io-client';
 export const useBrowser = () => {
   const browserStream: Ref<MediaStream | null> = ref(null);
   const peerId: Ref<string> = ref('');
+  const url = ref('https://www.google.com');
 
   let socket: Socket | null = null;
 
@@ -28,6 +29,10 @@ export const useBrowser = () => {
 
       peerId.value = newPeerId;
       loadBrowserStream();
+    });
+
+    socket.on('browser-url', (newUrl: string) => {
+      url.value = newUrl;
     });
   }
 
@@ -89,6 +94,7 @@ export const useBrowser = () => {
     browserStream,
     browserPeer,
     peerId,
+    url,
     init,
     loadBrowserStream,
     openWebsite,
