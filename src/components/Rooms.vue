@@ -1,12 +1,24 @@
 <template>
-  <div class="row">
+  <div class="row mb-5">
+    <div
+      class="card d-flex align-items-center justify-content-center"
+      v-if="store.categories.length === 0"
+    >
+      <p class="py-5 m-0">
+        Hier ist noch nichts zu sehen. Erstelle deine erste Kategorie!
+      </p>
+    </div>
+
     <div
       v-for="category in store.categories"
       :key="category.id"
-      class="col-lg-9"
+      class="col-lg-9 mb-4"
     >
-      <div class="d-flex justify-content-between">
-        <h3>{{ category.name }}</h3>
+      <div
+        class="d-flex justify-content-between align-items-center rounded ps-3 pe-1 py-2"
+        style="background: rgba(0, 0, 0, 0.09)"
+      >
+        <h4 class="m-0">{{ category.name }}</h4>
         <div>
           <button class="btn text-secondary" @click="editCategory(category)">
             <i class="fa fa-pen"></i>
@@ -17,41 +29,59 @@
         </div>
       </div>
       <div class="row py-4">
+        <div v-if="category.rooms.length === 0">
+          <div class="card my-1 col-4">
+            <p class="py-4 px-3 text-center m-0">
+              Hier ist noch nichts zu sehen. Füge dieser Kategorie den ersten
+              Raum hinzu!
+            </p>
+          </div>
+        </div>
         <div v-for="room in category.rooms" :key="room.id" class="col-4">
           <div
-            class="card my-1"
+            class="card my-1 position-relative"
             style="cursor: pointer"
+            :class="room.channelId ? 'border-primary' : ''"
             @click="openRoom(room)"
           >
-            <img
-              src="https://placehold.co/600x400.png?text=Raum+Vorschau"
-              alt=""
-              class="card-img-top"
-            />
-            <div class="card-body py-2">
+            <span
+              v-if="room.channelId"
+              class="position-absolute badge text-bg-primary top-0 start-0 m-2"
+            >
+              Live
+            </span>
+            <div
+              class="card-body d-flex flex-column justify-content-end py-2 pt-5"
+            >
               <div class="card-text text-dark text-decoration-none">
-                <div class="d-flex justify-content-between align-items-center">
-                  <p>
+                <div>
+                  <p class="m-0 fw-semibold">
                     {{ room.name }}
-                    <span v-if="room.channelId" class="badge text-bg-primary">
-                      Live
-                    </span>
                   </p>
-                  <div>
-                    <button
-                      class="btn btn-sm text-secondary"
-                      @click.stop="editRoom(room)"
-                    >
-                      <i class="fa fa-pen"></i>
-                    </button>
-                    <button
-                      class="btn btn-sm text-secondary"
-                      @click.stop="deleteRoom(room)"
-                    >
-                      <i class="fa fa-trash"></i>
-                    </button>
-                  </div>
                 </div>
+              </div>
+            </div>
+
+            <div
+              class="card-footer d-flex justify-content-between align-items-center"
+            >
+              <span style="font-size: 0.86rem">
+                {{ room.channelId ? 'Beitreten' : 'Öffnen' }}
+              </span>
+
+              <div>
+                <button
+                  class="btn btn-sm text-secondary"
+                  @click.stop="editRoom(room)"
+                >
+                  <i class="fa fa-pen"></i>
+                </button>
+                <button
+                  class="btn btn-sm text-secondary"
+                  @click.stop="deleteRoom(room)"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
               </div>
             </div>
           </div>

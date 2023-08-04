@@ -57,7 +57,6 @@
 
   const router = useRouter();
   const channel = useChannel();
-
   const savedUserName = ref(localStorage.getItem('session-name') || '');
 
   const form = useForm({
@@ -86,7 +85,7 @@
    */
   function toggleVideo() {
     video.value = !video.value;
-    channel.toggleVideo();
+    channel.webcam.toggleVideo();
     stream!.getVideoTracks().forEach((track) => (track.enabled = video.value));
   }
 
@@ -97,7 +96,7 @@
    */
   function toggleAudio() {
     audio.value = !audio.value;
-    channel.toggleAudio();
+    channel.webcam.toggleAudio();
     stream!.getAudioTracks().forEach((track) => (track.enabled = audio.value));
   }
 

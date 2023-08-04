@@ -24,12 +24,12 @@
    * Watcher function to listen for changes in the 'channel.streams' reactive property.
    * Whenever there is a change in the 'channel.streams', this function will be executed.
    */
-  watch(channel.streams, () => {
+  watch(channel.webcam.streams, () => {
     if (loaded) {
       return;
     }
 
-    const stream = channel.getWebcamStream(props.userId);
+    const stream = channel.webcam.getStream(props.userId);
 
     if (stream) {
       video.value!.srcObject = stream;

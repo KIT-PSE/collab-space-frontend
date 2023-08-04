@@ -7,9 +7,9 @@ import { useRouter } from 'vue-router';
 import { convertDates } from '@/composables/utils';
 import { useAuth } from '@/composables/auth';
 import { useStore } from '@/composables/store';
-import Peer from 'peerjs';
 import { Notes } from '@/composables/channel/notes';
 import { Whiteboard } from '@/composables/channel/whiteboard';
+import { useWebcam } from '@/composables/channel/webcam';
 import { useBrowser } from '@/composables/channel/browser';
 
 const alerts = useAlerts();
@@ -62,6 +62,7 @@ export interface Teacher extends ChannelUser {
 export interface JoinRoomResult {
   room: Room;
   browserPeerId: string;
+  browserUrl: string;
   teacher: Teacher;
   students: Student[];
 }
@@ -97,6 +98,7 @@ export const useChannel = defineStore('channel', () => {
   const router = useRouter();
   const auth = useAuth();
   const browser = useBrowser();
+  const webcam = useWebcam();
 
   /**
    * The channel state object that is used to represent the state of the channel.
@@ -130,9 +132,6 @@ export const useChannel = defineStore('channel', () => {
     return isTeacher(user) || (user as Student).permission;
   });
 
-  let webcamsLoaded = false;
-  const streams: Record<string, MediaStream> = reactive({});
-
   let socket: Socket | null = null;
 
   /**
@@ -153,6 +152,7 @@ export const useChannel = defineStore('channel', () => {
 
       socket.on('connect', () => {
         state.connected = true;
+        webcam.init(socket!);
         browser.init(socket!);
 
         handleConnection(socket!);
@@ -173,94 +173,10 @@ export const useChannel = defineStore('channel', () => {
   }
 
   /**
-   * Loads webcams and initiates video calls between the current user and other users.
-   * The function is only called once, as `webcamsLoaded` is set once the webcams are loaded.
-   * In development environments, audio stream is deactivated to avoid disturbances.
-   * The function uses WebRTC and Peer.js to enable video calls.
-   * @returns  A Promise that resolves successfully once webcams are loaded.
+   * Asynchronously loads the webcams for other users in the session.
    */
-  async function loadWebcams(): Promise<void> {
-    if (webcamsLoaded) {
-      return;
-    }
-
-    const user = currentUser();
-
-    if (import.meta.env.DEV) {
-      // deactivate audio in dev mode as it can get annoying
-      user.audio = false;
-    }
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-
-    if (!user?.video) {
-      stream.getVideoTracks().forEach((track) => (track.enabled = false));
-    }
-
-    if (!user?.audio) {
-      stream.getAudioTracks().forEach((track) => (track.enabled = false));
-    }
-
-    for (const userToConnectTo of otherUsers()) {
-      const peer = new Peer();
-
-      peer.on('open', (id) => {
-        socket?.emit('connect-webcam', {
-          userId: userToConnectTo.id,
-          peerId: id,
-        });
-      });
-
-      peer.on('call', (call) => {
-        call.answer(stream);
-        call.on('stream', (remoteStream) => {
-          streams[userToConnectTo.id] = remoteStream;
-        });
-      });
-    }
-
-    streams[state.clientId] = stream;
-    webcamsLoaded = true;
-  }
-
-  /**
-   * Gets the current state of a webcam stream from a user.
-   * @param userId - The id of the user to get the webcam stream from
-   * @returns The current state of a webcam stream from a user
-   */
-  function getWebcamStream(userId: string): MediaStream {
-    return streams[userId] ?? null;
-  }
-
-  /**
-   * Toggles the video state (enable/disable) of the current user's webcam.
-   * This function updates the `video` property of the current user, enables/disables the video track in the user's stream accordingly,
-   * and emits an 'update-webcam' event to the server with the updated video state.
-   */
-  function toggleVideo(): void {
-    const user = currentUser();
-    const stream = streams[user.id];
-
-    user.video = !user.video;
-    stream?.getVideoTracks().forEach((track) => (track.enabled = user.video));
-    socket?.emit('update-webcam', { video: user.video, audio: user.audio });
-  }
-
-  /**
-   * Toggles the audio state (enable/disable) of the current user's microphone.
-   * This function updates the `audio` property of the current user, enables/disables the audio track in the user's stream accordingly,
-   * and emits an 'update-webcam' event to the server with the updated audio state.
-   */
-  function toggleAudio(): void {
-    const user = currentUser();
-    const stream = streams[user.id];
-
-    user.audio = !user.audio;
-    stream?.getAudioTracks().forEach((track) => (track.enabled = user.audio));
-    socket?.emit('update-webcam', { video: user.video, audio: user.audio });
+  async function loadWebcams() {
+    await webcam.load(otherUsers);
   }
 
   /**
@@ -291,27 +207,7 @@ export const useChannel = defineStore('channel', () => {
   }
 
   /**
-   * Stops the webcam streaming of the current user and removes all other users' streams.
-   * This function stops all tracks in the current user's stream, clears the `streams` data structure,
-   * and sets `webcamsLoaded` to `false`.
-   */
-  function stopWebcam(): void {
-    const stream = streams[state.clientId];
-
-    for (const track of stream?.getTracks() ?? []) {
-      track.stop();
-    }
-
-    for (const id in streams) {
-      delete streams[id];
-    }
-
-    webcamsLoaded = false;
-  }
-
-  /**
    * Retrieves a user (either teacher or student) by their ID.
-   * This function searches for the user with the given ID in the `state.teacher` and `state.students` arrays.
    * @param id - The ID of the user to retrieve.
    * @returns The user with the specified ID if found, or `undefined` if not found.
    */
@@ -325,7 +221,6 @@ export const useChannel = defineStore('channel', () => {
 
   /**
    * Retrieves a student by their ID.
-   * This function searches for the student with the given ID in the `state.students` array.
    * @param id - The ID of the student to retrieve.
    * @returns  The student with the specified ID.
    */
@@ -339,7 +234,6 @@ export const useChannel = defineStore('channel', () => {
 
   /**
    * Checks if the given user is a student.
-   * This function determines whether the provided `user` is a student by comparing their ID with the ID of the teacher (if available).
    * @param  user - The user to check.
    * @returns true if the user is a student, false if not.
    */
@@ -349,7 +243,6 @@ export const useChannel = defineStore('channel', () => {
 
   /**
    * Checks if the given user is a teacher.
-   * This function determines whether the provided `user` is a teacher by comparing their ID with the ID of the teacher (if available).
    * @param {ChannelUser} user - The user to check.
    * @returns {boolean} `true` if the user is a teacher, `false` if not.
    */
@@ -359,7 +252,6 @@ export const useChannel = defineStore('channel', () => {
 
   /**
    * Retrieves the current user based on the `state.clientId`.
-   * This function uses the `userById` function to retrieve the current user based on the `state.clientId`.
    * @returns The current user (either teacher or student).
    * @throws  If the current user is not found.
    */
@@ -423,6 +315,7 @@ export const useChannel = defineStore('channel', () => {
       state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
 
       browser.peerId.value = '';
+      browser.url.value = 'https://www.google.com';
 
       await router.push({
         name: 'room',
@@ -496,6 +389,7 @@ export const useChannel = defineStore('channel', () => {
         state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
 
         browser.peerId.value = data.browserPeerId;
+        browser.url.value = data.browserUrl;
 
         resolve();
       });
@@ -618,21 +512,6 @@ export const useChannel = defineStore('channel', () => {
     });
 
     socket.on(
-      'connect-webcam',
-      ({ userId, peerId }: { userId: string; peerId: string }) => {
-        const peer = new Peer();
-        const stream = getWebcamStream(state.clientId);
-
-        peer.on('open', () => {
-          const call = peer.call(peerId, stream);
-          call.on('stream', (remoteStream) => {
-            streams[userId] = remoteStream;
-          });
-        });
-      },
-    );
-
-    socket.on(
       'update-webcam',
       (payload: { id: string; video: boolean; audio: boolean }) => {
         const user = userById(payload.id);
@@ -679,6 +558,7 @@ export const useChannel = defineStore('channel', () => {
 
   return {
     state,
+    webcam,
     browser,
     connect,
     open,
@@ -692,15 +572,9 @@ export const useChannel = defineStore('channel', () => {
     hasCurrentUserPermission,
     currentUser,
     changeName,
-    streams,
     loadWebcams,
     loadNotes,
-    getWebcamStream,
-    toggleVideo,
-    toggleAudio,
     toggleHandSignal,
     updatePermission,
-    stopWebcam,
-    scroll,
   };
 });

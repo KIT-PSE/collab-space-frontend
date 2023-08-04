@@ -25,7 +25,7 @@ export class Notes {
     private readonly roomId: number,
     private readonly categoryId: number,
   ) {
-    this.loadNotes(roomId, categoryId);
+    this.load(roomId, categoryId);
 
     socket.on('note-added', (note: Note) => {
       this.notesList.push(note);
@@ -34,7 +34,7 @@ export class Notes {
     socket.on(
       'note-updated',
       ({ noteId, content }: { noteId: number; content: string }) => {
-        const note = this.getNoteById(noteId);
+        const note = this.getNote(noteId);
         if (note) {
           note.content = content;
         }
@@ -54,7 +54,7 @@ export class Notes {
    * @param roomId - The id of the room
    * @param categoryId - The id of the category
    */
-  async loadNotes(roomId: number, categoryId: number) {
+  async load(roomId: number, categoryId: number) {
     const api = useApi();
     const notesResult = await api.getNotes(roomId, categoryId);
     this.notesList.push(...notesResult);
@@ -64,7 +64,7 @@ export class Notes {
    * Gets a note by its id
    * @param noteId - The id of the note
    */
-  public getNoteById(noteId: number) {
+  public getNote(noteId: number) {
     return this.notesList.find((note) => note.id === noteId);
   }
 
@@ -72,7 +72,7 @@ export class Notes {
    * Adds a note to the server
    * @param name - The name of the note
    */
-  public addNote(name: string): Promise<number> {
+  public add(name: string): Promise<number> {
     return new Promise((resolve) => {
       this.socket.emit('add-note', { name }, (response: { id: number }) => {
         this.notesList.push({
@@ -91,7 +91,7 @@ export class Notes {
    * @param noteId - The id of the note
    * @param content - The content of the note
    */
-  public updateNote(noteId: number, content: string) {
+  public update(noteId: number, content: string) {
     this.socket.emit('update-note', { noteId, content });
   }
 
@@ -99,7 +99,7 @@ export class Notes {
    * Deletes a note on the server
    * @param noteId - The id of the note
    */
-  public deleteNoteById(noteId: number) {
+  public delete(noteId: number) {
     this.socket.emit('delete-note', { noteId });
   }
 
@@ -107,8 +107,8 @@ export class Notes {
    * Downloads a note from the server
    * @param noteId - The id of the note
    */
-  public downloadNote(noteId: number) {
-    const note = this.getNoteById(noteId);
+  public download(noteId: number) {
+    const note = this.getNote(noteId);
     if (note) {
       const element = document.createElement('a');
       element.setAttribute(

@@ -61,7 +61,7 @@
 
       <div
         class="mt-2 flex-fill d-flex flex-column"
-        v-if="selectedNote > 0 && notes.getNoteById(selectedNote)"
+        v-if="selectedNote > 0 && notes.getNote(selectedNote)"
       >
         <div class="d-flex align-items-center">
           <button
@@ -70,11 +70,11 @@
           >
             <i class="fa fa-arrow-left"></i>
           </button>
-          {{ notes.getNoteById(selectedNote)!.name }}
+          {{ notes.getNote(selectedNote)!.name }}
 
           <button
             class="btn btn-sm text-secondary ms-auto"
-            @click="notes.downloadNote(selectedNote)"
+            @click="notes.download(selectedNote)"
           >
             <i class="fa fa-download"></i>
           </button>
@@ -86,7 +86,7 @@
         <textarea
           class="form-control mt-2 h-100"
           rows="10"
-          v-model="notes.getNoteById(selectedNote)!.content"
+          v-model="notes.getNote(selectedNote)!.content"
           @keyup="updateNote"
         ></textarea>
       </div>
@@ -125,7 +125,7 @@
       // TODO: Fehlerbehandlung
       return;
     }
-    const id = await notes.addNote(name);
+    const id = await notes.add(name);
     newNoteName.value = '';
     setSelectedNote(id);
   }
@@ -135,7 +135,7 @@
    * @param payload - The keyboard event containing the updated text.
    */
   function updateNote(payload: KeyboardEvent) {
-    notes.updateNote(
+    notes.update(
       selectedNote.value,
       (payload.target as HTMLTextAreaElement).value,
     );
@@ -153,7 +153,7 @@
     );
 
     if (shouldDelete) {
-      notes.deleteNoteById(selectedNote.value);
+      notes.delete(selectedNote.value);
       setSelectedNote(0);
     }
   }

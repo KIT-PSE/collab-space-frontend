@@ -2,19 +2,24 @@
   <main class="container-fluid h-100">
     <div class="row h-100">
       <div
-        class="col-9 d-flex flex-column p-2 gap-4 h-100 overflow-hidden position-relative"
+        class="col-9 d-flex flex-column gap-2 h-100 overflow-hidden position-relative"
       >
-        <div class="row">
-          <div class="col d-flex align-items-center">
-            <router-link :to="auth.isLoggedIn ? '/dashboard' : '/'">
+        <nav
+          class="navbar bg-body-tertiary my-2 px-2 sticky-top rounded shadow-sm"
+        >
+          <div class="container">
+            <router-link
+              class="navbar-brand d-flex align-items-center"
+              :to="auth.isLoggedIn ? '/dashboard' : '/'"
+            >
               <img
                 src="@/assets/textless-logo.png"
                 alt="CollabSpace"
-                width="100"
+                height="36"
               />
             </router-link>
           </div>
-        </div>
+        </nav>
 
         <div class="overflow-auto flex-grow-1">
           <BrowserComponent />
@@ -46,10 +51,10 @@
         </div>
       </div>
       <div
-        class="col-3 p-2 bg-dark d-flex flex-column justify-content-between"
+        class="col-3 py-3 bg-dark d-flex flex-column justify-content-between"
         style="max-height: 100%"
       >
-        <div class="overflow-y-auto mb-2">
+        <div class="row overflow-y-auto mb-2">
           <div class="d-flex justify-content-between px-4 py-2">
             <h3 class="text-center text-primary mt-2">
               {{ channel.state.room?.name }}
@@ -68,23 +73,33 @@
           </div>
 
           <div v-if="channel.state.teacher" class="col-lg-6">
-            <div class="card my-1">
+            <div
+              class="card my-1"
+              :class="channel.isSelf(channel.state.teacher) ? 'bg-primary' : ''"
+            >
               <Camera :user-id="channel.state.teacher.id" />
               <div class="card-body py-2">
-                <div class="card-text text-dark text-decoration-none">
+                <div
+                  class="card-text text-dark text-decoration-none d-flex align-items-center flex-wrap"
+                >
                   {{ channel.state.teacher?.user.name }}
-                  <span class="badge text-bg-primary ms-1">Lehrer</span>
+                  <!--<span class="badge text-bg-primary ms-1">Lehrer</span>-->
+                  <span class="flex-grow-1"></span>
                   <span
-                    v-if="channel.isSelf(channel.state.teacher)"
-                    class="badge text-bg-secondary ms-1"
+                    class="badge ms-1"
+                    :class="
+                      channel.isSelf(channel.state.teacher)
+                        ? 'text-bg-light'
+                        : 'text-bg-primary'
+                    "
                   >
-                    Du
+                    <i class="fa-solid fa-chalkboard-user"></i>
                   </span>
                   <span
                     v-if="!channel.state.teacher.audio"
                     class="badge text-bg-secondary ms-1"
                   >
-                    Muted
+                    <i class="fas fa-microphone-slash"></i>
                   </span>
                 </div>
               </div>
@@ -96,7 +111,10 @@
             :key="student.id"
             class="col-lg-6"
           >
-            <div class="card my-1 d-flex flex-column">
+            <div
+              class="card my-1 d-flex flex-column"
+              :class="channel.isSelf(student) ? 'bg-primary' : ''"
+            >
               <div class="position-relative flex-grow-1">
                 <div class="ratio ratio-4x3">
                   <Camera :user-id="student.id" class="w-100 h-100" />
@@ -107,7 +125,7 @@
                   class="dropdown position-absolute top-0 end-0"
                 >
                   <button
-                    class="btn btn-outline-secondary"
+                    class="btn text-white"
                     type="button"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
@@ -127,28 +145,22 @@
                 <div class="card-text text-dark text-decoration-none">
                   {{ student.name }}
                   <span
-                    v-if="channel.isSelf(student)"
+                    v-if="!student.permission"
                     class="badge text-bg-secondary ms-1"
                   >
-                    Du
+                    <i class="fas fa-lock"></i>
                   </span>
                   <span
                     v-if="!student.audio"
                     class="badge text-bg-secondary ms-1"
                   >
-                    Muted
+                    <i class="fas fa-microphone-slash"></i>
                   </span>
                   <span
                     v-if="student.handSignal"
                     class="badge text-bg-secondary ms-1"
                   >
                     <i class="fas fa-hand-paper"></i>
-                  </span>
-                  <span
-                    v-if="!student.permission"
-                    class="badge text-bg-secondary ms-1"
-                  >
-                    <i class="fas fa-lock"></i>
                   </span>
                 </div>
               </div>
@@ -236,7 +248,7 @@
     window.removeEventListener('resize', updateWhiteboardSize);
     document.documentElement.style.overflowY = '';
 
-    channel.stopWebcam();
+    channel.webcam.stop();
 
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
@@ -262,7 +274,7 @@
    * Function that toggles the video transmission status through the channel using 'channel.toggleVideo()'.
    */
   function toggleVideo() {
-    channel.toggleVideo();
+    channel.webcam.toggleVideo();
   }
 
   /**
@@ -270,7 +282,7 @@
    */
 
   function toggleAudio() {
-    channel.toggleAudio();
+    channel.webcam.toggleAudio();
   }
 
   /**
@@ -374,6 +386,7 @@
     transform: translateY(-50%);
     max-width: 350px;
     min-width: 250px;
+    z-index: 2000;
 
     &.hide {
       visibility: hidden;

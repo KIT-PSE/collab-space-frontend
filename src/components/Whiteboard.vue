@@ -136,6 +136,9 @@
         return;
       }
       canvas.value?.loadFromJSON(JSON.parse(canvasJson), () => {});
+
+      // Disable selection of objects because sync is not implemented
+      disableSelection();
     });
 
     /**
@@ -246,12 +249,9 @@
     if (newTool === Tool.Select) {
       canvasRef.isDrawingMode = false;
       canvasRef.hoverCursor = 'move';
+
       // Disable selection of objects because sync is not implemented
-      canvasRef.discardActiveObject();
-      canvasRef.renderAll();
-      canvasRef.forEachObject((o) => {
-        o.selectable = false;
-      });
+      disableSelection();
     } else {
       canvasRef.isDrawingMode = channel.hasCurrentUserPermission;
       canvasRef.hoverCursor = 'crosshair';
@@ -270,6 +270,17 @@
     }
 
     tool.value = newTool;
+  }
+
+  /**
+   * Function that disables selection of objects on the canvas.
+   */
+  function disableSelection() {
+    canvas.value?.discardActiveObject();
+    canvas.value?.renderAll();
+    canvas.value?.forEachObject((o) => {
+      o.selectable = false;
+    });
   }
 
   /**

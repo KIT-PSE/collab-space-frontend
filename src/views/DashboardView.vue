@@ -1,5 +1,8 @@
 <template>
   <Layout title="Dashboard" :buttons="['account', 'admin']">
+    <h3>Herzlich Willkommen {{ auth.state.user?.name }}!</h3>
+    <hr />
+
     <div class="row my-5">
       <div class="col">
         <button
@@ -8,10 +11,10 @@
           data-bs-target="#create-room-modal"
         >
           <i class="fa fa-plus"></i>
-          Raum Erstellen
+          Neuen Raum erstellen
         </button>
         <button
-          class="btn btn-primary ms-2"
+          class="btn btn-primary ms-3"
           data-bs-toggle="modal"
           data-bs-target="#create-category-modal"
         >
@@ -34,7 +37,9 @@
   import CreateRoomModal from '@/components/CreateRoomModal.vue';
   import Rooms from '@/components/Rooms.vue';
   import { useChannel } from '@/composables/channel/channel';
+  import { useAuth } from '@/composables/auth';
 
   const channel = useChannel();
+  const auth = useAuth();
   channel.connect();
 </script>

@@ -1,9 +1,9 @@
 <template>
   <div
-    class="border border-primary-subtle rounded overflow-hidden d-flex flex-column h-100"
+    class="border border-primary-subtle rounded overflow-hidden d-flex flex-column"
   >
     <div
-      class="d-flex align-items-center p-2 border-bottom border-primary-subtle"
+      class="d-flex align-items-center p-2 border-bottom border-primary-subtle sticky-top"
     >
       <button @click="reload" :disabled="!isStreaming" class="btn btn-sm">
         <i class="fas fa-sync"></i>
@@ -24,7 +24,7 @@
       </button>
       <input
         class="m-0 ms-2 py-1 px-3 bg-primary-subtle bg-opacity-25 rounded flex-grow-1 border-0 text-dark"
-        v-model="website"
+        v-model="channel.browser.url"
         style="outline-color: #34d1b3"
       />
       <button
@@ -74,7 +74,6 @@
   import { useThrottleFn } from '@vueuse/core';
   import { useChannel } from '@/composables/channel/channel';
 
-  const website = ref('https://google.com');
   const browserVideo = ref<HTMLVideoElement | null>(null);
 
   const channel = useChannel();
@@ -93,7 +92,7 @@
    * Opens the website specified in the `website.value` variable using the browser channel.
    */
   function openWebsite() {
-    channel.browser.openWebsite(website.value);
+    channel.browser.openWebsite(channel.browser.url);
   }
 
   /**

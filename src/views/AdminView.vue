@@ -1,8 +1,8 @@
 <template>
-  <Layout title="Admin" :buttons="['back']">
-    <div class="row my-5">
+  <Layout title="Admin-Panel" :buttons="['back']">
+    <div class="row">
       <div class="col">
-        <h2>Users</h2>
+        <h2>Nutzer</h2>
         <table class="table">
           <thead>
             <tr>
