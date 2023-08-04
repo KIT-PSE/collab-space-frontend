@@ -77,10 +77,18 @@
                   <i class="fa fa-pen"></i>
                 </button>
                 <button
+                  v-if="!room.channelId"
                   class="btn btn-sm text-secondary"
                   @click.stop="deleteRoom(room)"
                 >
                   <i class="fa fa-trash"></i>
+                </button>
+                <button
+                  v-if="room.channelId"
+                  class="btn btn-sm text-secondary"
+                  @click.stop="closeRoom(room)"
+                >
+                  <i class="fa fa-ban"></i>
                 </button>
               </div>
             </div>
@@ -190,5 +198,24 @@
     }
 
     await store.deleteRoom(room);
+  }
+
+  /**
+   * Asynchronous function that prompts the user to confirm room closure.
+   * If confirmed, it closes the provided 'room' using the 'channel.close()' function.
+   * @param room - The room to be closed.
+   */
+  async function closeRoom(room: Room) {
+    const shouldClose = await ask(
+      'Raum schließen',
+      `Soll der Raum <b>${room.name}</b> wirklich geschlossen werden? Alle Schüler werden aus dem Raum entfernt.`,
+      'Schließen',
+    );
+
+    if (!shouldClose || !room.channelId) {
+      return;
+    }
+
+    channel.close(room.channelId);
   }
 </script>

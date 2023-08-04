@@ -410,6 +410,14 @@ export const useChannel = defineStore('channel', () => {
   }
 
   /**
+   * Closes the channel with the given id.
+   * @param channelId The id of the channel to close.
+   */
+  function close(channelId: string) {
+    socket?.emit('close-channel', { channelId });
+  }
+
+  /**
    * Checks if the given `ChannelUser` object or user ID is representing the current client (self).
    * @param user - The `ChannelUser` object or user ID to check.
    * @returns `true` if the user is the current client (self), `false` otherwise.
@@ -474,6 +482,15 @@ export const useChannel = defineStore('channel', () => {
       if (room) {
         room.channelId = '';
       }
+
+      if (state.room && state.room.id == id) {
+        alerts.info('Der Raum wurde geschlossen.');
+        if (state.teacher && state.teacher.id == state.clientId) {
+          router.push({ name: 'dashboard' });
+        } else {
+          router.push({ path: '/' });
+        }
+      }
     });
 
     socket.on('change-name', ({ id, name }: { id: string; name: string }) => {
@@ -536,6 +553,7 @@ export const useChannel = defineStore('channel', () => {
     joinAsStudent,
     leaveAsTeacher,
     leave,
+    close,
     isSelf,
     isStudent,
     isTeacher,
