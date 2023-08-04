@@ -106,8 +106,6 @@
 
   /**
    * Throttled function that handles mouse movement events while streaming is active and the user has permission.
-   * It moves the mouse on the browser channel based on the adjusted mouse position obtained from the event.
-   * Throttle delay is set to 50ms.
    * @param {MouseEvent} event - The mouse move event object.
    */
   const onMouseMove = useThrottleFn((event: MouseEvent) => {
@@ -120,7 +118,6 @@
 
   /**
    * Handles the `mousedown` event on the browser video element.
-   * It sends the mouse down event to the browser channel if streaming is active and the user has permission.
    * @param event - The mouse down event object.
    */
   function onMouseDown(event: MouseEvent) {
@@ -137,7 +134,6 @@
 
   /**
    * Handles the `mouseup` event on the browser video element.
-   * It sends the mouse up event to the browser channel if streaming is active and the user has permission.
    * @param event - The mouse up event object.
    */
   function onMouseUp(event: MouseEvent) {
@@ -154,7 +150,6 @@
 
   /**
    * Handles the `keydown` event on the document.
-   * It sends the key down event to the browser channel if streaming is active and the user has permission.
    * @param  event - The key down event object.
    */
   function onKeyDown(event: KeyboardEvent) {
@@ -167,7 +162,6 @@
 
   /**
    * Handles the `keyup` event on the document.
-   * It sends the key up event to the browser channel if streaming is active and the user has permission.
    * @param event - The key up event object.
    */
   function onKeyUp(event: KeyboardEvent) {
@@ -180,7 +174,6 @@
 
   /**
    * Handles the `wheel` event on the browser video element.
-   * It sends the scroll event to the browser channel if streaming is active and the user has permission.
    * @param event - The wheel event object.
    */
   function onWheel(event: WheelEvent) {
@@ -246,8 +239,6 @@
 
   /**
    * Watches changes in the `channel.browser.browserStream` and updates the `isStreaming.value` and `browserVideo.value!.srcObject` accordingly.
-   * If a new stream is available, it sets the streaming state to true and assigns the stream to the video element as the source.
-   * If the stream is null (ended), it sets the streaming state to false and removes the video source.
    * @param stream - The browser stream object or null if the stream has ended.
    */
   watch(
