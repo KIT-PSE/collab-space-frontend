@@ -16,7 +16,7 @@ export class Notes {
     private readonly roomId: number,
     private readonly categoryId: number,
   ) {
-    this.loadNotes(roomId, categoryId);
+    this.load(roomId, categoryId);
 
     socket.on('note-added', (note: Note) => {
       this.notesList.push(note);
@@ -25,7 +25,7 @@ export class Notes {
     socket.on(
       'note-updated',
       ({ noteId, content }: { noteId: number; content: string }) => {
-        const note = this.getNoteById(noteId);
+        const note = this.getNote(noteId);
         if (note) {
           note.content = content;
         }
@@ -40,17 +40,17 @@ export class Notes {
     });
   }
 
-  async loadNotes(roomId: number, categoryId: number) {
+  async load(roomId: number, categoryId: number) {
     const api = useApi();
     const notesResult = await api.getNotes(roomId, categoryId);
     this.notesList.push(...notesResult);
   }
 
-  public getNoteById(noteId: number) {
+  public getNote(noteId: number) {
     return this.notesList.find((note) => note.id === noteId);
   }
 
-  public addNote(name: string): Promise<number> {
+  public add(name: string): Promise<number> {
     return new Promise((resolve) => {
       this.socket.emit('add-note', { name }, (response: { id: number }) => {
         this.notesList.push({
@@ -64,16 +64,16 @@ export class Notes {
     });
   }
 
-  public updateNote(noteId: number, content: string) {
+  public update(noteId: number, content: string) {
     this.socket.emit('update-note', { noteId, content });
   }
 
-  public deleteNoteById(noteId: number) {
+  public delete(noteId: number) {
     this.socket.emit('delete-note', { noteId });
   }
 
-  public downloadNote(noteId: number) {
-    const note = this.getNoteById(noteId);
+  public download(noteId: number) {
+    const note = this.getNote(noteId);
     if (note) {
       const element = document.createElement('a');
       element.setAttribute(
