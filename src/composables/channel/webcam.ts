@@ -19,7 +19,7 @@ export const useWebcam = () => {
     };
   }
 
-  async function loadWebcams(otherUsers: () => ChannelUser[]): Promise<void> {
+  async function load(otherUsers: () => ChannelUser[]): Promise<void> {
     if (webcamsLoaded) {
       return;
     }
@@ -59,7 +59,7 @@ export const useWebcam = () => {
       'connect-webcam',
       ({ userId, peerId }: { userId: string; peerId: string }) => {
         const peer = new Peer();
-        const stream = getWebcamStream(user!.id);
+        const stream = getStream(user!.id);
 
         peer.on('open', () => {
           const call = peer.call(peerId, stream);
@@ -74,7 +74,7 @@ export const useWebcam = () => {
     webcamsLoaded = true;
   }
 
-  function getWebcamStream(userId: string): MediaStream {
+  function getStream(userId: string): MediaStream {
     return streams[userId] ?? null;
   }
 
@@ -100,7 +100,7 @@ export const useWebcam = () => {
     });
   }
 
-  function stopWebcam(): void {
+  function stop(): void {
     const stream = streams[user!.id];
 
     for (const track of stream?.getTracks() ?? []) {
@@ -117,10 +117,10 @@ export const useWebcam = () => {
   return {
     streams,
     init,
-    loadWebcams,
-    getWebcamStream,
+    load,
+    getStream,
     toggleVideo,
     toggleAudio,
-    stopWebcam,
+    stop,
   };
 };

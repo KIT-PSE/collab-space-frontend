@@ -248,7 +248,7 @@
     window.removeEventListener('resize', updateWhiteboardSize);
     document.documentElement.style.overflowY = '';
 
-    channel.webcam.stopWebcam();
+    channel.webcam.stop();
 
     if (auth.isLoggedIn) {
       channel.leaveAsTeacher();
