@@ -14,10 +14,17 @@ import {
 const api = useApi();
 const alerts = useAlerts();
 
+/**
+ * Represents the application state related to categories and rooms.
+ */
 export const useStore = defineStore('store', () => {
   const categories: Ref<Category[]> = ref([]);
   const loaded: Ref<boolean> = ref(false);
 
+  /**
+   * Loads the categories and their associated rooms from the API.
+   * If the data is already loaded, it does nothing.
+   */
   async function load(): Promise<void> {
     if (loaded.value) {
       return;
@@ -31,11 +38,21 @@ export const useStore = defineStore('store', () => {
     }
   }
 
+  /**
+   * Unloads the categories and their associated rooms.
+   * Resets the categories array and loaded state to their initial values.
+   */
   function unload(): void {
     categories.value = [];
     loaded.value = false;
   }
 
+  /**
+   * Creates a new category.
+   * @param data - The data for creating the category.
+   * @returns The created category or `null` if an error occurs.
+   * @throws `ValidationError` if the input data is invalid.
+   */
   async function createCategory(
     data: CreateCategory,
   ): Promise<Category | null> {
@@ -54,10 +71,22 @@ export const useStore = defineStore('store', () => {
     return null;
   }
 
+  /**
+   * Finds a category by its ID.
+   * @param id - The ID of the category to find.
+   * @returns The found category or `null` if not found.
+   */
   function findCategory(id: number): Category | null {
     return categories.value.find((c) => c.id === id) ?? null;
   }
 
+  /**
+   * Updates a category with the provided data.
+   * @param category - The category to update.
+   * @param data - The data for updating the category.
+   * @returns The updated category or `null` if an error occurs.
+   * @throws `ValidationError` if the input data is invalid.
+   */
   async function updateCategory(
     category: Category,
     data: UpdateCategory,
@@ -88,6 +117,10 @@ export const useStore = defineStore('store', () => {
     return null;
   }
 
+  /**
+   * Deletes a category and removes it from the categories array.
+   * @param category - The category to delete.
+   */
   async function deleteCategory(category: Category): Promise<void> {
     try {
       await api.deleteCategory(category.id);
@@ -97,6 +130,12 @@ export const useStore = defineStore('store', () => {
     }
   }
 
+  /**
+   * Creates a new room within a category.
+   * @param data - The data for creating the room.
+   * @returns The created room or `null` if an error occurs.
+   * @throws `ValidationError` if the input data is invalid.
+   */
   async function createRoom(data: CreateRoom): Promise<Room | null> {
     try {
       const room = await api.createRoom(data);
@@ -118,6 +157,11 @@ export const useStore = defineStore('store', () => {
     return null;
   }
 
+  /**
+   * Finds a room by its ID.
+   * @param id - The ID of the room to find.
+   * @returns The found room or `null` if not found.
+   */
   function findRoom(id: number): Room | null {
     for (const category of categories.value) {
       const room = category.rooms.find((r) => r.id === id);
@@ -128,7 +172,13 @@ export const useStore = defineStore('store', () => {
 
     return null;
   }
-
+  /**
+   * Updates a room with the provided data.
+   * @param room - The room to update.
+   * @param data - The data for updating the room.
+   * @returns The updated room or `null` if an error occurs.
+   * @throws `ValidationError` if the input data is invalid.
+   */
   async function updateRoom(
     room: Room,
     data: { name: string },
@@ -158,6 +208,10 @@ export const useStore = defineStore('store', () => {
     return null;
   }
 
+  /**
+   * Deletes a room from its category's rooms array.
+   * @param room - The room to delete.
+   */
   async function deleteRoom(room: Room): Promise<void> {
     try {
       await api.deleteRoom(room.id, room.category);

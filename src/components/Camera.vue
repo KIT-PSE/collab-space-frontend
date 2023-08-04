@@ -20,6 +20,10 @@
   const video = ref<HTMLVideoElement | null>(null);
   let loaded = false;
 
+  /**
+   * Watcher function to listen for changes in the 'channel.streams' reactive property.
+   * Whenever there is a change in the 'channel.streams', this function will be executed.
+   */
   watch(channel.webcam.streams, () => {
     if (loaded) {
       return;

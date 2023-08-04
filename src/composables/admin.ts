@@ -11,6 +11,12 @@ export const useAdmin = defineStore('admin', () => {
   const users = ref<User[]>([]);
   const loaded = ref(false);
 
+  /**
+   * Load user data from the server if it is not already loaded.
+   * This is an asynchronous function.
+   *
+   * @returns A Promise that resolves when the user data is loaded.
+   */
   async function load() {
     if (loaded.value) {
       return;
@@ -23,6 +29,14 @@ export const useAdmin = defineStore('admin', () => {
     }
   }
 
+  /**
+   * Change the role of a user with the specified ID.
+   * This is an asynchronous function.
+   *
+   * @param id - The ID of the user whose role needs to be changed.
+   * @returns A Promise that resolves when the user role is changed successfully.
+   * @throws  If there is a validation error during the role change.
+   */
   async function changeUserRole(id: number) {
     try {
       const user = await api.changeUserRole({ id });
@@ -37,6 +51,13 @@ export const useAdmin = defineStore('admin', () => {
     }
   }
 
+  /**
+   * Delete a user account with the specified ID.
+   * This is an asynchronous function.
+   *
+   * @param id - The ID of the user account to be deleted.
+   * @returns A Promise that resolves when the user account is deleted successfully.
+   */
   async function deleteAccount(id: number) {
     try {
       await api.deleteUserAccount(id);

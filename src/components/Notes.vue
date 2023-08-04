@@ -107,10 +107,18 @@
   const channel = useChannel();
   const notes = channel.loadNotes();
 
+  /**
+   * Sets the selected note to the provided 'id'.
+   * @param id - The ID of the note to be selected.
+   */
   function setSelectedNote(id: number) {
     selectedNote.value = id;
   }
 
+  /**
+   * Creates a new note with the name specified in 'newNoteName' and sets it as the selected note.
+   * If the note name is empty, it returns early without creating the note.
+   */
   async function createNote() {
     const name = newNoteName.value.trim();
     if (name.length === 0) {
@@ -122,6 +130,10 @@
     setSelectedNote(id);
   }
 
+  /**
+   * Updates the content of the currently selected note with the new text provided in 'payload'.
+   * @param payload - The keyboard event containing the updated text.
+   */
   function updateNote(payload: KeyboardEvent) {
     notes.update(
       selectedNote.value,
@@ -129,6 +141,10 @@
     );
   }
 
+  /**
+   * Prompts the user to confirm note deletion. If confirmed, deletes the currently selected note.
+   * After deletion, sets the selected note to the first note (ID 0).
+   */
   async function deleteNote() {
     const shouldDelete = await ask(
       'Wirklich löschen?',
@@ -142,6 +158,9 @@
     }
   }
 
+  /**
+   * Emits a custom event named 'close'.
+   */
   function close() {
     emit('close');
   }

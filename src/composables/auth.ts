@@ -9,6 +9,9 @@ import { LoginData, RegisterData, useApi, User } from '@/composables/api';
 const alerts = useAlerts();
 const api = useApi();
 
+/**
+ * useAuth store manages authentication-related state and actions.
+ */
 export const useAuth = defineStore('auth', () => {
   const state = reactive({
     user: null as User | null,
@@ -20,6 +23,11 @@ export const useAuth = defineStore('auth', () => {
   const isLoggedIn = computed(() => state.loggedIn);
   const isAdmin = computed(() => state.user?.role === 'admin');
 
+  /**
+   * Log in a user with the provided credentials.
+   *
+   * @param credentials - The login data containing email and password.
+   */
   async function login(credentials: LoginData) {
     try {
       const { user, exp } = await api.login(credentials);
@@ -43,6 +51,11 @@ export const useAuth = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Register a new user with the provided registration data.
+   *
+   * @param data - The registration data containing organization, name, email, password, and confirmPassword.
+   */
   async function register(data: RegisterData) {
     try {
       const { user, exp } = await api.register(data);
@@ -58,6 +71,9 @@ export const useAuth = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Log out the currently logged-in user.
+   */
   async function logout() {
     try {
       if (!isLoggedIn.value) {
@@ -74,6 +90,9 @@ export const useAuth = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Delete the account of the currently logged-in user.
+   */
   async function deleteFunction(): Promise<void> {
     try {
       if (!isLoggedIn.value) {
@@ -93,6 +112,9 @@ export const useAuth = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Load the user data if not already loaded.
+   */
   async function loadUser(): Promise<void> {
     if (state.loaded) {
       return;
@@ -110,6 +132,9 @@ export const useAuth = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Log out the user and reset state to initial values.
+   */
   async function logoutUser() {
     state.loggedIn = false;
     await router.push({ name: 'login' });
@@ -119,6 +144,12 @@ export const useAuth = defineStore('auth', () => {
     state.loginTimer = null;
   }
 
+  /**
+   * Log in the user, set the login timer, and handle auto-logout.
+   *
+   * @param user - The user object returned from the login response.
+   * @param exp - The expiration timestamp of the login session.
+   */
   function loginUser(user: User, exp: number) {
     state.user = user;
     state.loggedIn = true;
@@ -139,6 +170,11 @@ export const useAuth = defineStore('auth', () => {
     });
   }
 
+  /**
+   * Register a callback function to be called on user logout.
+   *
+   * @param callback - The callback function to be executed on user logout.
+   */
   function onLogout(callback: () => void): void {
     watch(
       () => state.loggedIn,
@@ -150,6 +186,11 @@ export const useAuth = defineStore('auth', () => {
     );
   }
 
+  /**
+   * Change the account data of the currently logged-in user.
+   *
+   * @returns A Promise that resolves to a boolean indicating the success of the account data change.
+   */
   async function changeAccountData(): Promise<boolean> {
     if (state.user === null) {
       return false;
@@ -171,6 +212,11 @@ export const useAuth = defineStore('auth', () => {
   };
 });
 
+/**
+ * Provides a computed property to access the currently logged-in user from the useAuth store.
+ *
+ * @returns A ComputedRef<User> representing the currently logged-in user.
+ */
 export function useUser(): ComputedRef<User> {
   const store = useAuth();
   return computed(() => {

@@ -39,6 +39,12 @@
     'update:modelValue': [value: any];
   }>();
 
+  /**
+   * Function to handle change events.
+   * This function emits the 'update:modelValue' event with the new value of the input field whenever a change event occurs.
+   * The new value is obtained from the 'event.target' which is cast to an HTMLInputElement.
+   * @param event - The change event.
+   */
   function change(event: Event) {
     emits('update:modelValue', (event.target as HTMLInputElement).value);
   }

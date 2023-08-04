@@ -66,6 +66,12 @@
   const admin = useAdmin();
   admin.load();
 
+  /**
+   * Asynchronous function that prompts the user to confirm changing the role of the provided 'user'.
+   * If confirmed, it changes the user's role to either 'Nutzer' (if the current role is 'admin')
+   * or 'Admin' (if the current role is 'Nutzer').
+   * @param user - The user whose role is to be changed.
+   */
   async function changeUserRole(user: User) {
     const shouldChange = await ask(
       'Rolle ändern',
@@ -84,6 +90,11 @@
     await admin.changeUserRole(user.id);
   }
 
+  /**
+   * Asynchronous function that prompts the user to confirm deleting the account of the provided 'user'.
+   * If confirmed, it deletes the user's account using the 'admin.deleteAccount()' function.
+   * @param user - The user whose account is to be deleted.
+   */
   async function deleteAccount(user: User) {
     const shouldDelete = await ask(
       'Account löschen',

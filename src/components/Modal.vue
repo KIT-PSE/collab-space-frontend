@@ -52,10 +52,18 @@
     open: [];
   }>();
 
+  /**
+   * Function called when the component or element is hidden or closed.
+   * It emits a custom event named 'closed'.
+   */
   function onHidden() {
     emits('closed');
   }
 
+  /**
+   * Function called when the component or element is shown or opened.
+   * It emits a custom event named 'open'.
+   */
   function onShow() {
     emits('open');
   }
