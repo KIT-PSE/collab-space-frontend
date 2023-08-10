@@ -392,6 +392,7 @@
     height: 30%;
     min-height: 250px;
     overflow: hidden;
+    z-index: 2000;
 
     &.hide {
       visibility: hidden;
