@@ -113,9 +113,13 @@ export class Notes {
       const element = document.createElement('a');
       element.setAttribute(
         'href',
-        'data:text/plain;charset=utf-8,' + encodeURIComponent(note.content || ''),
+        'data:text/plain;charset=utf-8,' +
+          encodeURIComponent(note.content || ''),
       );
-      element.setAttribute('download', note.name.endsWith('.txt') ? note.name : note.name + '.txt');
+      element.setAttribute(
+        'download',
+        note.name.endsWith('.txt') ? note.name : note.name + '.txt',
+      );
 
       element.style.display = 'none';
       document.body.appendChild(element);
