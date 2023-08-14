@@ -9,6 +9,7 @@
           :id="id"
           v-bind="$attrs"
           :value="modelValue"
+          :autocomplete="autocomplete || 'off'"
           @input="input"
         />
         <div class="invalid-feedback">{{ error }}</div>
@@ -25,6 +26,7 @@
     label: string;
     modelValue?: any;
     error?: string;
+    autocomplete?: string;
   }>();
 
   const emits = defineEmits<{

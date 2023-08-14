@@ -4,6 +4,7 @@
     type="email"
     placeholder="name@example.de"
     :error="error"
+    :autocomplete="autocomplete"
   >
     <slot></slot>
   </Input>
@@ -14,5 +15,6 @@
   defineProps<{
     label: string;
     error?: string;
+    autocomplete?: string;
   }>();
 </script>

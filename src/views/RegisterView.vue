@@ -6,24 +6,32 @@
       :error="form.errors.organization"
     />
 
-    <Input label="Name" v-model="form.name" :error="form.errors.name" />
+    <Input
+      label="Name"
+      v-model="form.name"
+      :error="form.errors.name"
+      autocomplete="name"
+    />
 
     <EmailInput
       label="E-Mail Adresse"
       v-model="form.email"
       :error="form.errors.email"
+      autocomplete="email"
     />
 
     <PasswordInput
       label="Passwort"
       v-model="form.password"
       :error="form.errors.password"
+      autocomplete="new-password"
     />
 
     <PasswordInput
       label="Passwort wiederholen"
       v-model="form.confirmPassword"
       :error="form.errors.confirmPassword"
+      autocomplete="new-password"
     />
 
     <button class="btn btn-primary w-100" @click="register">

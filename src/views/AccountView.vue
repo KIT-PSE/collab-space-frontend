@@ -18,6 +18,7 @@
           label="Name"
           v-model="user.name"
           :disabled="disabledInputs[1].value"
+          autocomplete="name"
         >
           <button class="btn btn-secondary ms-2" @click="edit(1)">
             {{ disabledInputs[1].value ? 'Ändern' : 'Speichern' }}
@@ -28,6 +29,7 @@
           label="E-Mail Adresse"
           v-model="user.email"
           :disabled="disabledInputs[2].value"
+          autocomplete="email"
         >
           <button class="btn btn-secondary ms-2" @click="edit(2)">
             {{ disabledInputs[2].value ? 'Ändern' : 'Speichern' }}
