@@ -126,7 +126,6 @@
   import { useChannel } from '@/composables/channel/channel';
   import { useRouter } from 'vue-router';
   import CreateCategoryModal from '@/components/CreateCategoryModal.vue';
-  import CreateRoomModal from '@/components/CreateRoomModal.vue';
 
   const user = useUser();
   const auth = useAuth();
