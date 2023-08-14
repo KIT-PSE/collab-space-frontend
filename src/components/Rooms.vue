@@ -1,12 +1,23 @@
 <template>
   <div class="row mb-5">
     <div
-      class="card d-flex align-items-center justify-content-center"
+      class="card d-flex align-items-center justify-content-center py-5"
       v-if="store.categories.length === 0"
     >
-      <p class="py-5 m-0">
-        Hier ist noch nichts zu sehen. Erstelle deine erste Kategorie!
+      <i class="fa-regular fa-xl fa-folder-open"></i>
+      <h4 class="mt-3">Keine Kategorien vorhanden</h4>
+      <p class="m-0">
+        Hier ist noch nichts zu sehen. Erstelle deine erste Kategorie, um zu
+        starten!
       </p>
+      <button
+        class="btn btn-primary mt-3"
+        data-bs-toggle="modal"
+        data-bs-target="#create-category-modal"
+      >
+        <i class="fa fa-plus"></i>
+        Neue Kategorie anlegen
+      </button>
     </div>
 
     <div
@@ -100,6 +111,7 @@
 
   <EditCategoryModal :category="categoryToEdit" />
   <EditRoomModal :room="roomToEdit" />
+  <CreateCategoryModal />
 </template>
 
 <script setup lang="ts">
@@ -113,6 +125,8 @@
   import EditRoomModal from '@/components/EditRoomModal.vue';
   import { useChannel } from '@/composables/channel/channel';
   import { useRouter } from 'vue-router';
+  import CreateCategoryModal from '@/components/CreateCategoryModal.vue';
+  import CreateRoomModal from '@/components/CreateRoomModal.vue';
 
   const user = useUser();
   const auth = useAuth();

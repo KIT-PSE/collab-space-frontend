@@ -4,7 +4,7 @@
     <hr />
 
     <div class="row my-5">
-      <div class="col">
+      <div v-if="store.categories && store.categories.length !== 0" class="col">
         <button
           class="btn btn-primary"
           data-bs-toggle="modal"
@@ -38,8 +38,10 @@
   import Rooms from '@/components/Rooms.vue';
   import { useChannel } from '@/composables/channel/channel';
   import { useAuth } from '@/composables/auth';
+  import { useStore } from '@/composables/store';
 
   const channel = useChannel();
   const auth = useAuth();
+  const store = useStore();
   channel.connect();
 </script>
