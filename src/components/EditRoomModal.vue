@@ -10,6 +10,12 @@
       v-model="form.name"
       :error="form.errors.name"
     />
+    <PasswordInput
+      label="Den Raum mit einem Passwort schützen?"
+      v-model="form.password"
+      :error="form.errors.password"
+      :show-change-visible="true"
+    />
   </Modal>
 </template>
 
@@ -21,11 +27,13 @@
   import { useStore } from '@/composables/store';
   import { closeModal } from '@/utils';
   import { watch } from 'vue';
+  import PasswordInput from '@/components/inputs/PasswordInput.vue';
 
   const store = useStore();
 
   const form = useForm({
     name: '',
+    password: '',
   });
 
   const props = defineProps<{
@@ -36,6 +44,7 @@
     () => props.room,
     () => {
       form.name = props.room?.name ?? '';
+      form.password = props.room?.password ?? '';
     },
   );
 

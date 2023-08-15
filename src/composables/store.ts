@@ -181,7 +181,7 @@ export const useStore = defineStore('store', () => {
    */
   async function updateRoom(
     room: Room,
-    data: { name: string },
+    data: { name: string; password?: string },
   ): Promise<Room | null> {
     try {
       const updatedRoom = await api.updateRoom(room.id, room.category, data);
