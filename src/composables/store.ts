@@ -194,6 +194,7 @@ export const useStore = defineStore('store', () => {
         return null;
       }
 
+      updatedRoom.channelId = category.rooms[index].channelId;
       category.rooms[index] = updatedRoom;
 
       return updatedRoom;
