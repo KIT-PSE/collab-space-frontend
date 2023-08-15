@@ -162,12 +162,12 @@
                   class="dropdown position-absolute top-0 end-0"
                 >
                   <button
-                    class="btn text-white"
+                    id="custom-button"
                     type="button"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
-                    <i class="fa fa-ellipsis-v"></i>
+                    <i class="fa fa-xs fa-ellipsis-v"></i>
                   </button>
 
                   <ul class="dropdown-menu">
@@ -469,21 +469,29 @@
     }
   }
 
+  #custom-button {
+    width: 27px;
+    height: 27px;
+    margin: 3px;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 9px;
+    color: white;
+  }
+
   #webcam-wrapper {
-    /* Foreground, Background */
     scrollbar-color: #999 #333;
   }
   #webcam-wrapper::-webkit-scrollbar {
     width: 10px;
   }
   #webcam-wrapper::-webkit-scrollbar-thumb {
-    /* Foreground */
     background: #999;
     border-radius: 12px;
     margin: 1rem;
   }
   #webcam-wrapper::-webkit-scrollbar-track {
-    /* Background */
     background: #333;
     border-radius: 12px;
   }
