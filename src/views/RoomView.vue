@@ -2,17 +2,15 @@
   <main class="container-fluid h-100">
     <div class="row h-100">
       <div class="col-9 position-relative h-100 d-flex flex-column">
-        <nav class="navbar bg-body-tertiary px-2 sticky-top rounded shadow-sm">
+        <nav
+          class="navbar bg-body-tertiary px-2 mt-2 sticky-top rounded shadow-sm"
+        >
           <div class="container">
             <router-link
               class="navbar-brand d-flex align-items-center"
               :to="auth.isLoggedIn ? '/dashboard' : '/'"
             >
-              <img
-                src="@/assets/textless-logo.png"
-                alt="CollabSpace"
-                height="36"
-              />
+              <img src="@/assets/icon-logo.png" alt="CollabSpace" height="36" />
             </router-link>
           </div>
         </nav>

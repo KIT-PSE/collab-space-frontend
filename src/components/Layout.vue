@@ -6,7 +6,7 @@
         to="/dashboard"
       >
         <img
-          src="@/assets/textless-logo.png"
+          src="@/assets/icon-logo.png"
           alt="CollabSpace"
           height="36"
           class="me-3"
