@@ -1,12 +1,8 @@
 <template>
   <main class="container-fluid h-100">
     <div class="row h-100">
-      <div
-        class="col-9 d-flex flex-column gap-2 h-100 overflow-hidden position-relative"
-      >
-        <nav
-          class="navbar bg-body-tertiary my-2 px-2 sticky-top rounded shadow-sm"
-        >
+      <div class="col-9 position-relative h-100 d-flex flex-column">
+        <nav class="navbar bg-body-tertiary px-2 sticky-top rounded shadow-sm">
           <div class="container">
             <router-link
               class="navbar-brand d-flex align-items-center"
@@ -18,21 +14,10 @@
                 height="36"
               />
             </router-link>
-
-            <button
-              v-if="
-                channel.state.teacher && channel.isSelf(channel.state.teacher)
-              "
-              class="btn btn-outline-secondary mx-1"
-              @click="closeChannel"
-            >
-              Raum schließen
-              <i class="fa fa-ban ms-2"></i>
-            </button>
           </div>
         </nav>
 
-        <div class="overflow-auto flex-grow-1">
+        <div class="d-flex flex-grow-1 p-3 overflow-hidden">
           <BrowserComponent />
         </div>
         <div id="open-whiteboard">
@@ -65,36 +50,74 @@
         class="col-3 py-3 bg-dark d-flex flex-column justify-content-between"
         style="max-height: 100%"
       >
-        <div class="row overflow-y-auto mb-2">
-          <div class="d-flex justify-content-between px-4 py-2">
-            <h3 class="text-center text-primary mt-2">
-              {{ channel.state.room?.name }}
-            </h3>
+        <div
+          class="d-flex flex-column justify-content-between p-2 rounded mb-3 bg-primary bg-opacity-10"
+        >
+          <h3
+            class="text-primary mt-0 mb-3"
+            style="
+              line-clamp: 2;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+            "
+          >
+            {{ channel.state.room?.name }}
+          </h3>
 
-            <div class="d-flex justify-content-center">
-              <button
-                class="btn btn-outline-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#share-link-modal"
-              >
-                <i class="fa fa-link"></i>
-                Link teilen
-              </button>
-            </div>
+          <div class="d-flex gap-2">
+            <button
+              class="btn btn-outline-primary btn-sm w-100"
+              v-if="
+                channel.state.teacher && channel.isSelf(channel.state.teacher)
+              "
+              @click="closeChannel"
+            >
+              <i class="fa fa-ban me-1"></i>
+              Schließen
+            </button>
+            <button
+              class="btn btn-outline-primary btn-sm w-100"
+              v-if="channel.isStudent(channel.currentUser())"
+              @click="leave"
+            >
+              <i class="fa fa-sign-out me-1"></i>
+              Verlassen
+            </button>
+            <button
+              class="btn btn-outline-primary btn-sm w-100"
+              data-bs-toggle="modal"
+              data-bs-target="#share-link-modal"
+            >
+              <i class="fa fa-link me-1"></i>
+              Teilen
+            </button>
           </div>
+        </div>
 
-          <div v-if="channel.state.teacher" class="col-lg-6">
+        <div
+          id="webcam-wrapper"
+          class="d-grid gap-2 overflow-y-auto"
+          style="grid-template-columns: repeat(2, minmax(0, 1fr))"
+        >
+          <template v-if="channel.state.teacher">
             <div
               class="card my-1"
               :class="channel.isSelf(channel.state.teacher) ? 'bg-primary' : ''"
             >
               <Camera :user-id="channel.state.teacher.id" />
-              <div class="card-body py-2">
+              <div class="card-body py-1 px-2">
                 <div
                   class="card-text text-dark text-decoration-none d-flex align-items-center flex-wrap"
                 >
-                  {{ channel.state.teacher?.user.name }}
-                  <!--<span class="badge text-bg-primary ms-1">Lehrer</span>-->
+                  <span
+                    :title="channel.state.teacher?.user.name"
+                    class="text-truncate"
+                  >
+                    {{ channel.state.teacher?.user.name }}
+                  </span>
                   <span class="flex-grow-1"></span>
                   <span
                     class="badge ms-1"
@@ -103,25 +126,28 @@
                         ? 'text-bg-light'
                         : 'text-bg-primary'
                     "
+                    :title="
+                      channel.state.teacher?.user.name + ' ist der Lehrer'
+                    "
                   >
                     <i class="fa-solid fa-chalkboard-user"></i>
                   </span>
                   <span
                     v-if="!channel.state.teacher.audio"
                     class="badge text-bg-secondary ms-1"
+                    :title="
+                      channel.state.teacher?.user.name +
+                      ' hat sein Mikrofon deaktiviert'
+                    "
                   >
                     <i class="fas fa-microphone-slash"></i>
                   </span>
                 </div>
               </div>
             </div>
-          </div>
+          </template>
 
-          <div
-            v-for="student in channel.state.students"
-            :key="student.id"
-            class="col-lg-6"
-          >
+          <template v-for="student in channel.state.students" :key="student.id">
             <div
               class="card my-1 d-flex flex-column"
               :class="channel.isSelf(student) ? 'bg-primary' : ''"
@@ -152,53 +178,63 @@
                 </div>
               </div>
 
-              <div class="card-body py-2">
-                <div class="card-text text-dark text-decoration-none">
-                  {{ student.name }}
+              <div class="card-body py-1 px-2">
+                <div
+                  class="card-text text-dark text-decoration-none d-flex align-items-center flex-wrap"
+                >
+                  <span :title="student.name" class="text-truncate">
+                    {{ student.name }}
+                  </span>
+
+                  <span class="flex-grow-1"></span>
                   <span
                     v-if="!student.permission"
                     class="badge text-bg-secondary ms-1"
+                    :title="student.name + ' hat aktuell keine Berechtigung'"
                   >
-                    <i class="fas fa-lock"></i>
+                    <i class="fa fa-sm fa-lock"></i>
                   </span>
                   <span
                     v-if="!student.audio"
                     class="badge text-bg-secondary ms-1"
+                    :title="student.name + ' hat sein Mikrofon deaktiviert'"
                   >
-                    <i class="fas fa-microphone-slash"></i>
+                    <i class="fa fa-sm fa-microphone-slash"></i>
                   </span>
                   <span
                     v-if="student.handSignal"
                     class="badge text-bg-secondary ms-1"
+                    :title="student.name + ' hat ein Handzeichen gegeben'"
                   >
                     <i class="fas fa-hand-paper"></i>
                   </span>
                 </div>
               </div>
             </div>
-          </div>
+          </template>
         </div>
-        <div>
-          <div class="col d-flex justify-content-center">
-            <span v-if="channel.isStudent(channel.currentUser())">
-              <button
-                type="button"
-                class="btn text-primary mx-2"
-                @click="toggleHandSignal()"
-              >
-                <i
-                  v-if="
+
+        <span class="flex-grow-1"></span>
+        <div class="pt-2">
+          <div class="d-flex gap-2 justify-content-evenly">
+            <button
+              type="button"
+              class="btn text-primary w-100"
+              @click="toggleHandSignal()"
+              v-if="channel.isStudent(channel.currentUser())"
+            >
+              <i
+                v-if="
                     (channel.currentUser() as Student).handSignal
                   "
-                  class="fa fa-hand-rock"
-                ></i>
-                <i v-else class="fa fa-hand-paper"></i>
-              </button>
-            </span>
+                class="fa fa-hand-rock"
+              ></i>
+              <i v-else class="fa fa-hand-paper"></i>
+            </button>
 
             <button
               type="button"
-              class="btn text-primary mx-2"
+              class="btn text-primary w-100"
               @click="toggleAudio()"
             >
               <i
@@ -209,7 +245,7 @@
             </button>
             <button
               type="button"
-              class="btn text-primary mx-2"
+              class="btn text-primary w-100"
               @click="toggleVideo()"
             >
               <i v-if="channel.currentUser().video" class="fa fa-video"></i>
@@ -239,9 +275,11 @@
   import Notes from '@/components/Notes.vue';
   import BrowserComponent from '@/components/Browser.vue';
   import { ask } from '@/composables/prompt';
+  import { useRouter } from 'vue-router';
 
   const auth = useAuth();
   const channel = useChannel();
+  const router = useRouter();
 
   const showWhiteboard = ref(false);
   const expandWhiteboard = ref(false);
@@ -270,6 +308,14 @@
   });
 
   channel.loadWebcams();
+
+  /**
+   * Function that redirects the user to the home page. The logic
+   * for leaving the channel is handled by the 'onBeforeUnmount()' hook.
+   */
+  function leave() {
+    router.push('/');
+  }
 
   /**
    * Function that updates the 'width' and 'height' values based on the client width and height of the "whiteboard-wrapper" element.
@@ -421,5 +467,24 @@
     &.hide {
       visibility: hidden;
     }
+  }
+
+  #webcam-wrapper {
+    /* Foreground, Background */
+    scrollbar-color: #999 #333;
+  }
+  #webcam-wrapper::-webkit-scrollbar {
+    width: 10px;
+  }
+  #webcam-wrapper::-webkit-scrollbar-thumb {
+    /* Foreground */
+    background: #999;
+    border-radius: 12px;
+    margin: 1rem;
+  }
+  #webcam-wrapper::-webkit-scrollbar-track {
+    /* Background */
+    background: #333;
+    border-radius: 12px;
   }
 </style>

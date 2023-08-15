@@ -18,8 +18,10 @@
         class="d-flex justify-content-between align-items-center rounded ps-3 pe-1 py-2"
         style="background: rgba(0, 0, 0, 0.09)"
       >
-        <h4 class="m-0">{{ category.name }}</h4>
-        <div>
+        <h4 class="m-0 text-truncate" :title="category.name">
+          {{ category.name }}
+        </h4>
+        <div class="d-flex">
           <button class="btn text-secondary" @click="editCategory(category)">
             <i class="fa fa-pen"></i>
           </button>
@@ -55,7 +57,7 @@
             >
               <div class="card-text text-dark text-decoration-none">
                 <div>
-                  <p class="m-0 fw-semibold">
+                  <p class="m-0 fw-semibold text-truncate" :title="room.name">
                     {{ room.name }}
                   </p>
                 </div>
