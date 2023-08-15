@@ -183,7 +183,7 @@
   async function deleteCategory(category: Category) {
     const shouldDestroy = await ask(
       'Kategorie löschen',
-      `Soll die Kategorie <b>${category.name}</b> wirklich gelöscht werden?`,
+      `Soll die Kategorie <b>${category.name}</b> wirklich gelöscht werden? <b>Achtung:</b> Alle Räume in dieser Kategorie werden ebenfalls gelöscht.`,
       'Löschen',
     );
 
