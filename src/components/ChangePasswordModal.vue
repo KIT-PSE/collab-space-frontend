@@ -10,18 +10,21 @@
       label="Aktuelles Passwort"
       v-model="form.currentPassword"
       :error="form.errors.currentPassword"
+      autocomplete="current-password"
     />
 
     <PasswordInput
       label="Neues Passwort"
       v-model="form.newPassword"
       :error="form.errors.newPassword"
+      autocomplete="new-password"
     />
 
     <PasswordInput
       label="Passwort wiederholen"
       v-model="form.confirmNewPassword"
       :error="form.errors.confirmNewPassword"
+      autocomplete="new-password"
     />
   </Modal>
 </template>

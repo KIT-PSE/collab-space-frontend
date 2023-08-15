@@ -4,12 +4,14 @@
       label="E-Mail Adresse"
       v-model="form.email"
       :error="form.errors.email"
+      autocomplete="email"
     />
 
     <PasswordInput
       label="Passwort"
       v-model="form.password"
       :error="form.errors.password"
+      autocomplete="current-password"
     />
 
     <button class="btn btn-primary w-100" @click="login">Anmelden</button>

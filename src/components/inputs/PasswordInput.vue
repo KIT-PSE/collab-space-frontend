@@ -1,5 +1,11 @@
 <template>
-  <Input :label="label" type="password" placeholder="Passwort" :error="error">
+  <Input
+    :label="label"
+    type="password"
+    placeholder="Passwort"
+    :error="error"
+    :autocomplete="autocomplete"
+  >
     <slot></slot>
   </Input>
 </template>
@@ -9,5 +15,6 @@
   defineProps<{
     label: string;
     error?: string;
+    autocomplete?: string;
   }>();
 </script>
