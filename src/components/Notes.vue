@@ -21,7 +21,7 @@
           <li
             v-for="note in notes.notesList"
             :key="note.id"
-            class="list-group-item list-group-item-action"
+            class="list-group-item list-group-item-action text-truncate"
             @click="setSelectedNote(note.id)"
           >
             {{ note.name }}
@@ -70,7 +70,9 @@
           >
             <i class="fa fa-arrow-left"></i>
           </button>
-          {{ notes.getNote(selectedNote)!.name }}
+          <span class="text-truncate">
+            {{ notes.getNote(selectedNote)!.name }}
+          </span>
 
           <button
             class="btn btn-sm text-secondary ms-auto"

@@ -51,17 +51,7 @@
         <div
           class="d-flex flex-column justify-content-between p-2 rounded mb-3 bg-primary bg-opacity-10"
         >
-          <h3
-            class="text-primary mt-0 mb-3"
-            style="
-              line-clamp: 2;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              display: -webkit-box;
-              -webkit-line-clamp: 2;
-              -webkit-box-orient: vertical;
-            "
-          >
+          <h3 class="text-primary mt-0 mb-3 text-truncate">
             {{ channel.state.room?.name }}
           </h3>
 
@@ -79,7 +69,7 @@
             <button
               class="btn btn-outline-primary btn-sm w-100"
               v-if="channel.isStudent(channel.currentUser())"
-              @click="leave"
+              @click="leaveChannel"
             >
               <i class="fa fa-sign-out me-1"></i>
               Verlassen
@@ -311,7 +301,16 @@
    * Function that redirects the user to the home page. The logic
    * for leaving the channel is handled by the 'onBeforeUnmount()' hook.
    */
-  function leave() {
+  function leaveChannel() {
+    const shouldLeave = ask(
+      'Raum verlassen',
+      `Willst du den Raum <b>${truncatedRoomName()}</b> wirklich verlassen?`,
+      'Verlassen',
+    );
+
+    if (!shouldLeave) {
+      return;
+    }
     router.push('/');
   }
 
@@ -400,7 +399,7 @@
   async function closeChannel() {
     const shouldClose = await ask(
       'Raum schließen',
-      `Soll der Raum <b>${channel.state.room?.name}</b> wirklich geschlossen werden? Alle Schüler werden aus dem Raum entfernt.`,
+      `Soll der Raum <b>${truncatedRoomName()}</b> wirklich geschlossen werden? Alle Schüler werden aus dem Raum entfernt.`,
       'Schließen',
     );
 
@@ -409,6 +408,16 @@
     }
 
     channel.close(channel.state.channelId);
+  }
+
+  /**
+   * Function that returns the truncated room name if it is longer than 20 characters.
+   */
+  function truncatedRoomName() {
+    const roomName = channel.state.room?.name;
+    return roomName && roomName.length > 20
+      ? roomName.substring(0, 20) + '...'
+      : roomName;
   }
 </script>
 

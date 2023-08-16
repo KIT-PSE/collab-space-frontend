@@ -42,7 +42,7 @@
     </div>
 
     <button class="btn btn-primary w-100" @click="submit">
-      Raum "{{ channel.state.room?.name }}" beitreten
+      Raum "{{ truncatedRoomName() }}" betreten
     </button>
   </GuestLayout>
 </template>
@@ -125,5 +125,15 @@
     localStorage.removeItem('session-name');
     savedUserName.value = '';
     form.name = '';
+  }
+
+  /**
+   * Function that returns the truncated room name if it is longer than 20 characters.
+   */
+  function truncatedRoomName() {
+    const roomName = channel.state.room?.name;
+    return roomName && roomName.length > 20
+      ? roomName.substring(0, 20) + '...'
+      : roomName;
   }
 </script>
