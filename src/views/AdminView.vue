@@ -9,6 +9,7 @@
               <th>Name</th>
               <th>E-Mail</th>
               <th>Organization</th>
+              <th>Erstellt am</th>
               <th></th>
             </tr>
           </thead>
@@ -25,6 +26,7 @@
               </td>
               <td>{{ user.email }}</td>
               <td>{{ user.organization }}</td>
+              <td>{{ user.createdAt.format('DD.MM.YYYY HH:mm') }}</td>
               <td class="d-flex justify-content-end">
                 <button
                   @click="changeUserRole(user)"
