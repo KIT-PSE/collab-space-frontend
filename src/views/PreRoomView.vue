@@ -131,7 +131,7 @@
    * Function that returns the truncated room name if it is longer than 20 characters.
    */
   function truncatedRoomName() {
-    const roomName = this.channel.state.room?.name;
+    const roomName = channel.state.room?.name;
     return roomName && roomName.length > 20
       ? roomName.substring(0, 20) + '...'
       : roomName;
