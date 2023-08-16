@@ -39,6 +39,10 @@ export const useBrowser = () => {
       loadBrowserStream();
     });
 
+    socket.on('close-browser', () => {
+      browserStream.value = null;
+    });
+
     socket.on('browser-url', (newUrl: string) => {
       setUrl(newUrl);
     });
@@ -74,11 +78,11 @@ export const useBrowser = () => {
   }
 
   /**
-   * Closes the website on the browser
+   * Closes the browser
    */
-  function closeWebsite() {
+  function closeBrowser() {
     browserStream.value = null;
-    socket?.emit('close-website');
+    socket?.emit('close-browser');
   }
 
   /**
@@ -158,7 +162,7 @@ export const useBrowser = () => {
     loadBrowserStream,
     setUrl,
     openWebsite,
-    closeWebsite,
+    closeBrowser,
     moveMouse,
     mouseDown,
     mouseUp,
