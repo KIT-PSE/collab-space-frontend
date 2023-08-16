@@ -1,7 +1,7 @@
 <template>
   <div class="mb-3">
     <label :for="id" class="form-label">{{ label }}</label>
-    <div class="d-flex">
+    <div class="d-flex position-relative">
       <div class="w-100">
         <input
           class="form-control"

@@ -279,7 +279,7 @@ const api = {
   async updateRoom(
     id: number,
     categoryId: number,
-    data: { name: string },
+    data: { name: string; password?: string },
   ): Promise<Room> {
     return fetch.putOrFail(`/category/${categoryId}/room/${id}`, data);
   },
