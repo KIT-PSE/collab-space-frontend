@@ -30,7 +30,8 @@
             type="button"
             class="btn"
             :class="
-              submitText && ['Löschen', 'Schließen'].includes(submitText)
+              submitText &&
+              ['Löschen', 'Schließen', 'Verlassen'].includes(submitText)
                 ? 'btn-danger'
                 : 'btn-primary'
             "

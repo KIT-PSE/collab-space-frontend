@@ -301,8 +301,8 @@
    * Function that redirects the user to the home page. The logic
    * for leaving the channel is handled by the 'onBeforeUnmount()' hook.
    */
-  function leaveChannel() {
-    const shouldLeave = ask(
+  async function leaveChannel() {
+    const shouldLeave = await ask(
       'Raum verlassen',
       `Willst du den Raum <b>${truncatedRoomName()}</b> wirklich verlassen?`,
       'Verlassen',

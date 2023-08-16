@@ -11,7 +11,7 @@
           :value="modelValue"
           :autocomplete="autocomplete || 'off'"
           @input="input"
-          maxlength="255"
+          maxlength="64"
         />
         <div class="invalid-feedback">{{ error }}</div>
       </div>
