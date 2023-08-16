@@ -49,7 +49,7 @@
         </button>
         <button
           v-if="isTeacher"
-          @click="closeWebsite"
+          @click="closeBrowser"
           :disabled="!isStreaming"
           class="btn btn-sm ms-2"
         >
@@ -145,8 +145,8 @@
   /**
    * Closes the currently opened website using the browser channel. It also resets the streaming and video source.
    */
-  function closeWebsite() {
-    channel.browser.closeWebsite();
+  function closeBrowser() {
+    channel.browser.closeBrowser();
     isStreaming.value = false;
     browserVideo.value!.srcObject = null;
   }
