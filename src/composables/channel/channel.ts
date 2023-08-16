@@ -297,7 +297,7 @@ export const useChannel = defineStore('channel', () => {
       state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
 
       browser.peerId.value = '';
-      browser.url.value = 'https://www.google.com';
+      browser.setUrl('www.google.com');
 
       await router.push({
         name: 'room',
@@ -366,7 +366,7 @@ export const useChannel = defineStore('channel', () => {
         state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
 
         browser.peerId.value = data.browserPeerId;
-        browser.url.value = data.browserUrl;
+        browser.setUrl(data.browserUrl);
 
         resolve();
       });

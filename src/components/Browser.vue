@@ -1,76 +1,117 @@
 <template>
   <div
-    class="border border-primary-subtle rounded overflow-hidden d-flex flex-column"
+    id="outer-wrapper"
+    class="d-flex flex-column align-items-center justify-content-center w-100 h-100"
   >
     <div
-      class="d-flex align-items-center p-2 border-bottom border-primary-subtle sticky-top"
+      id="inner-wrapper"
+      class="overflow-hidden border border-primary-subtle rounded"
+      :class="{
+        'd-none': !isStreaming,
+      }"
     >
-      <button @click="reload" :disabled="!isStreaming" class="btn btn-sm">
-        <i class="fas fa-sync"></i>
-      </button>
-      <button
-        @click="navigateBack"
-        :disabled="!isStreaming"
-        class="btn btn-sm ms-2"
+      <div
+        class="d-flex align-items-center p-2 bg-white border-bottom border-primary-subtle"
       >
-        <i class="fas fa-arrow-left"></i>
-      </button>
-      <button
-        @click="navigateForward"
-        :disabled="!isStreaming"
-        class="btn btn-sm ms-2"
-      >
-        <i class="fas fa-arrow-right"></i>
-      </button>
-      <input
-        class="m-0 ms-2 py-1 px-3 bg-primary-subtle bg-opacity-25 rounded flex-grow-1 border-0 text-dark"
-        v-model="channel.browser.url"
-        style="outline-color: #34d1b3"
-      />
-      <button
-        v-if="isTeacher"
-        @click="openWebsite"
-        class="ms-2 btn btn-secondary btn-sm"
-      >
-        Öffnen
-      </button>
-      <button
-        v-if="isTeacher"
-        @click="closeWebsite"
-        :disabled="!isStreaming"
-        class="btn btn-sm ms-2"
-      >
-        <i class="fas fa-times"></i>
-      </button>
+        <button @click="reload" :disabled="!isStreaming" class="btn btn-sm">
+          <i class="fas fa-sync"></i>
+        </button>
+        <button
+          @click="navigateBack"
+          :disabled="!isStreaming"
+          class="btn btn-sm ms-2"
+        >
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <button
+          @click="navigateForward"
+          :disabled="!isStreaming"
+          class="btn btn-sm ms-2"
+        >
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <div class="d-flex align-items-stretch w-100 ms-2">
+          <span class="py-1 pe-1 ps-2 rounded-start bg-body-secondary h-100">
+            https://
+          </span>
+          <input
+            class="m-0 py-1 ps-1 pe-2 bg-primary-subtle bg-opacity-25 rounded-end flex-grow-1 border-0 text-dark"
+            v-model="channel.browser.url"
+            style="outline-color: #34d1b3"
+          />
+        </div>
+        <button
+          v-if="isTeacher"
+          @click="openWebsite"
+          class="ms-2 btn btn-secondary btn-sm"
+        >
+          Öffnen
+        </button>
+        <button
+          v-if="isTeacher"
+          @click="closeWebsite"
+          :disabled="!isStreaming"
+          class="btn btn-sm ms-2"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <video
+        v-show="isStreaming"
+        autoplay
+        ref="browserVideo"
+        class="w-100"
+        @mousemove="onMouseMove"
+        @mousedown="onMouseDown"
+        @mouseup="onMouseUp"
+        @keydown="onKeyDown"
+        @keyup="onKeyUp"
+        @wheel="onWheel"
+        tabindex="0"
+      ></video>
     </div>
+
     <div
-      v-if="!isStreaming"
-      style="aspect-ratio: 16 / 9; width: 100%"
-      class="w-100 d-flex justify-content-center align-items-center"
+      v-if="!isStreaming && !isTeacher"
+      class="d-flex flex-column align-items-center"
     >
-      <p class="text-center text-body-secondary h4">
-        Warte bis der Lehrer eine Website geteilt hat.
-      </p>
+      <i class="fa fa-xl fa-chalkboard-user"></i>
+      <p class="mt-3">Warte, bis der Lehrer eine Website geteilt hat.</p>
     </div>
-    <video
-      v-show="isStreaming"
-      src="https://placehold.co/1920x1080.mp4?text=eingebettete+Webseite"
-      autoplay
-      ref="browserVideo"
-      style="aspect-ratio: 16 / 9; width: 100%; max-height: 100%"
-      @mousemove="onMouseMove"
-      @mousedown="onMouseDown"
-      @mouseup="onMouseUp"
-      @keydown="onKeyDown"
-      @keyup="onKeyUp"
-      @wheel="onWheel"
-      tabindex="0"
-    ></video>
+
+    <div v-if="!isStreaming && isTeacher" class="d-flex flex-column w-100">
+      <h4 class="text-center">Website teilen</h4>
+      <p class="text-center">
+        Gib die URL der Website ein, die du teilen möchtest.
+      </p>
+      <div class="d-flex justify-content-center w-full">
+        <div
+          class="d-flex align-items-stretch flex-grow-1"
+          style="max-width: 350px"
+        >
+          <span class="py-1 pe-1 ps-2 rounded-start bg-body-secondary h-100">
+            https://
+          </span>
+          <input
+            class="m-0 py-1 ps-1 pe-2 bg-primary-subtle bg-opacity-25 rounded-end flex-grow-1 border-0 text-dark w-100"
+            v-model="channel.browser.url"
+            style="outline-color: #34d1b3"
+          />
+        </div>
+        <button
+          v-if="isTeacher"
+          @click="openWebsite"
+          class="ms-2 btn btn-secondary btn-sm"
+        >
+          Öffnen
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { computed, onMounted, ref, watch } from 'vue';
+  import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
   import { useThrottleFn } from '@vueuse/core';
   import { useChannel } from '@/composables/channel/channel';
 
@@ -85,7 +126,13 @@
   const TARGET_BROWSER_HEIGHT = 1080;
 
   onMounted(() => {
+    window.addEventListener('resize', calcDimensions);
+    calcDimensions();
     channel.browser.loadBrowserStream();
+  });
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', calcDimensions);
   });
 
   /**
@@ -254,4 +301,31 @@
       }
     },
   );
+
+  function calcDimensions() {
+    // outerWrapper defines the available space
+    const outerWrapper = document.getElementById('outer-wrapper');
+    // innerWrapper will be resized to fit the available space
+    const innerWrapper = document.getElementById('inner-wrapper');
+    const headerHeight = 50;
+    const videoAspectRatio = 16 / 9;
+
+    const availableWidth = outerWrapper!.offsetWidth;
+    const availableHeight = outerWrapper!.offsetHeight;
+
+    let width = availableWidth;
+    let height = availableHeight - headerHeight;
+
+    if (width / height > videoAspectRatio) {
+      width = height * videoAspectRatio;
+    } else {
+      height = width / videoAspectRatio;
+    }
+
+    innerWrapper!.style.width = `${width}px`;
+    innerWrapper!.style.height = `${height + headerHeight}px`;
+
+    browserVideo.value!.style.width = `${width}px`;
+    browserVideo.value!.style.height = `${height}px`;
+  }
 </script>

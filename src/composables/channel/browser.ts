@@ -9,7 +9,7 @@ import { Socket } from 'socket.io-client';
 export const useBrowser = () => {
   const browserStream: Ref<MediaStream | null> = ref(null);
   const peerId: Ref<string> = ref('');
-  const url = ref('https://www.google.com');
+  const url = ref('www.google.com');
 
   let socket: Socket | null = null;
 
@@ -40,7 +40,7 @@ export const useBrowser = () => {
     });
 
     socket.on('browser-url', (newUrl: string) => {
-      url.value = newUrl;
+      setUrl(newUrl);
     });
   }
 
@@ -58,11 +58,19 @@ export const useBrowser = () => {
   }
 
   /**
+   * Sets the url of the integrated Browser
+   * @param newUrl
+   */
+  function setUrl(newUrl: string) {
+    url.value = newUrl.replace('https://', '');
+  }
+
+  /**
    * Opens a website on the browser
    * @param url - The url of the website to open
    */
   function openWebsite(url: string) {
-    socket?.emit('open-website', { url });
+    socket?.emit('open-website', { url: 'https://' + url });
   }
 
   /**
@@ -148,6 +156,7 @@ export const useBrowser = () => {
     url,
     init,
     loadBrowserStream,
+    setUrl,
     openWebsite,
     closeWebsite,
     moveMouse,
