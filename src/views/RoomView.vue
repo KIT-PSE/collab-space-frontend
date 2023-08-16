@@ -304,7 +304,7 @@
   function leaveChannel() {
     const shouldLeave = ask(
       'Raum verlassen',
-      `Willst du den Raum <b>${channel.state.room?.name}</b> wirklich verlassen?`,
+      `Willst du den Raum <b>${truncatedRoomName()}</b> wirklich verlassen?`,
       'Verlassen',
     );
 
@@ -399,7 +399,7 @@
   async function closeChannel() {
     const shouldClose = await ask(
       'Raum schließen',
-      `Soll der Raum <b>${channel.state.room?.name}</b> wirklich geschlossen werden? Alle Schüler werden aus dem Raum entfernt.`,
+      `Soll der Raum <b>${truncatedRoomName()}</b> wirklich geschlossen werden? Alle Schüler werden aus dem Raum entfernt.`,
       'Schließen',
     );
 
@@ -408,6 +408,16 @@
     }
 
     channel.close(channel.state.channelId);
+  }
+
+  /**
+   * Function that returns the truncated room name if it is longer than 20 characters.
+   */
+  function truncatedRoomName() {
+    const roomName = channel.state.room?.name;
+    return roomName && roomName.length > 20
+      ? roomName.substring(0, 20) + '...'
+      : roomName;
   }
 </script>
 
