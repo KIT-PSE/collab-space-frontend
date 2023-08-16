@@ -307,6 +307,10 @@
       `Willst du den Raum <b>${channel.state.room?.name}</b> wirklich verlassen?`,
       'Verlassen',
     );
+
+    if (!shouldLeave) {
+      return;
+    }
     router.push('/');
   }
 
