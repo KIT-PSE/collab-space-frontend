@@ -445,7 +445,7 @@
     height: 30%;
     min-height: 250px;
     overflow: hidden;
-    z-index: 2000;
+    z-index: 1040;
 
     &.hide {
       visibility: hidden;
@@ -469,7 +469,7 @@
     transform: translateY(-50%);
     max-width: 350px;
     min-width: 250px;
-    z-index: 2000;
+    z-index: 1040;
 
     &.hide {
       visibility: hidden;
