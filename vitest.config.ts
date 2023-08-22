@@ -14,6 +14,9 @@ export default mergeConfig(
         web: [/\.[jt]sx$/],
       },
       globals: true,
+      coverage: {
+        exclude: ['src/**/*.vue'],
+      },
     },
   }),
 );

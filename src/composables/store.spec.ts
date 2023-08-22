@@ -1,14 +1,12 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { useStore } from '@/composables/store';
-import { describe, expect, beforeEach, it, vi } from 'vitest';
+import { vi } from 'vitest';
 import { Category, Room, useApi } from '@/composables/api';
 import { ValidationError } from '@/composables/fetch';
-import { useAlerts } from '@/composables/alerts';
 
 describe('store', () => {
   let store: ReturnType<typeof useStore>;
   let api: ReturnType<typeof useApi>;
-  let alerts: ReturnType<typeof useAlerts>;
 
   let TEST_CATEGORIES: Category[] = [];
   let TEST_ROOM: Room;
@@ -18,7 +16,6 @@ describe('store', () => {
 
     store = useStore();
     api = useApi();
-    alerts = useAlerts();
 
     TEST_CATEGORIES = [
       {
@@ -44,10 +41,6 @@ describe('store', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-  });
-
-  it('should be defined', () => {
-    expect(store).toBeDefined();
   });
 
   describe('load', () => {
