@@ -1,5 +1,4 @@
 import { useForm } from '@/composables/form';
-import { ValidationError } from '@/composables/fetch';
 import { vi } from 'vitest';
 
 describe('useForm', () => {
