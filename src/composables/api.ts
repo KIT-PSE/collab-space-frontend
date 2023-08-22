@@ -129,6 +129,12 @@ export type ChangePassword = {
   confirmNewPassword: string;
 };
 
+export type UpdateUser = {
+  organization: string;
+  name: string;
+  email: string;
+};
+
 export type UpdateCategory = CreateCategory;
 export type UpdateRoom = CreateRoom;
 
@@ -309,16 +315,11 @@ const api = {
   /**
    * Updates the account data of a user.
    *
-   * @param user - The user object containing the updated account data.
-   * @returns A Promise that resolves to a boolean indicating if the update was successful.
+   * @param userId - The user ID of the user to be updated.
+   * @param data - The data containing the new user information.
    */
-  async changeAccountData(user: User): Promise<boolean> {
-    return fetch.putOrFail('/user/changeUserData', {
-      id: user.id,
-      organization: user.organization,
-      name: user.name,
-      email: user.email,
-    });
+  async updateUser(userId: number, data: UpdateUser): Promise<User> {
+    return fetch.putOrFail(`/auth/update`, { id: userId, ...data });
   },
 
   /**
