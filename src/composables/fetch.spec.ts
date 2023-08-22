@@ -1,10 +1,4 @@
-import {
-  Fetch,
-  HttpError,
-  ValidationError,
-  throwHttpError,
-  useFetch,
-} from '@/composables/fetch';
+import { Fetch, HttpError, useFetch } from '@/composables/fetch';
 import { vi } from 'vitest';
 import { Response } from 'node-fetch';
 
