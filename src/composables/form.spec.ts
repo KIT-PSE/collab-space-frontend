@@ -1,5 +1,5 @@
 import { useForm } from '@/composables/form';
-import { vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 describe('useForm', () => {
   it('should initialize form with default values and empty errors', () => {

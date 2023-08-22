@@ -1,5 +1,5 @@
 import { useAlerts, UniqueAlert, AlertType } from '@/composables/alerts'; // Replace with the actual path
-import { beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('useAlerts', () => {
   beforeEach(() => {

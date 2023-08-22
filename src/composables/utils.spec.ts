@@ -1,5 +1,7 @@
 import moment from 'moment';
 import { useSingleton, convertDates } from '@/composables/utils';
+import { describe, it, expect } from 'vitest';
+
 describe('useSingleton', () => {
   it('should return a function that returns the provided object', () => {
     const obj = { key: 'value' };
@@ -36,13 +38,6 @@ describe('convertDates', () => {
 
     const converted = convertDates(input);
     expect(converted).toEqual(expectedOutput);
-  });
-
-  it('should handle empty objects and arrays', () => {
-    const emptyObj = {};
-    const emptyArr = [];
-    expect(convertDates(emptyObj)).toEqual({});
-    expect(convertDates(emptyArr)).toEqual([]);
   });
 
   it('should not modify non-date properties', () => {

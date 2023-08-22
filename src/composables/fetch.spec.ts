@@ -1,17 +1,24 @@
 import { HttpError, useFetch } from '@/composables/fetch';
-import { vi } from 'vitest';
-import { Response } from 'node-fetch';
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+  vi,
+} from 'vitest';
 
 describe('Fetch class', () => {
   let fetchInstance: ReturnType<typeof useFetch>;
   let originalFetch: typeof fetch;
-  let fetchMock: vi.Mock;
+  let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeAll(() => {
     originalFetch = global.fetch;
     fetchMock = vi.fn();
 
-    // Mock the global fetch function
+    // @ts-ignore
     global.fetch = fetchMock;
     fetchInstance = useFetch();
   });
@@ -26,7 +33,11 @@ describe('Fetch class', () => {
 
   describe('getRaw', () => {
     it('makes a raw GET request and returns the response', async () => {
-      const fakeResponse = new Response('{"data": "example"}');
+      const fakeResponse = {
+        data: 'example',
+        ok: true,
+        json: vi.fn(),
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       const response = await fetchInstance.getRaw('/api/data');
@@ -45,7 +56,10 @@ describe('Fetch class', () => {
 
   describe('getOrFail', () => {
     it('makes a GET request and returns the parsed JSON response', async () => {
-      const fakeResponse = new Response('{"data": "example"}');
+      const fakeResponse = {
+        ok: true,
+        json: () => ({ data: 'example' }),
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       const response = await fetchInstance.getOrFail('/api/data');
@@ -62,9 +76,9 @@ describe('Fetch class', () => {
     });
 
     it('throws an error if the response status is not OK', async () => {
-      const fakeResponse = new Response('{"data": "example"}', {
+      const fakeResponse = {
         status: 404,
-      });
+      };
       fetchMock.mockResolvedValue(fakeResponse);
 
       await expect(fetchInstance.getOrFail('/api/data')).rejects.toThrow(
@@ -75,7 +89,10 @@ describe('Fetch class', () => {
 
   describe('postRaw', () => {
     it('makes a raw POST request and returns the response', async () => {
-      const fakeResponse = new Response('{"data": "example"}');
+      const fakeResponse = {
+        data: 'example',
+        ok: true,
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       const response = await fetchInstance.postRaw('/api/data', {
@@ -97,7 +114,10 @@ describe('Fetch class', () => {
 
   describe('postOrFail', () => {
     it('makes a POST request and returns the parsed JSON response', async () => {
-      const fakeResponse = new Response('{"data": "example"}');
+      const fakeResponse = {
+        ok: true,
+        json: () => ({ data: 'example' }),
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       const response = await fetchInstance.postOrFail('/api/data', {
@@ -117,9 +137,9 @@ describe('Fetch class', () => {
     });
 
     it('throws an error if the response status is not OK', async () => {
-      const fakeResponse = new Response('{"data": "example"}', {
+      const fakeResponse = {
         status: 404,
-      });
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       await expect(
@@ -132,7 +152,10 @@ describe('Fetch class', () => {
 
   describe('putRaw', () => {
     it('makes a raw PUT request and returns the response', async () => {
-      const fakeResponse = new Response('{"data": "example"}');
+      const fakeResponse = {
+        data: 'example',
+        ok: true,
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       const response = await fetchInstance.putRaw('/api/data', {
@@ -154,7 +177,10 @@ describe('Fetch class', () => {
 
   describe('putOrFail', () => {
     it('makes a PUT request and returns the parsed JSON response', async () => {
-      const fakeResponse = new Response('{"data": "example"}');
+      const fakeResponse = {
+        ok: true,
+        json: () => ({ data: 'example' }),
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       const response = await fetchInstance.putOrFail('/api/data', {
@@ -174,9 +200,9 @@ describe('Fetch class', () => {
     });
 
     it('throws an error if the response status is not OK', async () => {
-      const fakeResponse = new Response('{"data": "example"}', {
+      const fakeResponse = {
         status: 404,
-      });
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       await expect(
@@ -189,7 +215,10 @@ describe('Fetch class', () => {
 
   describe('delete', () => {
     it('makes a DELETE request and returns the parsed JSON response', async () => {
-      const fakeResponse = new Response('{"data": "example"}');
+      const fakeResponse = {
+        ok: true,
+        json: () => ({ data: 'example' }),
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       const response = await fetchInstance.delete('/api/data');
@@ -206,9 +235,9 @@ describe('Fetch class', () => {
     });
 
     it('throws an error if the response status is not OK', async () => {
-      const fakeResponse = new Response('{"data": "example"}', {
+      const fakeResponse = {
         status: 404,
-      });
+      } as unknown as Response;
       fetchMock.mockResolvedValue(fakeResponse);
 
       await expect(fetchInstance.delete('/api/data')).rejects.toThrow(

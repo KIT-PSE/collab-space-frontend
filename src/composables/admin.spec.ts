@@ -1,6 +1,6 @@
 import { useAdmin } from '@/composables/admin';
 import { createPinia, setActivePinia } from 'pinia';
-import { expect, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useApi, User } from '@/composables/api';
 import { ValidationError } from '@/composables/fetch';
 
@@ -29,7 +29,7 @@ describe('admin', () => {
         email: 'test2@example.com',
         role: 'user',
       },
-    ];
+    ] as User[];
   });
 
   describe('load', () => {
@@ -69,7 +69,7 @@ describe('admin', () => {
     it('should handle validation errors', async () => {
       vi.spyOn(api, 'allUsers').mockResolvedValue(TEST_USERS);
       vi.spyOn(api, 'changeUserRole').mockRejectedValue(
-        new ValidationError('Test Error'),
+        new ValidationError({} as Response, {}),
       );
       await admin.load();
 

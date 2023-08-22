@@ -1,6 +1,6 @@
 import { useAuth } from '@/composables/auth';
-import { expect, vi } from 'vitest';
-import { useApi } from '@/composables/api';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { useApi, User } from '@/composables/api';
 import { createPinia, setActivePinia } from 'pinia';
 import { ValidationError } from '@/composables/fetch';
 
@@ -23,7 +23,7 @@ describe('auth', () => {
           name: 'Test User',
           email: 'test@example.com',
           role: 'user',
-        },
+        } as User,
         exp: Date.now() + 1000 * 60 * 60,
       });
 
@@ -44,7 +44,7 @@ describe('auth', () => {
 
     it('should throw a ValidationError if the provided credentials are invalid', async () => {
       vi.spyOn(api, 'login').mockRejectedValueOnce(
-        new ValidationError('Test Error'),
+        new ValidationError({} as Response, {}),
       );
 
       await expect(
@@ -65,7 +65,7 @@ describe('auth', () => {
           name: 'Test User',
           email: 'newuser@example.com',
           role: 'user',
-        },
+        } as User,
         exp: Date.now() + 1000 * 60 * 60,
       });
 
@@ -89,7 +89,7 @@ describe('auth', () => {
 
     it('should throw a ValidationError if the provided registration data is invalid', async () => {
       vi.spyOn(api, 'register').mockRejectedValueOnce(
-        new ValidationError('Test Error'),
+        new ValidationError({} as Response, {}),
       );
 
       await expect(
@@ -113,7 +113,7 @@ describe('auth', () => {
         name: 'Test User',
         email: 'test@example.com',
         role: 'user',
-      };
+      } as User;
       auth.state.loggedIn = true;
       auth.state.loaded = true;
 
@@ -133,7 +133,7 @@ describe('auth', () => {
         name: 'Test User',
         email: 'test@example.com',
         role: 'user',
-      };
+      } as User;
       auth.state.loggedIn = true;
       auth.state.loaded = true;
 

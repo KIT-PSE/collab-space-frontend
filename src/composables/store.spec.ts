@@ -1,8 +1,8 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { useStore } from '@/composables/store';
-import { vi } from 'vitest';
 import { Category, Room, useApi } from '@/composables/api';
 import { ValidationError } from '@/composables/fetch';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('store', () => {
   let store: ReturnType<typeof useStore>;
@@ -21,14 +21,14 @@ describe('store', () => {
       {
         id: 1,
         name: 'Test Category 1',
-        rooms: [],
+        rooms: [] as Room[],
       },
       {
         id: 2,
         name: 'Test Category 2',
-        rooms: [],
+        rooms: [] as Room[],
       },
-    ];
+    ] as Category[];
 
     TEST_ROOM = {
       id: 1,
@@ -36,7 +36,7 @@ describe('store', () => {
       password: 'password',
       whiteboardCanvas: '',
       channelId: '123456',
-    };
+    } as Room;
   });
 
   afterEach(() => {
@@ -92,8 +92,8 @@ describe('store', () => {
       const category: Category = {
         id: 1,
         name: 'Test Category',
-        rooms: [],
-      };
+        rooms: [] as Room[],
+      } as Category;
 
       vi.spyOn(api, 'createCategory').mockResolvedValue(category);
 
@@ -104,8 +104,7 @@ describe('store', () => {
     });
 
     it('should handle validation errors', async () => {
-      const error = new ValidationError('Test Error');
-
+      const error = new ValidationError({} as Response, {});
       vi.spyOn(api, 'createCategory').mockRejectedValue(error);
 
       await expect(
@@ -150,8 +149,8 @@ describe('store', () => {
         {
           id: 3,
           name: 'Test Category 3',
-          rooms: [],
-        },
+          rooms: [] as Room[],
+        } as Category,
         {
           name: 'Updated Test Category',
         },
@@ -161,7 +160,7 @@ describe('store', () => {
     });
 
     it('should handle validation errors', async () => {
-      const error = new ValidationError('Test Error');
+      const error = new ValidationError({} as Response, {});
 
       vi.spyOn(api, 'updateCategory').mockRejectedValue(error);
 
@@ -224,7 +223,7 @@ describe('store', () => {
       const createdRoom = await store.createRoom({
         name: 'Test Room',
         password: 'password',
-        categoryId: TEST_CATEGORIES[0].id,
+        categoryId: '' + TEST_CATEGORIES[0].id,
       });
 
       expect(store.categories[0].rooms).toHaveLength(1);
@@ -233,14 +232,15 @@ describe('store', () => {
     });
 
     it('should handle validation errors', async () => {
-      const error = new ValidationError('Test Error');
+      const error = new ValidationError({} as Response, {});
 
       vi.spyOn(api, 'createRoom').mockRejectedValue(error);
 
       await expect(
-        store.createRoom(TEST_CATEGORIES[0], {
+        store.createRoom({
           name: 'Test Room',
           password: 'password',
+          categoryId: '' + TEST_CATEGORIES[0].id,
         }),
       ).rejects.toThrow(error);
     });
@@ -248,9 +248,10 @@ describe('store', () => {
     it('should handle other errors', async () => {
       vi.spyOn(api, 'createRoom').mockRejectedValue(new Error('Test Error'));
 
-      const result = await store.createRoom(TEST_CATEGORIES[0], {
+      const result = await store.createRoom({
         name: 'Test Room',
         password: 'password',
+        categoryId: '' + TEST_CATEGORIES[0].id,
       });
 
       expect(result).toBeNull();
@@ -315,7 +316,7 @@ describe('store', () => {
           whiteboardCanvas: '',
           channelId: '123456',
           category: 1,
-        },
+        } as Room,
         {
           name: 'Updated Test Room',
         },
@@ -325,7 +326,7 @@ describe('store', () => {
     });
 
     it('should handle validation errors', async () => {
-      const error = new ValidationError('Test Error');
+      const error = new ValidationError({} as Response, {});
 
       vi.spyOn(api, 'updateRoom').mockRejectedValue(error);
 
