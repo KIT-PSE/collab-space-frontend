@@ -6,33 +6,45 @@
       <div class="col-md-6">
         <Input
           label="Schule / Universität oder Organisation"
-          v-model="user.organization"
-          :disabled="disabledInputs[0].value"
+          v-model="form.organization"
+          :error="form.errors.organization"
+          :disabled="!changeOrg"
         >
-          <button class="btn btn-secondary ms-2" @click="edit(0)">
-            {{ disabledInputs[0].value ? 'Ändern' : 'Speichern' }}
+          <button
+            class="btn btn-secondary ms-2"
+            @click="changeOrg ? edit() : (changeOrg = true)"
+          >
+            {{ changeOrg ? 'Speichern' : 'Ändern' }}
           </button>
         </Input>
 
         <Input
           label="Name"
-          v-model="user.name"
-          :disabled="disabledInputs[1].value"
+          v-model="form.name"
+          :error="form.errors.name"
+          :disabled="!changeName"
           autocomplete="name"
         >
-          <button class="btn btn-secondary ms-2" @click="edit(1)">
-            {{ disabledInputs[1].value ? 'Ändern' : 'Speichern' }}
+          <button
+            class="btn btn-secondary ms-2"
+            @click="changeName ? edit() : (changeName = true)"
+          >
+            {{ changeName ? 'Speichern' : 'Ändern' }}
           </button>
         </Input>
 
         <EmailInput
           label="E-Mail Adresse"
-          v-model="user.email"
-          :disabled="disabledInputs[2].value"
+          v-model="form.email"
+          :error="form.errors.email"
+          :disabled="!changeEmail"
           autocomplete="email"
         >
-          <button class="btn btn-secondary ms-2" @click="edit(2)">
-            {{ disabledInputs[2].value ? 'Ändern' : 'Speichern' }}
+          <button
+            class="btn btn-secondary ms-2"
+            @click="changeEmail ? edit() : (changeEmail = true)"
+          >
+            {{ changeEmail ? 'Speichern' : 'Ändern' }}
           </button>
         </EmailInput>
 
@@ -62,15 +74,26 @@
   import PasswordInput from '@/components/inputs/PasswordInput.vue';
   import { useAuth, useUser } from '@/composables/auth';
   import { ask } from '@/composables/prompt';
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { useAlerts } from '@/composables/alerts';
   import ChangePasswordModal from '@/components/ChangePasswordModal.vue';
   import { openModal } from '@/utils';
+  import { useForm } from '@/composables/form';
+  import { UpdateUser } from '@/composables/api';
 
   const user = useUser();
   const auth = useAuth();
   const alerts = useAlerts();
-  const disabledInputs = [ref(true), ref(true), ref(true)];
+
+  const form = useForm<UpdateUser>({
+    organization: user.value.organization,
+    name: user.value.name,
+    email: user.value.email,
+  });
+
+  const changeOrg = ref(false);
+  const changeName = ref(false);
+  const changeEmail = ref(false);
 
   /**
    * Deletes the user account
@@ -89,23 +112,37 @@
     await auth.delete();
   }
 
-  /**
-   * Edits the user data (organization, name or email)
-   * @param index The index of the changed data (0 = organization, 1 = name, 2 = email)
-   */
-  async function edit(index: number) {
-    disabledInputs[index].value = !disabledInputs[index].value;
-    if (disabledInputs[index].value) {
-      const result = await auth.changeAccountData();
-      if (result) {
-        alerts.success('Eintrag wurde erfolgreich geändert');
-      } else {
-        alerts.error(
-          'Eintrag konnte nicht geändert werden',
-          new Error('Eintrag konnte nicht geändert werden'),
-        );
-      }
+  async function edit() {
+    const shouldEdit = await ask(
+      'Account Daten aktualisieren',
+      `Bist du sicher, dass du deine Account Daten aktualisieren möchtest?`,
+      'Aktualisieren',
+    );
+
+    if (!shouldEdit) {
+      resetForm();
+      return;
     }
+
+    const result = await form.submit((data) => auth.updateUser(data));
+
+    if (!result) {
+      return;
+    }
+
+    resetForm();
+
+    alerts.success('Eintrag wurde erfolgreich geändert');
+  }
+
+  function resetForm() {
+    form.organization = user.value.organization;
+    form.name = user.value.name;
+    form.email = user.value.email;
+
+    changeOrg.value = false;
+    changeName.value = false;
+    changeEmail.value = false;
   }
 
   /**
