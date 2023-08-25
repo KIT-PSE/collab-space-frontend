@@ -4,7 +4,13 @@ import { computed, ComputedRef, reactive, watch } from 'vue';
 import router from '@/router';
 import { Timer, useTimer } from '@/composables/timer';
 import { HttpError, ValidationError } from '@/composables/fetch';
-import { LoginData, RegisterData, useApi, User } from '@/composables/api';
+import {
+  LoginData,
+  RegisterData,
+  UpdateUser,
+  useApi,
+  User,
+} from '@/composables/api';
 
 const alerts = useAlerts();
 const api = useApi();
@@ -191,11 +197,23 @@ export const useAuth = defineStore('auth', () => {
    *
    * @returns A Promise that resolves to a boolean indicating the success of the account data change.
    */
-  async function changeAccountData(): Promise<boolean> {
+  async function updateUser(data: UpdateUser): Promise<boolean> {
     if (state.user === null) {
       return false;
     }
-    return api.changeAccountData(state.user);
+
+    try {
+      state.user = await api.updateUser(state.user.id, data);
+      return true;
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        throw err;
+      }
+
+      alerts.error('Update fehlgeschlagen', err as Error);
+    }
+
+    return false;
   }
 
   return {
@@ -208,7 +226,7 @@ export const useAuth = defineStore('auth', () => {
     logout,
     loadUser,
     onLogout,
-    changeAccountData,
+    updateUser,
   };
 });
 
@@ -224,6 +242,6 @@ export function useUser(): ComputedRef<User> {
       throw new Error('User not loaded');
     }
 
-    return store.state.user;
+    return store.state.user as User;
   });
 }
