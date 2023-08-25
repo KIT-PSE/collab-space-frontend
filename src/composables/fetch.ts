@@ -209,6 +209,8 @@ class Fetch {
     if (!response.ok) {
       await throwHttpError(response);
     }
+
+    return await response.json();
   }
 }
 

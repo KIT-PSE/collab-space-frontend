@@ -21,7 +21,7 @@
     </div>
 
     <div
-      v-for="category in store.categories"
+      v-for="category in store.categories as Category[]"
       :key="category.id"
       class="col-lg-9 mb-4"
     >
@@ -111,8 +111,8 @@
     </div>
   </div>
 
-  <EditCategoryModal :category="categoryToEdit" />
-  <EditRoomModal :room="roomToEdit" />
+  <EditCategoryModal :category="categoryToEdit as Category" />
+  <EditRoomModal :room="roomToEdit as Room" />
   <CreateCategoryModal />
 </template>
 

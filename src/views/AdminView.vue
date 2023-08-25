@@ -29,7 +29,7 @@
               <td>{{ user.createdAt.format('DD.MM.YYYY HH:mm') }}</td>
               <td class="d-flex justify-content-end">
                 <button
-                  @click="changeUserRole(user)"
+                  @click="changeUserRole(user as User)"
                   class="btn btn-sm btn-secondary me-2"
                   :disabled="user.id === auth.state.user?.id"
                 >
@@ -42,7 +42,7 @@
                   ></i>
                 </button>
                 <button
-                  @click="deleteAccount(user)"
+                  @click="deleteAccount(user as User)"
                   class="btn btn-sm btn-secondary"
                   :disabled="user.id === auth.state.user?.id"
                 >

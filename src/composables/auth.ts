@@ -242,6 +242,6 @@ export function useUser(): ComputedRef<User> {
       throw new Error('User not loaded');
     }
 
-    return store.state.user;
+    return store.state.user as User;
   });
 }
