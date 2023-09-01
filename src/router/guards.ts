@@ -69,6 +69,17 @@ export async function roomGuard(to: RouteLocationNormalized) {
     if (err === 'Wrong password') {
       return { name: 'home', query: { code: to.params.id } };
     }
+
+    if (err === 'Not authorized') {
+      alerts.danger(
+        'Raum beitreten fehlgeschlagen',
+        `Du darfst diesen Raum nicht als Lehrer betreten, da du nicht der Besitzer bist.<br>
+        Logge dich aus um den Raum als Schüler zu betreten.`,
+      );
+
+      return { name: 'home' };
+    }
+
     alerts.error('Raum beitreten fehlgeschlagen', err as Error);
     return { name: 'home' };
   }

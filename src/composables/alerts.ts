@@ -48,7 +48,7 @@ export class UniqueAlert implements Alerts {
     this.title = alert.title;
     this.message = alert.message;
 
-    this.removeAfter(5000);
+    this.removeAfter(6000);
   }
 
   /**
