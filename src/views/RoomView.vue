@@ -381,8 +381,8 @@
       channel.isStudent(channel.currentUser())
     ) {
       alerts.danger(
-          'Du kannst dein Mikrofon nicht aktivieren',
-          'Der Lehrer hat alle Mikrofone deaktiviert.',
+        'Du kannst dein Mikrofon nicht aktivieren',
+        'Der Lehrer hat alle Mikrofone deaktiviert.',
       );
 
       return;
