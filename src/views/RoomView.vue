@@ -82,7 +82,39 @@
               <i class="fa fa-link me-1"></i>
               Teilen
             </button>
+            <button
+              v-if="
+                channel.state.teacher && channel.isSelf(channel.state.teacher)
+              "
+              class="btn btn-outline-primary btn-sm"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fa fa-gear"></i>
+            </button>
+
+            <ul class="dropdown-menu">
+              <li>
+                <button
+                  class="dropdown-item"
+                  @click="channel.toggleGlobalMute()"
+                  v-text="
+                    !channel.state.settings.globalMute
+                      ? 'Schüler stummschalten'
+                      : 'Stummschaltung aufheben'
+                  "
+                ></button>
+              </li>
+            </ul>
           </div>
+
+          <small
+            v-if="channel.state.settings.globalMute"
+            class="text-warning mt-2"
+          >
+            <i class="fa fa-circle-exclamation me-1"></i>
+            Alle Schüler sind stummgeschaltet
+          </small>
         </div>
 
         <div
@@ -222,7 +254,13 @@
 
             <button
               type="button"
-              class="btn text-primary w-100"
+              class="btn w-100"
+              :class="
+                channel.state.settings.globalMute &&
+                channel.isStudent(channel.currentUser())
+                  ? 'text-danger'
+                  : 'text-primary'
+              "
               @click="toggleAudio()"
             >
               <i
@@ -264,7 +302,9 @@
   import BrowserComponent from '@/components/Browser.vue';
   import { ask } from '@/composables/prompt';
   import { useRouter } from 'vue-router';
+  import { useAlerts } from '@/composables/alerts';
 
+  const alerts = useAlerts();
   const auth = useAuth();
   const channel = useChannel();
   const router = useRouter();
@@ -335,8 +375,19 @@
   /**
    * Function that toggles the audio transmission status through the channel using 'channel.toggleAudio()'.
    */
-
   function toggleAudio() {
+    if (
+      channel.state.settings.globalMute &&
+      channel.isStudent(channel.currentUser())
+    ) {
+      alerts.danger(
+        'Du kannst dein Mikrofon nicht aktivieren',
+        'Der Lehrer hat alle Mikrofone deaktiviert.',
+      );
+
+      return;
+    }
+
     channel.webcam.toggleAudio();
   }
 
@@ -490,14 +541,17 @@
   #webcam-wrapper {
     scrollbar-color: #999 #333;
   }
+
   #webcam-wrapper::-webkit-scrollbar {
     width: 10px;
   }
+
   #webcam-wrapper::-webkit-scrollbar-thumb {
     background: #999;
     border-radius: 12px;
     margin: 1rem;
   }
+
   #webcam-wrapper::-webkit-scrollbar-track {
     background: #333;
     border-radius: 12px;

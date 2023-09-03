@@ -59,11 +59,12 @@ export interface Teacher extends ChannelUser {
  * @property students - The list of students that are connected to the room
  */
 export interface JoinRoomResult {
-  room: Room;
+  room: Room & { channelId: string };
   browserPeerId: string;
   browserUrl: string;
   teacher: Teacher;
   students: Student[];
+  settings: Settings;
 }
 
 /**
@@ -88,6 +89,15 @@ export interface ChannelState {
   hasName: boolean;
   notes: Notes | null;
   whiteboard: Whiteboard | null;
+  settings: Settings;
+}
+
+/**
+ * The settings object that is used to represent the settings of the channel.
+ * @property globalMute - Whether all students are muted or not
+ */
+export interface Settings {
+  globalMute: boolean;
 }
 
 /**
@@ -112,6 +122,9 @@ export const useChannel = defineStore('channel', () => {
     hasName: false,
     notes: null,
     whiteboard: null,
+    settings: {
+      globalMute: false,
+    },
   } as ChannelState);
 
   /**
@@ -188,6 +201,13 @@ export const useChannel = defineStore('channel', () => {
     socket?.emit('update-permission', {
       studentId,
       permission: student.permission,
+    });
+  }
+
+  function toggleGlobalMute(): void {
+    socket?.emit('update-settings', {
+      ...state.settings,
+      globalMute: !state.settings.globalMute,
     });
   }
 
@@ -281,7 +301,7 @@ export const useChannel = defineStore('channel', () => {
       roomId: room.id,
     };
 
-    socket?.emit('open-room', payload, async (result: any) => {
+    socket?.emit('open-room', payload, async (result: JoinRoomResult) => {
       state.connected = true;
       state.channelId = result.room.channelId;
       state.clientId = socket?.id || '';
@@ -295,6 +315,7 @@ export const useChannel = defineStore('channel', () => {
       };
       state.hasName = true;
       state.whiteboard = new Whiteboard(socket!, result.room.whiteboardCanvas);
+      state.settings = result.settings;
 
       browser.peerId.value = '';
       browser.setUrl('www.google.com');
@@ -332,11 +353,15 @@ export const useChannel = defineStore('channel', () => {
    */
   async function joinAsStudent(id: string, password?: string): Promise<void> {
     await connect();
-    return join(id, 'join-room-as-student', {
+    await join(id, 'join-room-as-student', {
       channelId: id,
       name: 'Verbinden...',
       password,
     });
+
+    if (state.settings.globalMute && currentUser().audio) {
+      webcam.toggleAudio();
+    }
   }
 
   /**
@@ -364,6 +389,7 @@ export const useChannel = defineStore('channel', () => {
         state.room = data.room;
         state.hasName = false;
         state.whiteboard = new Whiteboard(socket!, data.room.whiteboardCanvas);
+        state.settings = data.settings;
 
         browser.peerId.value = data.browserPeerId;
         browser.setUrl(data.browserUrl);
@@ -442,6 +468,9 @@ export const useChannel = defineStore('channel', () => {
       state.students = [];
       state.teacher = null;
       state.hasName = false;
+      state.settings = {
+        globalMute: false,
+      };
 
       if (router.currentRoute.value.name === 'room') {
         if (auth.isLoggedIn) {
@@ -541,6 +570,51 @@ export const useChannel = defineStore('channel', () => {
         }
       },
     );
+
+    socket.on('disable-audio-for', (id: string) => {
+      const student = studentById(id);
+
+      if (student) {
+        student.audio = false;
+      }
+    });
+
+    socket.on('update-settings', (settings: Settings) => {
+      const oldSettings = { ...state.settings };
+      state.settings = settings;
+
+      if (!oldSettings.globalMute && settings.globalMute) {
+        state.students
+          .filter((s) => s.audio)
+          .forEach((s) => webcam.disableAudioFor(s));
+
+        if (isStudent(currentUser())) {
+          alerts.primary(
+            'Stummschaltung',
+            'Der Lehrer hat alle Mikrofone stummgeschaltet.',
+          );
+        } else {
+          alerts.primary(
+            'Stummschaltung',
+            'Sie haben alle Mikrofone stummgeschaltet.',
+          );
+        }
+      }
+
+      if (oldSettings.globalMute && !settings.globalMute) {
+        if (isStudent(currentUser())) {
+          alerts.primary(
+            'Stummschaltung',
+            'Der Lehrer hat erlaubt alle Mikrofone wieder zu aktivieren.',
+          );
+        } else {
+          alerts.primary(
+            'Stummschaltung',
+            'Sie haben erlaubt alle Mikrofone wieder zu aktivieren.',
+          );
+        }
+      }
+    });
   }
 
   return {
@@ -564,5 +638,6 @@ export const useChannel = defineStore('channel', () => {
     loadNotes,
     toggleHandSignal,
     updatePermission,
+    toggleGlobalMute,
   };
 });
