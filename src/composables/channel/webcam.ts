@@ -1,7 +1,7 @@
 import Peer from 'peerjs';
 import { reactive } from 'vue';
 import { Socket } from 'socket.io-client';
-import { ChannelUser } from '@/composables/channel/channel';
+import { ChannelUser, Student } from '@/composables/channel/channel';
 
 export const useWebcam = () => {
   let webcamsLoaded = false;
@@ -121,6 +121,19 @@ export const useWebcam = () => {
     });
   }
 
+  function disableAudioFor(student: Student): void {
+    const stream = streams[student.id];
+
+    if (!student.audio) {
+      return;
+    }
+
+    student.audio = false;
+
+    stream?.getAudioTracks().forEach((track) => (track.enabled = false));
+    socket?.emit('disable-audio-for', { userId: student.id });
+  }
+
   /**
    * Stops the webcam streaming of the current user and removes all other users' streams.
    */
@@ -145,6 +158,7 @@ export const useWebcam = () => {
     getStream,
     toggleVideo,
     toggleAudio,
+    disableAudioFor,
     stop,
   };
 };

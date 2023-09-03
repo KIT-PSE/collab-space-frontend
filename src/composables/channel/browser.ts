@@ -16,11 +16,9 @@ export const useBrowser = () => {
   const browserPeer: Peer = new Peer();
 
   browserPeer.on('call', (call) => {
-    console.log('calling');
     call.answer();
 
     call.on('stream', (stream) => {
-      console.log('streaming');
       browserStream.value = stream;
     });
   });
@@ -33,8 +31,6 @@ export const useBrowser = () => {
     socket = newSocket;
 
     socket.on('open-website', (newPeerId: string) => {
-      console.log('connecting to peer', newPeerId);
-
       peerId.value = newPeerId;
       loadBrowserStream();
     });

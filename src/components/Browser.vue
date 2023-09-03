@@ -291,7 +291,6 @@
   watch(
     () => channel.browser.browserStream,
     (stream) => {
-      console.log(stream);
       if (stream) {
         isStreaming.value = true;
         browserVideo.value!.srcObject = stream;
